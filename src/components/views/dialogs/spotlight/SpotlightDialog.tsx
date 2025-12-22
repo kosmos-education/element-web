@@ -64,7 +64,7 @@ import { RecentAlgorithm } from "../../../../stores/room-list/algorithms/tag-sor
 import { SdkContextClass } from "../../../../contexts/SDKContext";
 import { getMetaSpaceName } from "../../../../stores/spaces";
 import SpaceStore from "../../../../stores/spaces/SpaceStore";
-import { DirectoryMember, type Member, startDmOnFirstMessage } from "../../../../utils/direct-messages";
+import { DirectoryMember, type Member } from "../../../../utils/direct-messages";
 import DMRoomMap from "../../../../utils/DMRoomMap";
 import { makeUserPermalink } from "../../../../utils/permalinks/Permalinks";
 import { buildActivityScores, buildMemberScores, compareMembers } from "../../../../utils/SortMembers";
@@ -665,13 +665,13 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                         id={`mx_SpotlightDialog_button_result_${result.member.userId}`}
                         key={`${Section[result.section]}-${result.member.userId}`}
                         onClick={() => {
-                            startDmOnFirstMessage(cli, [result.member]);
                             onFinished();
                         }}
                         aria-label={
                             result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name
                         }
                         aria-describedby={`mx_SpotlightDialog_button_result_${result.member.userId}_details`}
+                        disabled
                     >
                         <SearchResultAvatar user={result.member} size={AVATAR_SIZE} />
                         {result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name}
