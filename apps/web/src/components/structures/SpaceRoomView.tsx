@@ -106,7 +106,7 @@ enum Phase {
 const SpaceLandingAddButton: React.FC<{ space: Room }> = ({ space }) => {
     const [menuDisplayed, handle, openMenu, closeMenu] = useContextMenu();
     const canCreateRoom = shouldShowComponent(UIComponent.CreateRooms);
-    const canCreateSpace = shouldShowComponent(UIComponent.CreateSpaces);
+    const canCreateSpace = false;
     const videoRoomsEnabled = useFeatureEnabled("feature_video_rooms");
     const elementCallVideoRoomsEnabled = useFeatureEnabled("feature_element_call_video_rooms");
 

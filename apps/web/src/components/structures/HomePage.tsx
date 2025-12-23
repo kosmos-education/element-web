@@ -7,7 +7,7 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React, { type JSX, useContext, useState } from "react";
-import { ChatSolidIcon, ExploreIcon, GroupIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { ExploreIcon, GroupIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 import { AutoHideScrollbar } from "@element-hq/web-shared-components";
 
 import { getHomePageUrl } from "../../utils/pages";
@@ -24,11 +24,6 @@ import MatrixClientContext, { useMatrixClientContext } from "../../contexts/Matr
 import MiniAvatarUploader, { AVATAR_SIZE } from "../views/elements/MiniAvatarUploader";
 import PosthogTrackers from "../../PosthogTrackers";
 import EmbeddedPage from "./EmbeddedPage";
-
-const onClickSendDm = (ev: ButtonEvent): void => {
-    PosthogTrackers.trackInteraction("WebHomeCreateChatButton", ev);
-    dis.dispatch({ action: Action.CreateChat });
-};
 
 const onClickExplore = (ev: ButtonEvent): void => {
     PosthogTrackers.trackInteraction("WebHomeExploreRoomsButton", ev);
@@ -116,10 +111,6 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
             <div className="mx_HomePage_default_wrapper">
                 {introSection}
                 <div className="mx_HomePage_default_buttons">
-                    <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
-                        <ChatSolidIcon />
-                        {_tDom("onboarding|send_dm")}
-                    </AccessibleButton>
                     <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
                         <ExploreIcon />
                         {_tDom("onboarding|explore_rooms")}

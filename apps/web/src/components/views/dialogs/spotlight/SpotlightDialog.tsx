@@ -36,7 +36,6 @@ import {
     SpaceIcon,
     UserProfileIcon,
     HomeIcon,
-    GroupIcon,
     CloseIcon,
     LinkIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
@@ -63,7 +62,6 @@ import { _t } from "../../../../languageHandler";
 import { MatrixClientPeg } from "../../../../MatrixClientPeg";
 import { PosthogAnalytics } from "../../../../PosthogAnalytics";
 import { getCachedRoomIdForAlias } from "../../../../RoomAliasCache";
-import { showStartChatInviteDialog } from "../../../../RoomInvite";
 import { SettingLevel } from "../../../../settings/SettingLevel";
 import SettingsStore from "../../../../settings/SettingsStore";
 import { BreadcrumbsStore } from "../../../../stores/BreadcrumbsStore";
@@ -72,7 +70,7 @@ import { RoomNotificationStateStore } from "../../../../stores/notifications/Roo
 import { compareRoomsByRecency } from "../../../../utils/room/sortRoomsByRecency";
 import { SDKContextClass } from "../../../../contexts/SDKContextClass";
 import { getMetaSpaceName, MetaSpace } from "../../../../stores/spaces";
-import { DirectoryMember, type Member, startDmOnFirstMessage } from "../../../../utils/direct-messages";
+import { DirectoryMember, type Member } from "../../../../utils/direct-messages";
 import DMRoomMap from "../../../../utils/DMRoomMap";
 import { makeUserPermalink } from "../../../../utils/permalinks/Permalinks";
 import { buildActivityScores, buildMemberScores, compareMembers } from "../../../../utils/SortMembers";
@@ -685,13 +683,13 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                         id={`mx_SpotlightDialog_button_result_${result.member.userId}`}
                         key={`${Section[result.section]}-${result.member.userId}`}
                         onClick={() => {
-                            startDmOnFirstMessage(cli, [result.member]);
                             onFinished();
                         }}
                         aria-label={
                             result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name
                         }
                         aria-describedby={`mx_SpotlightDialog_button_result_${result.member.userId}_details`}
+                        disabled
                     >
                         <SearchResultAvatar user={result.member} size={AVATAR_SIZE} />
                         <span
@@ -1021,25 +1019,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
             );
         }
 
-        let groupChatSection: JSX.Element | undefined;
-        if (filter === Filter.People) {
-            groupChatSection = (
-                <div
-                    className="mx_SpotlightDialog_section mx_SpotlightDialog_otherSearches"
-                    role="group"
-                    aria-labelledby="mx_SpotlightDialog_section_groupChat"
-                >
-                    <h4 id="mx_SpotlightDialog_section_groupChat">{_t("spotlight_dialog|group_chat_section_title")}</h4>
-                    <Option
-                        id="mx_SpotlightDialog_button_startGroupChat"
-                        onClick={() => showStartChatInviteDialog(trimmedQuery)}
-                    >
-                        <GroupIcon />
-                        {_t("spotlight_dialog|start_group_chat_button")}
-                    </Option>
-                </div>
-            );
-        }
 
         content = (
             <>
@@ -1052,7 +1031,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                 {joinRoomSection}
                 {hiddenResultsSection}
                 {otherSearchesSection}
-                {groupChatSection}
             </>
         );
     } else {

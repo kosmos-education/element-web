@@ -15,7 +15,6 @@ import MemberAvatar from "../../avatars/MemberAvatar";
 import { Container, type Member, type IDevice } from "../UserInfo";
 import PresenceLabel from "../../rooms/PresenceLabel";
 import CopyableText from "../../elements/CopyableText";
-import { UserInfoHeaderVerificationView } from "./UserInfoHeaderVerificationView";
 import { useUserStatus } from "../../../../hooks/useUserStatus";
 
 export interface UserInfoHeaderViewProps {
@@ -27,9 +26,7 @@ export interface UserInfoHeaderViewProps {
 
 export const UserInfoHeaderView: React.FC<UserInfoHeaderViewProps> = ({
     member,
-    devices,
     roomId,
-    hideVerificationSection,
 }) => {
     const vm = useUserfoHeaderViewModel({ member, roomId });
     const avatarUrl = (member as User).avatarUrl;
@@ -92,7 +89,6 @@ export const UserInfoHeaderView: React.FC<UserInfoHeaderViewProps> = ({
                         </CopyableText>
                     </Text>
                 </Flex>
-                {!hideVerificationSection && <UserInfoHeaderVerificationView member={member} devices={devices} />}
             </Container>
         </React.Fragment>
     );

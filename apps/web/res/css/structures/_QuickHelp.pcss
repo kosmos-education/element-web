@@ -1,0 +1,79 @@
+/*
+ * Copyright 2024 New Vector Ltd.
+ * Copyright 2024 The Matrix.org Foundation C.I.C.
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+// Mostly copied from _ThreadsActivityCentre.pcss
+
+.mx_QuickHelp_container {
+    display: flex;
+}
+
+.mx_QuickHelpButton {
+    border-radius: 8px;
+    margin: 18px auto auto auto;
+
+    &.expanded {
+        /**
+         * override compound default background color when hovered
+         * should disappear when the space panel will be migrated to compound
+         */
+        background-color: transparent !important;
+
+        /* align with settings icon */
+        margin-left: 21px;
+        margin-right: 8px;
+        width: 100%;
+
+        /**
+         * modify internal css of the compound component
+         * dirty but we need to add the `Help` label into the indicator icon button
+         **/
+        & > div {
+            display: flex;
+            align-items: center;
+
+            &::before {
+                inline-size: 8px;
+                block-size: 8px;
+                left: 17px;
+            }
+        }
+
+        & .mx_QuickHelpButton_Icon {
+            /* align with settings label */
+            margin-right: 14px;
+            /* required to set the icon width when into a flex container */
+            width: 24px;
+            flex-shrink: 0;
+        }
+
+        & .mx_QuickHelpButton_Text {
+            color: $secondary-content;
+        }
+    }
+
+    &:not(.expanded) {
+        &:hover,
+        &:hover .mx_QuickHelpButton_Icon {
+            background-color: $quaternary-content;
+            fill: $primary-content;
+        }
+    }
+
+    & .mx_QuickHelpButton_Icon {
+        fill: $secondary-content;
+    }
+
+}
+
+.mx_QuickHelp_dialog {
+    padding-left: 16px;
+    padding-right: 16px;
+    font-size: 13px;
+}
+
+

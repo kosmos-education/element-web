@@ -7,36 +7,28 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React, { type JSX, useContext, useMemo } from "react";
-import { EventType, type Room, type User, type MatrixClient } from "matrix-js-sdk/src/matrix";
+import { EventType, type Room, type User } from "matrix-js-sdk/src/matrix";
 import { KnownMembership } from "matrix-js-sdk/src/types";
-import { ErrorSolidIcon, UserAddIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
-import { EventTileBubble, LinkedText } from "@element-hq/web-shared-components";
+import { UserAddIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { LinkedText } from "@element-hq/web-shared-components";
 
 import DMRoomMap from "../../../utils/DMRoomMap";
-import { _t, _td } from "../../../languageHandler";
-import AccessibleButton, { type ButtonEvent } from "../elements/AccessibleButton";
+import { _t, _td, type TranslationKey } from "../../../languageHandler";
+import AccessibleButton from "../elements/AccessibleButton";
 import MiniAvatarUploader, { AVATAR_SIZE } from "../elements/MiniAvatarUploader";
 import RoomAvatar from "../avatars/RoomAvatar";
 import defaultDispatcher from "../../../dispatcher/dispatcher";
 import { type ViewUserPayload } from "../../../dispatcher/payloads/ViewUserPayload";
 import { Action } from "../../../dispatcher/actions";
 import { showSpaceInvite } from "../../../utils/space";
-import { RoomSettingsTab } from "../dialogs/RoomSettingsDialog-tab";
 import { shouldShowComponent } from "../../../customisations/helpers/UIComponents";
 import { UIComponent } from "../../../settings/UIFeature";
-import { privateShouldBeEncrypted } from "../../../utils/rooms";
 import { LocalRoom } from "../../../models/LocalRoom";
 import { shouldEncryptRoomWithSingle3rdPartyInvite } from "../../../utils/room/shouldEncryptRoomWithSingle3rdPartyInvite";
 import { useScopedRoomContext } from "../../../contexts/ScopedRoomContext.tsx";
 import { useTopic } from "../../../hooks/room/useTopic";
 import { topicToHtml } from "../../../HtmlUtils";
 import { SDKContext } from "../../../contexts/SDKContext.ts";
-
-function hasExpectedEncryptionSettings(matrixClient: MatrixClient, room: Room): boolean {
-    const isEncrypted: boolean = matrixClient.isRoomEncrypted(room.roomId);
-    const isPublic: boolean = room.getJoinRule() === "public";
-    return isPublic || !privateShouldBeEncrypted(matrixClient) || isEncrypted;
-}
 
 const determineIntroMessage = (room: Room, encryptedSingle3rdPartyInvite: boolean): TranslationKey => {
     if (room instanceof LocalRoom) {
@@ -266,43 +258,9 @@ const NewRoomIntro: React.FC = () => {
         );
     }
 
-    function openRoomSettings(event: ButtonEvent): void {
-        event.preventDefault();
-        defaultDispatcher.dispatch({
-            action: "open_room_settings",
-            initial_tab_id: RoomSettingsTab.Security,
-        });
-    }
-
-    const subText = _t("room|intro|private_unencrypted_warning");
-
-    let subButton: JSX.Element | undefined;
-    if (room.currentState.mayClientSendStateEvent(EventType.RoomEncryption, cli) && !isLocalRoom) {
-        subButton = (
-            <AccessibleButton kind="link_inline" onClick={openRoomSettings}>
-                {_t("room|intro|enable_encryption_prompt")}
-            </AccessibleButton>
-        );
-    }
-
-    const subtitle = (
-        <span>
-            {" "}
-            {subText} {subButton}{" "}
-        </span>
-    );
 
     return (
         <li className="mx_NewRoomIntro">
-            {!hasExpectedEncryptionSettings(cli, room) && (
-                <EventTileBubble
-                    icon={<ErrorSolidIcon color="var(--cpd-color-icon-critical-primary)" />}
-                    className="mx_EventTileBubble mx_cryptoEvent"
-                    title={_t("room|intro|unencrypted_warning")}
-                    subtitle={subtitle}
-                />
-            )}
-
             {body}
         </li>
     );

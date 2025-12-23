@@ -446,7 +446,7 @@ export default abstract class BasePlatform {
             client_name: config.brand,
             client_uri: config.oidc_metadata?.client_uri ?? this.defaultOAuthClientUri,
             redirect_uris: [this.getOAuthCallbackUrl().href],
-            logo_uri: config.oidc_metadata?.logo_uri ?? new URL("vector-icons/1024.png", this.baseUrl).href,
+            logo_uri: config.oidc_metadata?.logo_uri ?? new URL("kosmos-icons/1024.png", this.baseUrl).href,
             application_type: "web",
             tos_uri: config.oidc_metadata?.tos_uri ?? config.terms_and_conditions_links?.[0]?.url,
             policy_uri: config.oidc_metadata?.policy_uri ?? config.privacy_policy_url,

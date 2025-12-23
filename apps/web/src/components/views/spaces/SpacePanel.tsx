@@ -79,6 +79,7 @@ import { UserMenuViewModel } from "../../../viewmodels/menus/UserMenuViewModel.t
 import { SDKContext } from "../../../contexts/SDKContext.ts";
 import { OwnProfileStore } from "../../../stores/OwnProfileStore.ts";
 import { type SDKContextClass } from "../../../contexts/SDKContextClass.ts";
+import { QuickHelp } from "./quick-help/";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const sdkContext = useContext(SDKContext);
@@ -350,9 +351,6 @@ const InnerSpacePanel = React.memo<IInnerSpacePanelProps>(
                         />
                     </li>
                 ))}
-                {shouldShowComponent(UIComponent.CreateSpaces) && (
-                    <CreateSpaceButton isPanelCollapsed={isPanelCollapsed} setPanelCollapsed={setPanelCollapsed} />
-                )}
             </IndicatorScrollbar>
         );
     },
@@ -461,6 +459,8 @@ const SpacePanel: React.FC = () => {
                                 </InnerSpacePanel>
                             )}
                         </Droppable>
+
+                            <QuickHelp displayButtonLabel={!isPanelCollapsed} />
 
                         <ThreadsActivityCentre displayButtonLabel={!isPanelCollapsed} />
 

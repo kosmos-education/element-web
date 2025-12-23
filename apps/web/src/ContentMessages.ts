@@ -10,6 +10,7 @@ Please see LICENSE files in the repository root for full details.
 
 import {
     type MatrixClient,
+    MatrixError,
     MsgType,
     HTTPError,
     type IEventRelation,
@@ -670,6 +671,8 @@ export default class ContentMessages {
                     desc = _t("upload_failed_size", {
                         fileName: upload.fileName,
                     });
+                } else if (unwrappedError instanceof MatrixError && "M_RESOURCE_LIMIT_EXCEEDED" === unwrappedError.errcode ) {
+                    desc = _t("upload_failed_quota");
                 }
                 Modal.createDialog(ErrorDialog, {
                     title: _t("upload_failed_title"),
