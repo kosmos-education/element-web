@@ -8,6 +8,7 @@
 import React, { type JSX, type PropsWithChildren } from "react";
 import { Button } from "@vector-im/compound-web";
 import RoomIcon from "@vector-im/compound-design-tokens/assets/web/icons/room";
+import ChatIcon from "@vector-im/compound-design-tokens/assets/web/icons/chat";
 import { Flex } from "@element-hq/web-shared-components";
 
 import type { RoomListViewState } from "../../../viewmodels/roomlist/RoomListViewModel";
@@ -141,13 +142,7 @@ function DefaultPlaceholder({ vm }: DefaultPlaceholderProps): JSX.Element {
                 justify="center"
                 direction="column"
                 gap="var(--cpd-space-4x)"
-            >
-                {vm.canCreateRoom && (
-                    <Button size="sm" kind="secondary" Icon={RoomIcon} onClick={vm.createRoom}>
-                        {_t("action|new_room")}
-                    </Button>
-                )}
-            </Flex>
+            />
         </GenericPlaceholder>
     );
 }
