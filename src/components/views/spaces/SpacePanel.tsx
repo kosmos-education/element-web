@@ -79,6 +79,7 @@ import { Landmark, LandmarkNavigation } from "../../../accessibility/LandmarkNav
 import { KeyboardShortcut } from "../settings/KeyboardShortcut";
 import { ModuleApi } from "../../../modules/Api.ts";
 import { useModuleSpacePanelItems } from "../../../modules/ExtrasApi.ts";
+import { QuickHelp } from "./quick-help/";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const invites = useEventEmitterState<Room[]>(SpaceStore.instance, UPDATE_INVITED_SPACES, () => {
@@ -375,9 +376,6 @@ const InnerSpacePanel = React.memo<IInnerSpacePanelProps>(
                         />
                     </li>
                 ))}
-                {shouldShowComponent(UIComponent.CreateSpaces) && (
-                    <CreateSpaceButton isPanelCollapsed={isPanelCollapsed} setPanelCollapsed={setPanelCollapsed} />
-                )}
             </IndicatorScrollbar>
         );
     },
@@ -468,6 +466,8 @@ const SpacePanel: React.FC = () => {
                                 </InnerSpacePanel>
                             )}
                         </Droppable>
+
+                            <QuickHelp displayButtonLabel={!isPanelCollapsed} />
 
                         <ThreadsActivityCentre displayButtonLabel={!isPanelCollapsed} />
 

@@ -6,15 +6,11 @@
  */
 import React, { type JSX, useState } from "react";
 import { IconButton, Menu, MenuItem } from "@vector-im/compound-web";
-import ComposeIcon from "@vector-im/compound-design-tokens/assets/web/icons/compose";
 import UserAddIcon from "@vector-im/compound-design-tokens/assets/web/icons/user-add";
 import ChevronDownIcon from "@vector-im/compound-design-tokens/assets/web/icons/chevron-down";
-import RoomIcon from "@vector-im/compound-design-tokens/assets/web/icons/room";
 import HomeIcon from "@vector-im/compound-design-tokens/assets/web/icons/home";
 import PreferencesIcon from "@vector-im/compound-design-tokens/assets/web/icons/preferences";
 import SettingsIcon from "@vector-im/compound-design-tokens/assets/web/icons/settings";
-import VideoCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/video-call";
-import ChatIcon from "@vector-im/compound-design-tokens/assets/web/icons/chat";
 import { Flex } from "@element-hq/web-shared-components";
 
 import { _t } from "../../../../languageHandler";
@@ -47,20 +43,6 @@ export function RoomListHeaderView(): JSX.Element {
             <Flex align="center" gap="var(--cpd-space-2x)">
                 <div className="mx_RoomListHeaderView_ReleaseAnnouncementAnchor">
                     <RoomListOptionsMenu vm={vm} />
-                </div>
-
-                {/* If we don't display the compose menu, it means that the user can only send DM */}
-                <div className="mx_RoomListHeaderView_ReleaseAnnouncementAnchor">
-                    {vm.displayComposeMenu ? (
-                        <ComposeMenu vm={vm} />
-                    ) : (
-                        <IconButton
-                            onClick={(e) => vm.createChatRoom(e.nativeEvent)}
-                            tooltip={_t("action|new_conversation")}
-                        >
-                            <ComposeIcon color="var(--cpd-color-icon-secondary)" aria-hidden />
-                        </IconButton>
-                    )}
                 </div>
             </Flex>
         </Flex>
@@ -118,49 +100,6 @@ function SpaceMenu({ vm }: SpaceMenuProps): JSX.Element {
                     Icon={SettingsIcon}
                     label={_t("room_list|space_menu|space_settings")}
                     onSelect={vm.openSpaceSettings}
-                    hideChevron={true}
-                />
-            )}
-        </Menu>
-    );
-}
-
-interface ComposeMenuProps {
-    /**
-     * The view model for the room list header
-     */
-    vm: RoomListHeaderViewState;
-}
-
-/**
- * The compose menu for the room list header
- */
-function ComposeMenu({ vm }: ComposeMenuProps): JSX.Element {
-    const [open, setOpen] = useState(false);
-
-    return (
-        <Menu
-            open={open}
-            onOpenChange={setOpen}
-            showTitle={false}
-            title={_t("action|open_menu")}
-            side="right"
-            align="start"
-            trigger={
-                <IconButton tooltip={_t("action|new_conversation")}>
-                    <ComposeIcon color="var(--cpd-color-icon-secondary)" aria-hidden />
-                </IconButton>
-            }
-        >
-            <MenuItem Icon={ChatIcon} label={_t("action|start_chat")} onSelect={vm.createChatRoom} hideChevron={true} />
-            {vm.canCreateRoom && (
-                <MenuItem Icon={RoomIcon} label={_t("action|new_room")} onSelect={vm.createRoom} hideChevron={true} />
-            )}
-            {vm.canCreateVideoRoom && (
-                <MenuItem
-                    Icon={VideoCallIcon}
-                    label={_t("action|new_video_room")}
-                    onSelect={vm.createVideoRoom}
                     hideChevron={true}
                 />
             )}

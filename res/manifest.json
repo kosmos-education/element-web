@@ -6,37 +6,37 @@
     "start_url": "index.html",
     "icons": [
         {
-            "src": "/vector-icons/24.png",
+            "src": "/kosmos-icons/24.png",
             "sizes": "24x24",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/120.png",
+            "src": "/kosmos-icons/120.png",
             "sizes": "120x120",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/144.png",
+            "src": "/kosmos-icons/144.png",
             "sizes": "144x144",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/152png",
+            "src": "/kosmos-icons/152png",
             "sizes": "152x152",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/180.png",
+            "src": "/kosmos-icons/180.png",
             "sizes": "180x180",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/512.png",
+            "src": "/kosmos-icons/512.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "/vector-icons/1024.png",
+            "src": "/kosmos-icons/1024.png",
             "sizes": "1024x1024",
             "type": "image/png"
         }

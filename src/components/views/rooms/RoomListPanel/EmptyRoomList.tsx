@@ -7,8 +7,8 @@
 
 import React, { type JSX, type PropsWithChildren } from "react";
 import { Button } from "@vector-im/compound-web";
-import ChatIcon from "@vector-im/compound-design-tokens/assets/web/icons/chat";
 import RoomIcon from "@vector-im/compound-design-tokens/assets/web/icons/room";
+import ChatIcon from "@vector-im/compound-design-tokens/assets/web/icons/chat";
 import { Flex } from "@element-hq/web-shared-components";
 
 import type { RoomListViewState } from "../../../viewmodels/roomlist/RoomListViewModel";
@@ -135,11 +135,6 @@ function DefaultPlaceholder({ vm }: DefaultPlaceholderProps): JSX.Element {
     return (
         <GenericPlaceholder
             title={_t("room_list|empty|no_chats")}
-            description={
-                vm.canCreateRoom
-                    ? _t("room_list|empty|no_chats_description")
-                    : _t("room_list|empty|no_chats_description_no_room_rights")
-            }
         >
             <Flex
                 className="mx_EmptyRoomList_DefaultPlaceholder"
@@ -147,16 +142,7 @@ function DefaultPlaceholder({ vm }: DefaultPlaceholderProps): JSX.Element {
                 justify="center"
                 direction="column"
                 gap="var(--cpd-space-4x)"
-            >
-                <Button size="sm" kind="secondary" Icon={ChatIcon} onClick={vm.createChatRoom}>
-                    {_t("action|start_chat")}
-                </Button>
-                {vm.canCreateRoom && (
-                    <Button size="sm" kind="secondary" Icon={RoomIcon} onClick={vm.createRoom}>
-                        {_t("action|new_room")}
-                    </Button>
-                )}
-            </Flex>
+            />
         </GenericPlaceholder>
     );
 }
