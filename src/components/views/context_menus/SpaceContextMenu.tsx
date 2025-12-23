@@ -133,7 +133,7 @@ const SpaceContextMenu: React.FC<IProps> = ({ space, hideHeader, onFinished, ...
     const hasPermissionToAddSpaceChild = space.currentState.maySendStateEvent(EventType.SpaceChild, userId);
     const canAddRooms = hasPermissionToAddSpaceChild && shouldShowComponent(UIComponent.CreateRooms);
     const canAddVideoRooms = canAddRooms && videoRoomsEnabled;
-    const canAddSubSpaces = hasPermissionToAddSpaceChild && shouldShowComponent(UIComponent.CreateSpaces);
+    const canAddSubSpaces = false;
 
     let newRoomSection: JSX.Element | null = null;
     if (canAddRooms || canAddSubSpaces) {
