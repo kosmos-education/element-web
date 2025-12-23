@@ -84,6 +84,7 @@ import { useModuleSpacePanelItems } from "../../../modules/ExtrasApi.ts";
 import { UserMenuViewModel } from "../../../viewmodels/menus/UserMenuViewModel.ts";
 import { useMatrixClientContext } from "../../../contexts/MatrixClientContext.tsx";
 import { SDKContext } from "../../../contexts/SDKContext.ts";
+import { QuickHelp } from "./quick-help/";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const invites = useEventEmitterState<Room[]>(SpaceStore.instance, UPDATE_INVITED_SPACES, () => {
@@ -380,9 +381,6 @@ const InnerSpacePanel = React.memo<IInnerSpacePanelProps>(
                         />
                     </li>
                 ))}
-                {shouldShowComponent(UIComponent.CreateSpaces) && (
-                    <CreateSpaceButton isPanelCollapsed={isPanelCollapsed} setPanelCollapsed={setPanelCollapsed} />
-                )}
             </IndicatorScrollbar>
         );
     },
@@ -494,6 +492,8 @@ const SpacePanel: React.FC = () => {
                                 </InnerSpacePanel>
                             )}
                         </Droppable>
+
+                            <QuickHelp displayButtonLabel={!isPanelCollapsed} />
 
                         <ThreadsActivityCentre displayButtonLabel={!isPanelCollapsed} />
 

@@ -150,7 +150,7 @@ const AUTH_SCREENS = ["register", "mobile_register", "login", "forgot_password",
 // Actions that are redirected through the onboarding process prior to being
 // re-dispatched. NOTE: some actions are non-trivial and would require
 // re-factoring to be included in this list in future.
-const ONBOARDING_FLOW_STARTERS = [Action.ViewUserSettings, Action.CreateChat, Action.CreateRoom];
+const ONBOARDING_FLOW_STARTERS = [Action.ViewUserSettings, Action.CreateRoom];
 
 interface IProps {
     config: ConfigOptions;
