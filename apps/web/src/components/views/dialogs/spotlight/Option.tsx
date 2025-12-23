@@ -18,6 +18,7 @@ interface OptionProps {
     className?: string;
     onClick: ((ev: ButtonEvent) => void) | null;
     children?: ReactNode;
+    disabled?: boolean;
 }
 
 export const Option: React.FC<OptionProps> = ({ children, endAdornment, className, ...props }) => {

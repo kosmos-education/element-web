@@ -150,7 +150,7 @@ const LegacyRoomListHeader: React.FC<IProps> = ({ onVisibilityChange }) => {
 
     const canExploreRooms = shouldShowComponent(UIComponent.ExploreRooms);
     const canCreateRooms = shouldShowComponent(UIComponent.CreateRooms);
-    const canCreateSpaces = shouldShowComponent(UIComponent.CreateSpaces);
+    const canCreateSpaces = false;
 
     const hasPermissionToAddSpaceChild = activeSpace?.currentState?.maySendStateEvent(
         EventType.SpaceChild,

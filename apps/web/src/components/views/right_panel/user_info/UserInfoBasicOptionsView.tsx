@@ -6,42 +6,16 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import { type RoomMember, type User, type Room } from "matrix-js-sdk/src/matrix";
-import React, { type JSX, type ReactNode, useState } from "react";
+import React, { type JSX, type ReactNode } from "react";
 import { MenuItem } from "@vector-im/compound-web";
-import { ChatIcon, CheckIcon, MentionIcon, ShareIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { CheckIcon, MentionIcon, ShareIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 import InviteIcon from "@vector-im/compound-design-tokens/assets/web/icons/user-add";
 
 import { _t } from "../../../../languageHandler";
 import { useUserInfoBasicOptionsViewModel } from "../../../viewmodels/right_panel/user_info/UserInfoBasicOptionsViewModel";
-import { Container, type Member } from "../UserInfo";
+import { Container } from "../UserInfo";
 import { shouldShowComponent } from "../../../../customisations/helpers/UIComponents";
 import { UIComponent } from "../../../../settings/UIFeature";
-
-const MessageButton = ({
-    member,
-    openDMForUser,
-}: {
-    member: Member;
-    openDMForUser: (user: Member) => Promise<void>;
-}): JSX.Element => {
-    const [busy, setBusy] = useState(false);
-
-    return (
-        <MenuItem
-            role="button"
-            onSelect={async (ev) => {
-                ev.preventDefault();
-                if (busy) return;
-                setBusy(true);
-                await openDMForUser(member);
-                setBusy(false);
-            }}
-            disabled={busy}
-            label={_t("user_info|send_message")}
-            Icon={ChatIcon}
-        />
-    );
-};
 
 export const UserInfoBasicOptionsView: React.FC<{
     member: User | RoomMember;
@@ -109,15 +83,9 @@ export const UserInfoBasicOptionsView: React.FC<{
         />
     );
 
-    const directMessageButton =
-        vm.isMe || !shouldShowComponent(UIComponent.CreateRooms) ? null : (
-            <MessageButton member={member} openDMForUser={vm.onOpenDmForUser} />
-        );
-
     return (
         <Container>
             {children}
-            {directMessageButton}
             {inviteUserButton}
             {readReceiptButton}
             {shareUserButton}

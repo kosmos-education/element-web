@@ -625,11 +625,11 @@
         "mode_plain": "Formatierung ausblenden",
         "mode_rich_text": "Formatierung anzeigen",
         "no_perms_notice": "Du darfst in diesem Chat nichts schreiben",
-        "placeholder": "Unverschlüsselte Nachricht senden...",
+        "placeholder": "Nachricht senden...",
         "placeholder_encrypted": "Nachricht senden …",
-        "placeholder_reply": "Unverschlüsselte Antwort senden…",
+        "placeholder_reply": "Antwort senden…",
         "placeholder_reply_encrypted": "Antwort senden…",
-        "placeholder_thread": "Antwort auf unverschlüsselten Thread…",
+        "placeholder_thread": "Auf Thread antworten…",
         "placeholder_thread_encrypted": "Auf Thread antworten…",
         "poll_button": "Umfrage",
         "poll_button_no_perms_description": "Du darfst in diesem Chat keine Umfragen erstellen.",
@@ -3721,6 +3721,7 @@
         "title": "Gastnutzern erlauben, diesem Chat beizutreten"
     },
     "upload_failed_generic": "Die Datei „%(fileName)s“ konnte nicht hochgeladen werden.",
+    "upload_failed_quota": "Die Datei konnte nicht hinzugefügt werden, da Sie Ihr Versandlimit erreicht haben.",
     "upload_failed_size": "Die Datei „%(fileName)s“ überschreitet das Hochladelimit deines Heim-Servers",
     "upload_failed_title": "Hochladen fehlgeschlagen",
     "upload_file": {

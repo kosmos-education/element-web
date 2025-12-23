@@ -316,12 +316,6 @@ interface LocalRoomViewProps {
 function LocalRoomView(props: LocalRoomViewProps): ReactElement {
     const context = useScopedRoomContext("room");
     const room = context.room as LocalRoom;
-    const encryptionEvent = props.localRoom.currentState.getStateEvents(EventType.RoomEncryption)[0];
-    let encryptionTile: ReactNode;
-
-    if (encryptionEvent) {
-        encryptionTile = <EncryptionEventWrappedView mxEvent={encryptionEvent} />;
-    }
 
     let statusBar: ReactElement | null = null;
     let composer: ReactElement | null = null;
@@ -348,7 +342,6 @@ function LocalRoomView(props: LocalRoomViewProps): ReactElement {
                         <FileDropTarget parent={props.roomView.current} />
                         <div className="mx_RoomView_timeline">
                             <ScrollPanel className="mx_RoomView_messagePanel">
-                                {encryptionTile}
                                 <NewRoomIntro />
                             </ScrollPanel>
                         </div>

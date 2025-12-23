@@ -27,13 +27,10 @@ import SettingsIcon from "@vector-im/compound-design-tokens/assets/web/icons/set
 import ExportArchiveIcon from "@vector-im/compound-design-tokens/assets/web/icons/export-archive";
 import LeaveIcon from "@vector-im/compound-design-tokens/assets/web/icons/leave";
 import FilesIcon from "@vector-im/compound-design-tokens/assets/web/icons/files";
-import ExtensionsIcon from "@vector-im/compound-design-tokens/assets/web/icons/extensions";
 import UserProfileIcon from "@vector-im/compound-design-tokens/assets/web/icons/user-profile";
 import ThreadsIcon from "@vector-im/compound-design-tokens/assets/web/icons/threads";
-import PollsIcon from "@vector-im/compound-design-tokens/assets/web/icons/polls";
 import PinIcon from "@vector-im/compound-design-tokens/assets/web/icons/pin";
 import LockIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock-solid";
-import LockOffIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock-off";
 import PublicIcon from "@vector-im/compound-design-tokens/assets/web/icons/public";
 import ErrorIcon from "@vector-im/compound-design-tokens/assets/web/icons/error";
 import ErrorSolidIcon from "@vector-im/compound-design-tokens/assets/web/icons/error-solid";
@@ -184,13 +181,6 @@ const RoomSummaryCardView: React.FC<IProps> = ({
                     </Badge>
                 )}
 
-                {!vm.isRoomEncrypted && (
-                    <Badge kind="blue">
-                        <LockOffIcon width="1rem" height="1rem" color="var(--cpd-color-icon-info-primary)" />
-                        {_t("common|unencrypted")}
-                    </Badge>
-                )}
-
                 {vm.e2eStatus === E2EStatus.Warning && (
                     <Badge kind="red">
                         <ErrorSolidIcon width="1rem" height="1rem" />
@@ -269,11 +259,6 @@ const RoomSummaryCardView: React.FC<IProps> = ({
                             label={_t("right_panel|files_button")}
                             onSelect={vm.onRoomFilesClick}
                         />
-                        <MenuItem
-                            Icon={ExtensionsIcon}
-                            label={_t("right_panel|extensions_button")}
-                            onSelect={vm.onRoomExtensionsClick}
-                        />
                     </>
                 )}
 
@@ -283,11 +268,6 @@ const RoomSummaryCardView: React.FC<IProps> = ({
 
                 {!vm.isVideoRoom && (
                     <>
-                        <MenuItem
-                            Icon={PollsIcon}
-                            label={_t("right_panel|polls_button")}
-                            onSelect={vm.onRoomPollHistoryClick}
-                        />
                         <MenuItem
                             Icon={ExportArchiveIcon}
                             label={_t("export_chat|title")}
