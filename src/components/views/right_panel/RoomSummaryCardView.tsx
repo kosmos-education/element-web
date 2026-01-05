@@ -31,7 +31,6 @@ import UserProfileIcon from "@vector-im/compound-design-tokens/assets/web/icons/
 import ThreadsIcon from "@vector-im/compound-design-tokens/assets/web/icons/threads";
 import PinIcon from "@vector-im/compound-design-tokens/assets/web/icons/pin";
 import LockIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock-solid";
-import LockOffIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock-off";
 import PublicIcon from "@vector-im/compound-design-tokens/assets/web/icons/public";
 import ErrorIcon from "@vector-im/compound-design-tokens/assets/web/icons/error";
 import ErrorSolidIcon from "@vector-im/compound-design-tokens/assets/web/icons/error-solid";
@@ -175,13 +174,6 @@ const RoomSummaryCardView: React.FC<IProps> = ({
                     <Badge kind="green">
                         <LockIcon width="1em" />
                         {_t("common|encrypted")}
-                    </Badge>
-                )}
-
-                {!vm.isRoomEncrypted && (
-                    <Badge kind="blue">
-                        <LockOffIcon width="1em" color="var(--cpd-color-icon-info-primary)" />
-                        {_t("common|unencrypted")}
                     </Badge>
                 )}
 
