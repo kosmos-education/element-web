@@ -71,6 +71,7 @@ import { KeyboardShortcut } from "../settings/KeyboardShortcut";
 import { ModuleApi } from "../../../modules/Api.ts";
 import { useModuleSpacePanelItems } from "../../../modules/ExtrasApi.ts";
 import { ReleaseAnnouncement } from "../../structures/ReleaseAnnouncement";
+import { QuickHelp } from "./quick-help/";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const invites = useEventEmitterState<Room[]>(SpaceStore.instance, UPDATE_INVITED_SPACES, () => {
@@ -462,6 +463,8 @@ const SpacePanel: React.FC = () => {
                                     </InnerSpacePanel>
                                 )}
                             </Droppable>
+
+                            <QuickHelp displayButtonLabel={!isPanelCollapsed} />
 
                             <ThreadsActivityCentre displayButtonLabel={!isPanelCollapsed} />
 
