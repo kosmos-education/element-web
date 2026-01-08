@@ -363,12 +363,12 @@ export class MessageComposer extends React.Component<IProps, IState> {
         if (this.props.replyToEvent) {
             const replyingToThread = this.props.relation?.rel_type === THREAD_RELATION_TYPE.name;
             if (replyingToThread) {
-                return _t("composer|placeholder_thread_neutral");
+                return _t("composer|placeholder_thread");
             } else {
-                return _t("composer|placeholder_reply_neutral");
+                return _t("composer|placeholder_reply");
             }
         } else {
-            return _t("composer|placeholder_neutral");
+            return _t("composer|placeholder");
         }
     };
 
