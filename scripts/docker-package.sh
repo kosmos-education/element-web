@@ -13,7 +13,6 @@ if [[ $BRANCH != HEAD && ! $BRANCH =~ heads/v.+ ]]
 then
     DIST_VERSION=$("$DIR"/get-version-from-git.sh)
 else
-    git fetch --tags
     DIST_VERSION=$(git describe --abbrev=0 --tags)
 fi
 
