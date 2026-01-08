@@ -10,12 +10,24 @@ pipelineDocker(
         CLUSTER_NAME: 'skoen',
 
         PRE_BUILD_CLOSURE: {
+            echo "Préparation du repo Git (fetch tags + unshallow si nécessaire)"
+
             sh '''
-                if git rev-parse --is-shallow-repository > /dev/null 2>&1; then
+            # Vérifie si le dépôt est shallow
+            if git rev-parse --is-shallow-repository 2>/dev/null | grep -q "true"; then
+                echo "Dépôt shallow détecté → unshallow"
                 git fetch --unshallow
-                fi
-                git fetch --tags
-            '''
+            else
+                echo "Dépôt déjà complet → pas d'unshallow"
+            fi
+
+            # Récupération des tags
+            git fetch --tags
+
+            echo "Tags disponibles :"
+            git tag -l
+        '''
         }
+
 )
 
