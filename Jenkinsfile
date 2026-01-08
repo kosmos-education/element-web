@@ -7,6 +7,15 @@ pipelineDocker(
         DOCKER_LABEL: 'docker',
         NOTIF_CHANNEL: 'kde-jenkins',
         DISABLE_DEPLOYMENT_STEP: true,
-        CLUSTER_NAME: 'skoen'
+        CLUSTER_NAME: 'skoen',
+
+        PRE_BUILD_CLOSURE: {
+            sh '''
+                if git rev-parse --is-shallow-repository > /dev/null 2>&1; then
+                git fetch --unshallow
+                fi
+                git fetch --tags
+            '''
+        }
 )
 
