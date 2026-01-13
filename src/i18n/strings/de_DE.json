@@ -3903,6 +3903,7 @@
         "title": "Gastnutzern erlauben, diesem Chat beizutreten"
     },
     "upload_failed_generic": "Die Datei „%(fileName)s“ konnte nicht hochgeladen werden.",
+    "upload_failed_quota": "Die Datei konnte nicht gespeichert werden, da sie die zulässige Größe überschreitet.",
     "upload_failed_size": "Die Datei „%(fileName)s“ überschreitet das Hochladelimit deines Heim-Servers",
     "upload_failed_title": "Hochladen fehlgeschlagen",
     "upload_file": {

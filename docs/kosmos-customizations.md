@@ -40,3 +40,7 @@ In the Space Panel, we added a button directing to the FAQ set in the help_url c
 ### Branding the favicon
 
 Changing the favicon logos to ours.
+
+### Adding a specific error message when uploading files
+
+When a users tries to upload a file exceeding their quota (size per week for example), the error messages now mentions it.

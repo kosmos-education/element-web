@@ -3908,6 +3908,7 @@
         "title": "Autoriser les utilisateurs invités à rejoindre ce salon"
     },
     "upload_failed_generic": "Le fichier « %(fileName)s » n’a pas pu être envoyé.",
+    "upload_failed_quota": "Le fichier n'a pas pu être sauvegardé car il dépasse les quotas autorisés.",
     "upload_failed_size": "Le fichier « %(fileName)s » dépasse la taille limite autorisée par ce serveur pour les envois",
     "upload_failed_title": "Échec de l’envoi",
     "upload_file": {
