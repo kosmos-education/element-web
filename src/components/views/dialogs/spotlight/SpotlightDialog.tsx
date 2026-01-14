@@ -54,7 +54,6 @@ import { _t } from "../../../../languageHandler";
 import { MatrixClientPeg } from "../../../../MatrixClientPeg";
 import { PosthogAnalytics } from "../../../../PosthogAnalytics";
 import { getCachedRoomIdForAlias } from "../../../../RoomAliasCache";
-import { showStartChatInviteDialog } from "../../../../RoomInvite";
 import { SettingLevel } from "../../../../settings/SettingLevel";
 import SettingsStore from "../../../../settings/SettingsStore";
 import { BreadcrumbsStore } from "../../../../stores/BreadcrumbsStore";
@@ -992,26 +991,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
             );
         }
 
-        let groupChatSection: JSX.Element | undefined;
-        if (filter === Filter.People) {
-            groupChatSection = (
-                <div
-                    className="mx_SpotlightDialog_section mx_SpotlightDialog_otherSearches"
-                    role="group"
-                    aria-labelledby="mx_SpotlightDialog_section_groupChat"
-                >
-                    <h4 id="mx_SpotlightDialog_section_groupChat">{_t("spotlight_dialog|group_chat_section_title")}</h4>
-                    <Option
-                        id="mx_SpotlightDialog_button_startGroupChat"
-                        className="mx_SpotlightDialog_startGroupChat"
-                        onClick={() => showStartChatInviteDialog(trimmedQuery)}
-                    >
-                        {_t("spotlight_dialog|start_group_chat_button")}
-                    </Option>
-                </div>
-            );
-        }
-
         content = (
             <>
                 {peopleSection}
@@ -1023,7 +1002,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                 {joinRoomSection}
                 {hiddenResultsSection}
                 {otherSearchesSection}
-                {groupChatSection}
             </>
         );
     } else {
