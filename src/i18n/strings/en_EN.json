@@ -3905,7 +3905,7 @@
     "title": "Allow guest users to join this room"
   },
   "upload_failed_generic": "The file '%(fileName)s' failed to upload.",
-  "upload_failed_quota": "The file could not be saved because it exceeds the authorised quotas.",
+  "upload_failed_quota": "The file could not be added because you have reached your upload limit.",
   "upload_failed_size": "The file '%(fileName)s' exceeds this homeserver's size limit for uploads",
   "upload_failed_title": "Upload Failed",
   "upload_file": {

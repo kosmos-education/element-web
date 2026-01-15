@@ -3071,7 +3071,7 @@
         "unavailable": "No disponible"
     },
     "upload_failed_generic": "La subida del archivo «%(fileName)s ha fallado.",
-    "upload_failed_quota": "No se ha podido guardar el archivo porque supera las cuotas permitidas.",
+    "upload_failed_quota": "No se ha podido añadir el archivo porque se ha alcanzado el límite de envío.",
     "upload_failed_size": "El archivo «%(fileName)s» supera el tamaño límite del servidor para subidas",
     "upload_failed_title": "Subida fallida",
     "upload_file": {
