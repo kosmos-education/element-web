@@ -19,3 +19,10 @@ fi
 DIST_VERSION=$("$DIR"/normalize-version.sh "$DIST_VERSION")
 
 VERSION=$DIST_VERSION yarn build
+
+pushd /src/webapp
+tar --exclude='..' --exclude='.' -czf ../element-web-${DIST_VERSION}.tgz * .*
+echo $NEXUS_USER
+echo $NEXUS_PASS
+curl -k -u $NEXUS_USER:$NEXUS_PASS --upload-file ../element-web-${DIST_VERSION}.tgz https://nexus.nantes.kosmos.fr/nexus/repository/kdecole.internal.raw/element-web-${DIST_VERSION}.tgz
+popd
