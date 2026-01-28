@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=.git,target=/src/.git /src/scripts/docker-link-repo
 
 # Build
 COPY --link --exclude=.git --exclude=apps/web/docker . /src
-RUN --mount=type=bind,source=.git,target=/src/.git /src/scripts/docker-package.sh
+RUN --mount=type=bind,source=.git,target=/src/.git --mount=type=secret,id=NEXUS_USER,env=NEXUS_USER --mount=type=secret,id=NEXUS_PASS,env=NEXUS_PASS /src/scripts/docker-package.sh
 
 # Copy the config now so that we don't create another layer in the app image
 RUN cp /src/apps/web/config.sample.json /src/apps/web/webapp/config.json
