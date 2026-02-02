@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('kosmos_pipeline@ULK-1740_DOCKER_BUILD_CLOSURE') _
+@Library('kosmos_pipeline') _
 
 def localBuildClosure = { defaultStep, args ->
     // Comme en plus de faire l'image docker, on va utiliser yarn publish, on utilise les credentials de Nexus
