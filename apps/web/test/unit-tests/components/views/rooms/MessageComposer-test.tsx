@@ -128,12 +128,12 @@ describe("MessageComposer", () => {
 
         it("Renders a SendMessageComposer and MessageComposerButtons by default", () => {
             wrapAndRender({ room });
-            expect(screen.getByLabelText("Send an unencrypted message…")).toBeInTheDocument();
+            expect(screen.getByLabelText("Send a message…")).toBeInTheDocument();
         });
 
         it("Does not render a SendMessageComposer or MessageComposerButtons when user has no permission", () => {
             wrapAndRender({ room }, false);
-            expect(screen.queryByLabelText("Send an unencrypted message…")).not.toBeInTheDocument();
+            expect(screen.queryByLabelText("Send a message…")).not.toBeInTheDocument();
             expect(screen.getByText("You do not have permission to post to this room")).toBeInTheDocument();
         });
 
@@ -153,7 +153,7 @@ describe("MessageComposer", () => {
                 }),
             );
 
-            expect(screen.queryByLabelText("Send an unencrypted message…")).not.toBeInTheDocument();
+            expect(screen.queryByLabelText("Send a message…")).not.toBeInTheDocument();
             expect(screen.getByText("This room has been replaced and is no longer active.")).toBeInTheDocument();
         });
 
@@ -335,7 +335,7 @@ describe("MessageComposer", () => {
         describe("when not replying to an event", () => {
             it("should pass the expected placeholder to SendMessageComposer", () => {
                 wrapAndRender({ room });
-                expect(screen.getByLabelText("Send an unencrypted message…")).toBeInTheDocument();
+                expect(screen.getByLabelText("Send a message…")).toBeInTheDocument();
             });
 
             it("and an e2e status it should pass the expected placeholder to SendMessageComposer", () => {
@@ -343,6 +343,7 @@ describe("MessageComposer", () => {
                     room,
                     e2eStatus: E2EStatus.Normal,
                 });
+                // kosmos: always neutral placeholder regardless of encryption status
                 expect(screen.getByLabelText("Send a message…")).toBeInTheDocument();
             });
         });
@@ -379,7 +380,7 @@ describe("MessageComposer", () => {
             });
 
             describe("without encryption", () => {
-                checkPlaceholder("Send an unencrypted reply…");
+                checkPlaceholder("Send a reply…");
             });
 
             describe("with encryption", () => {
@@ -392,7 +393,7 @@ describe("MessageComposer", () => {
                     props.relation = { rel_type: "test" };
                 });
 
-                checkPlaceholder("Send an unencrypted reply…");
+                checkPlaceholder("Send a reply…");
             });
 
             describe("that is a thread", () => {
@@ -400,7 +401,7 @@ describe("MessageComposer", () => {
                     props.relation = { rel_type: THREAD_RELATION_TYPE.name };
                 });
 
-                checkPlaceholder("Reply to unencrypted thread…");
+                checkPlaceholder("Reply to thread…");
 
                 describe("with encryption", () => {
                     setEncrypted();
