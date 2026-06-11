@@ -44,3 +44,7 @@ Changing the favicon logos to ours.
 ### Adding a specific error message when uploading files
 
 When a users tries to upload a file exceeding their quota (size per week for example), the error messages now mentions it.
+
+### Neutral placeholder text in the message composer
+
+Since upstream v1.12.21, the default composer placeholder keys (`composer|placeholder`, `composer|placeholder_reply`, `composer|placeholder_thread`) now explicitly mention "unencrypted" in their text (e.g. "Send an unencrypted message…"). To stay consistent with our goal of hiding encryption mentions, `MessageComposer.tsx` now always uses the `_encrypted` variants of those keys (`composer|placeholder_encrypted`, etc.), which carry neutral wording regardless of the room's actual encryption status. The corresponding `fr.json` overrides and the Jest unit tests (`MessageComposer-test.tsx`, `test-utils/composer.ts`) were updated accordingly.

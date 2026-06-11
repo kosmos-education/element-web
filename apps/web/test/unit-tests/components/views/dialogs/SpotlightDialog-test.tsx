@@ -463,7 +463,8 @@ describe("Spotlight Dialog", () => {
         });
     });
 
-    it("should start a DM when clicking a person", async () => {
+    // kosmos: DM creation is disabled — clicking a person should NOT start a DM
+    it("should not start a DM when clicking a person (DM creation disabled)", async () => {
         render(
             <SpotlightDialog
                 initialFilter={Filter.People}
@@ -480,7 +481,7 @@ describe("Spotlight Dialog", () => {
             expect(options.length).toBeGreaterThanOrEqual(1);
             expect(options[0]!.innerHTML).toContain(testPerson.display_name);
             fireEvent.click(options[0]!);
-            expect(startDmOnFirstMessage).toHaveBeenCalledWith(mockedClient, [new DirectoryMember(testPerson)]);
+            expect(startDmOnFirstMessage).not.toHaveBeenCalled();
         });
     });
 
