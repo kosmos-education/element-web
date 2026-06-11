@@ -133,6 +133,8 @@ overrides:
     "@protobufjs/utf8@1 <1.1.1": 1.1.1
     # Workaround for https://github.com/electron/electron/issues/51619
     yauzl: "^3.3.1"
+    # kosmos SCAT-31 : résout un conflit ESM/CJS bloquant le build nx
+    restore-cursor: 3.1.0
 
 minimumReleaseAgeExclude:
     - "matrix-js-sdk"
