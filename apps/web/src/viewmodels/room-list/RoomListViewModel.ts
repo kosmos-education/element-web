@@ -107,10 +107,11 @@ export class RoomListViewModel
         const roomsResult = RoomListStoreV3.instance.getSortedRoomsInActiveSpace(undefined);
         const canCreateRoom = hasCreateRoomRights(props.client, activeSpace);
 
-        // Remove favourite and low priority filters if sections are enabled, as they are redundant with the sections
+        // Remove favourite and low priority filters if sections are enabled, as they are redundant with the sections.
+        // Kosmos: also remove the "people" filter as 1-1 chats creation is not available.
         const areSectionsEnabled = SettingsStore.getValue("feature_room_list_sections");
         const filterIds = [...filterKeyToIdMap.values()].filter(
-            (id) => !areSectionsEnabled || (id !== "favourite" && id !== "low_priority"),
+            (id) => id !== "people" && (!areSectionsEnabled || (id !== "favourite" && id !== "low_priority")),
         );
 
         // By default, all sections are expanded
