@@ -372,7 +372,11 @@ export class DeviceListenerCurrentDevice {
 
         this.deviceListener.currentDeviceChangedEmitter.onStateChanged(newState);
 
-        if (newState === "ok" || this.dismissedThisDeviceToast) {
+        // SCAT-32 : Kosmos ne participe pas à la campagne Element de vérification
+        // obligatoire des appareils (échéance octobre 2026 upstream). On masque
+        // complètement le toast "Vérifiez cet appareil" en traitant cet état
+        // comme s'il n'y avait pas de toast à afficher.
+        if (newState === "ok" || newState === "verify_this_session" || this.dismissedThisDeviceToast) {
             hideSetupEncryptionToast();
         } else if (!isSecretStorageBeingAccessed()) {
             showSetupEncryptionToast(newState);
