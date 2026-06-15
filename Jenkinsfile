@@ -4,7 +4,7 @@
 def localBuildClosure = { defaultStep, args ->
     // Comme en plus de faire l'image docker, on va utiliser yarn publish, on utilise les credentials de Nexus
     withCredentials([usernamePassword(credentialsId: 'JENKINS_NEXUS_AUTH', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-        sh "docker build --secret id=NEXUS_USER --secret id=NEXUS_PASS ."
+        sh "docker build -f apps/web/Dockerfile --secret id=NEXUS_USER --secret id=NEXUS_PASS ."
         defaultStep()
     }
 }
@@ -16,7 +16,7 @@ pipelineDocker(
         NOTIF_CHANNEL: 'kde-jenkins',
         DISABLE_DEPLOYMENT_STEP: true,
         CLUSTER_NAME: 'skoen',
-        DOCKER_OPTIONS: '--build-arg NPM_TOKEN=${NPM_TOKEN}',
+        DOCKER_OPTIONS: '--build-arg NPM_TOKEN=${NPM_TOKEN} -f apps/web/Dockerfile',
 
         PRE_BUILD_CLOSURE: {
             echo "Préparation du repo Git (fetch tags + unshallow si nécessaire)"

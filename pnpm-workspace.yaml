@@ -112,6 +112,8 @@ overrides:
     yaml@>=2 <2.8.3: 2.8.4
     protobufjs@7 <7.5.8: 7.6.1
     "@protobufjs/utf8@1 <1.1.1": 1.1.1
+    restore-cursor: 3.1.0
+
 
 minimumReleaseAgeExclude:
     - "matrix-js-sdk"
