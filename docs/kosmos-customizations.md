@@ -16,9 +16,19 @@ Users won't be allowed to create Spaces so we took off the buttons to do so.
 
 Our users have pre-created rooms to chat in, we don't allow the creation of 1-1 chats.
 
+**v1.12.21+ note:** the compose button (new chat / new room / new video room) moved to
+`packages/shared-components/src/room-list/RoomListHeaderView/RoomListHeaderView.tsx` —
+the `displayComposeMenu` / `useComposeIcon` block was removed entirely from that file.
+
 ### Removing visible access to room creation
 
 As for 1-1 chats, room creation is highly restricted so we took off the most obvious buttons to reduce frustration.
+
+**v1.12.21+ note:** the creation buttons in the empty room list state moved to
+`packages/shared-components/src/room-list/RoomListView/RoomListEmptyStateView.tsx` —
+the `description` prop and the `<Button>` children were removed from the default (no active filter) branch.
+The "people" filter chip is hidden via `apps/web/src/viewmodels/room-list/RoomListViewModel.ts`
+(filtered from `filterIds` alongside favourite/low-priority).
 
 ### Removing visible mentions of encryption
 
