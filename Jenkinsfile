@@ -16,8 +16,8 @@ pipelineDocker(
         NOTIF_CHANNEL: 'kde-jenkins',
         DISABLE_DEPLOYMENT_STEP: true,
         CLUSTER_NAME: 'skoen',
-        DOCKER_OPTIONS: '--build-arg NPM_TOKEN=${NPM_TOKEN} -f apps/web/Dockerfile',
-
+        DOCKER_OPTIONS: '--build-arg NPM_TOKEN=${NPM_TOKEN}',
+	DOCKERFILE: 'apps/web/Dockerfile'
         PRE_BUILD_CLOSURE: {
             echo "Préparation du repo Git (fetch tags + unshallow si nécessaire)"
 
