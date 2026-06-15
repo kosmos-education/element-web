@@ -55,6 +55,38 @@ Changing the favicon logos to ours.
 
 When a users tries to upload a file exceeding their quota (size per week for example), the error messages now mentions it.
 
+### Build pipeline : rebuild des packages partagés
+
+Les packages sous `packages/**` (`shared-components`, `module-api`) sont consommés par
+webpack lors du build de `apps/web` **via leur artefact buildé** (`dist/`), pas directement
+via leurs sources. La raison : le champ `exports` de leur `package.json` pointe vers
+`./dist/...`, et le target nx `apps/web build` (`apps/web/project.json`) n'a **pas** de
+`dependsOn: ["^build"]` — contrairement aux targets `test:unit` ou `lint:types`. Webpack
+embarque donc le `dist/` existant dans le contexte, tel quel, sans jamais rebuilder les
+packages.
+
+Conséquence : toute customisation faite dans `packages/shared-components/src/` (suppression
+du bouton Compose, des boutons de création, du filtre People…) **n'a aucun effet** sur
+l'app déployée tant que le package n'est pas rebuildé. Ne pas se fier au `dist/` local,
+qui peut dater d'un état antérieur aux modifications.
+
+**Correctif Kosmos** — `scripts/docker-package.sh` rebuilde systématiquement **tous** les
+packages partagés avant `apps/web` :
+
+```bash
+NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build
+VERSION=$DIST_VERSION pnpm --dir apps/web build
+```
+
+`NX_SKIP_NX_CACHE=true` force un build frais à chaque CI (aucun `dist/` servi depuis le
+cache nx). Ce script est la **seule voie de build pour les déploiements Kosmos** (image
+Docker → Nexus pour l'intégration k8s, `.tgz` pour la prod VM).
+
+⚠️ **Au prochain rebase upstream** : vérifier que `apps/web/project.json` n'a toujours
+pas acquis de `dependsOn: ["^build"]` sur son target `build`. Si c'est le cas, la ligne
+`NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build` dans `docker-package.sh`
+reste inoffensive (double build) mais peut être retirée.
+
 ### Neutral placeholder text in the message composer
 
 Since upstream v1.12.21, the default composer placeholder keys (`composer|placeholder`, `composer|placeholder_reply`, `composer|placeholder_thread`) now explicitly mention "unencrypted" in their text (e.g. "Send an unencrypted message…"). To stay consistent with our goal of hiding encryption mentions, `MessageComposer.tsx` now always uses the `_encrypted` variants of those keys (`composer|placeholder_encrypted`, etc.), which carry neutral wording regardless of the room's actual encryption status. The corresponding `fr.json` overrides and the Jest unit tests (`MessageComposer-test.tsx`, `test-utils/composer.ts`) were updated accordingly.
