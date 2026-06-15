@@ -144,11 +144,11 @@ export default (env: string, argv: Record<string, any>): webpack.Configuration =
     if (devMode) {
         // Embedded source maps for dev builds, can't use eval-source-map due to CSP
         development["devtool"] = "inline-source-map";
-    } else {
-        // High quality source maps in separate .map files which include the source. This doesn't bulk up the .js
-        // payload file size, which is nice for performance but also necessary to get the bundle to a small enough
-        // size that sentry will accept the upload.
+    } else if (process.env.SENTRY_DSN) {
+        // Source maps in separate files for Sentry upload — not served to end users
         development["devtool"] = "source-map";
+    } else {
+        development["devtool"] = false;
     }
 
     // Resolve the directories for the js-sdk for later use. We resolve these early, so we
