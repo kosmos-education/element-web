@@ -927,7 +927,7 @@ export const SETTINGS: Settings = {
     },
     "theme": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
-        default: "light",
+        default: "skolengo-light",
         controller: new ThemeController(),
     },
     "custom_themes": {

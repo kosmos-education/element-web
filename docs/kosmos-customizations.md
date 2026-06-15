@@ -143,3 +143,60 @@ reste inoffensive (double build) mais peut être retirée.
 ### Neutral placeholder text in the message composer
 
 Since upstream v1.12.21, the default composer placeholder keys (`composer|placeholder`, `composer|placeholder_reply`, `composer|placeholder_thread`) now explicitly mention "unencrypted" in their text (e.g. "Send an unencrypted message…"). To stay consistent with our goal of hiding encryption mentions, `MessageComposer.tsx` now always uses the `_encrypted` variants of those keys (`composer|placeholder_encrypted`, etc.), which carry neutral wording regardless of the room's actual encryption status. The corresponding `fr.json` overrides and the Jest unit tests (`MessageComposer-test.tsx`, `test-utils/composer.ts`) were updated accordingly.
+
+### Thème natif Skolengo (IndigoEMS)
+
+Deux thèmes PCSS natifs ont été créés pour habiller Element aux couleurs de la marque Skolengo,
+sur la base de la palette **IndigoEMS** (confirmée par échantillonnage des maquettes de l'UI) :
+
+| Identifiant | Sélecteur affiché | Feuille CSS émise |
+|---|---|---|
+| `skolengo-light` | Skolengo | `theme-skolengo-light.css` |
+| `skolengo-dark` | Skolengo Sombre | `theme-skolengo-dark.css` |
+
+**Structure des fichiers :**
+
+```
+apps/web/res/themes/
+├── skolengo-light/css/
+│   ├── skolengo-light.pcss      # entrypoint (fork de light.pcss)
+│   ├── _skolengo-vars.pcss      # overrides de variables PostCSS legacy ($)
+│   └── _skolengo-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
+└── skolengo-dark/css/
+    ├── skolengo-dark.pcss       # entrypoint (fork de dark.pcss)
+    └── _skolengo-tokens.pcss   # échelle indigo inversée (mode sombre)
+```
+
+**Palette IndigoEMS — valeurs clés :**
+
+- Accent vif (boutons, pastilles) : `#5851fb` (indigo-900 en mode clair)
+- Surfaces périvenche (room list, space panel, panneau droit) : `#edf1ff`/`#f6f8ff` (indigo-300/200)
+- Bulle de message propre : `#dde5ff` (indigo-400)
+- Texte d'accent (liens, texte action) : `#4135ce` (indigo-1100)
+- Barre de titre / fond d'accent foncé : `#170c5c` (indigo-1400)
+
+**Points d'enregistrement (à vérifier à chaque rebase upstream) :**
+
+1. `apps/web/webpack.config.ts` — `cssThemes` : entrées `theme-skolengo-light` et `theme-skolengo-dark`.
+2. `apps/web/src/theme.ts` — `DEFAULT_THEME = "skolengo-light"` ; `BUILTIN_THEMES` liste uniquement
+   les deux thèmes Skolengo (masque light/dark/high-contrast du sélecteur).
+3. `apps/web/src/settings/Settings.tsx` — `theme.default = "skolengo-light"`.
+4. `apps/web/src/settings/watchers/ThemeWatcher.ts` — `themeBasedOnSystem()` route vers
+   `skolengo-dark`/`skolengo-light` au lieu de `dark`/`light` ; `isUserOnDarkTheme()` inclut
+   `skolengo-dark`.
+5. `config.json` — `default_theme: "skolengo-light"` (le bloc `custom_themes` a été supprimé).
+
+**Comportement :**
+
+- `setTheme` dans `theme.ts` détecte `"light"` dans le nom du thème (`skolengo-light.includes("light")`)
+  et assigne la classe `cpd-theme-light` (Compound tokens mode clair). Même logique pour `skolengo-dark`
+  → `cpd-theme-dark`.
+- Le suivi du thème système OS bascule automatiquement entre `skolengo-light` et `skolengo-dark`.
+- Réglages → Apparence ne propose que les deux thèmes Skolengo.
+
+**Itérations possibles :**
+
+- Ajouter une variante HC `skolengo-light-hc` et l'enregistrer dans `HIGH_CONTRAST_THEMES`.
+- Remap optionnel des échelles EMS pour les états succès/erreur/info (comme dans l'ancien plan
+  `config.json`), si l'on veut aligner aussi ces palettes sur les teintes EMS exactes.
+- Les translucides `--cpd-color-alpha-*` ne sont pas teintés (impact visuel mineur).

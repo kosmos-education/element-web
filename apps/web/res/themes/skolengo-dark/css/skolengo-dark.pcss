@@ -1,0 +1,20 @@
+/* Thème Skolengo — mode sombre
+ * Fork du thème dark d'Element. Suit le même motif que dark.pcss :
+ * importe _light.pcss puis _dark.pcss pour les overrides sombres, puis nos
+ * surcharges de marque Skolengo (_skolengo-vars.pcss et _skolengo-tokens.pcss).
+ */
+@layer compound-tokens, compound-web, shared-components, app-web;
+
+@import "../../../../res/css/_font-sizes.pcss" layer(app-web);
+@import "../../light/css/_fonts.pcss" layer(app-web);
+@import "../../light/css/_light.pcss" layer(app-web);
+@import "../../dark/css/_dark.pcss" layer(app-web);
+/* Surcharge des variables PostCSS legacy de marque (après _dark.pcss, avant _components.pcss) */
+@import "../../skolengo-light/css/_skolengo-vars.pcss" layer(app-web);
+@import "../../light/css/_mods.pcss" layer(app-web);
+@import "../../../../res/css/_components.pcss" layer(app-web);
+@import "../../../../res/css/_compound.pcss";
+/* Tokens CSS de marque Skolengo — échelle indigo inversée pour le mode sombre */
+@import "_skolengo-tokens.pcss";
+@import url("highlight.js/styles/atom-one-dark.min.css") layer(app-web);
+@import url("github-markdown-css/github-markdown-dark.css") layer(app-web);

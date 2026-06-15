@@ -133,15 +133,17 @@ export default class ThemeWatcher extends TypedEventEmitter<ThemeWatcherEvent, T
         if (theme.startsWith("custom-")) {
             return !!getCustomTheme(theme.substring("custom-".length)).is_dark;
         }
-        return theme === "dark" || theme === "dark-hc";
+        return theme === "dark" || theme === "dark-hc" || theme === "skolengo-dark";
     }
 
     private themeBasedOnSystem(): string | undefined {
         let newTheme: string | undefined;
         if (this.preferDark.matches) {
-            newTheme = "dark";
+            // Utiliser la variante sombre Skolengo quand l'OS est en mode sombre
+            newTheme = "skolengo-dark";
         } else if (this.preferLight.matches) {
-            newTheme = "light";
+            // Utiliser la variante claire Skolengo quand l'OS est en mode clair
+            newTheme = "skolengo-light";
         }
         if (newTheme && this.preferHighContrast.matches) {
             const hcTheme = findHighContrastTheme(newTheme);
