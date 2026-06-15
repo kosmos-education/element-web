@@ -7,12 +7,12 @@
 
 import React, { type JSX } from "react";
 import { IconButton, H1 } from "@vector-im/compound-web";
-import { CollapseAllIcon, ExpandAllIcon, ChatIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { CollapseAllIcon, ExpandAllIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { type ViewModel, useViewModel } from "../../core/viewmodel";
 import { Flex } from "../../core/utils/Flex";
 import { useI18n } from "../../core/i18n/i18nContext";
-import { ComposeMenuView, OptionMenuView, SpaceMenuView } from "./menu";
+import { OptionMenuView, SpaceMenuView } from "./menu";
 import styles from "./RoomListHeaderView.module.css";
 
 /**
@@ -149,9 +149,7 @@ interface RoomListHeaderViewProps {
  */
 export function RoomListHeaderView({ vm }: Readonly<RoomListHeaderViewProps>): JSX.Element {
     const { translate: _t } = useI18n();
-    const { title, displaySpaceMenu, collapseSections, areSectionsEnabled, canCreateRoom, canCreateVideoRoom } =
-        useViewModel(vm);
-    const canOnlyStartChat = !areSectionsEnabled && !canCreateRoom && !canCreateVideoRoom;
+    const { title, displaySpaceMenu, collapseSections, areSectionsEnabled } = useViewModel(vm);
 
     return (
         <Flex
@@ -188,18 +186,7 @@ export function RoomListHeaderView({ vm }: Readonly<RoomListHeaderViewProps>): J
                             )}
                         </IconButton>
                     )}
-                    {canOnlyStartChat ? (
-                        <IconButton
-                            size="28px"
-                            style={{ padding: "4px" }} // Work around miscalculated padding on 28px button: https://github.com/element-hq/compound/issues/409
-                            onClick={(e) => vm.createChatRoom(e.nativeEvent)}
-                            tooltip={_t("action|start_chat")}
-                        >
-                            <ChatIcon color="var(--cpd-color-icon-secondary)" aria-hidden />
-                        </IconButton>
-                    ) : (
-                        <ComposeMenuView vm={vm} />
-                    )}
+
                 </Flex>
             </Flex>
         </Flex>

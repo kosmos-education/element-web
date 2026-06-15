@@ -86,7 +86,8 @@ const SECTION_ONLY_FILTER_IDS: ReadonlySet<FilterId> = new Set<FilterId>(["favou
  */
 function getVisibleFilterIds(): FilterId[] {
     const areSectionsEnabled = SettingsStore.getValue("RoomList.showSections");
-    const filterIds = [...filterKeyToIdMap.values()];
+    // Kosmos: the "people" filter is always hidden, as 1-1 chat creation is not available.
+    const filterIds = [...filterKeyToIdMap.values()].filter((id) => id !== "people");
     return areSectionsEnabled ? filterIds.filter((id) => !SECTION_ONLY_FILTER_IDS.has(id)) : filterIds;
 }
 

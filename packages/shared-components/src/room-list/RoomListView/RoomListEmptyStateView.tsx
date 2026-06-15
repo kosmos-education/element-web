@@ -7,8 +7,6 @@
 
 import React, { type JSX, type PropsWithChildren, type ReactNode } from "react";
 import { Button } from "@vector-im/compound-web";
-import ChatIcon from "@vector-im/compound-design-tokens/assets/web/icons/chat";
-import RoomIcon from "@vector-im/compound-design-tokens/assets/web/icons/room";
 
 import { Flex } from "../../core/utils/Flex";
 import { _t } from "../../core/i18n/i18n";
@@ -33,33 +31,7 @@ export const RoomListEmptyStateView: React.FC<RoomListEmptyStateViewProps> = ({ 
 
     // If there is no active filter, show the default empty state
     if (!snapshot.activeFilterId) {
-        return (
-            <GenericPlaceholder
-                title={_t("room_list|empty|no_chats")}
-                description={
-                    snapshot.canCreateRoom
-                        ? _t("room_list|empty|no_chats_description")
-                        : _t("room_list|empty|no_chats_description_no_room_rights")
-                }
-            >
-                <Flex
-                    className={styles.defaultPlaceholder}
-                    align="center"
-                    justify="center"
-                    direction="column"
-                    gap="var(--cpd-space-4x)"
-                >
-                    <Button size="md" kind="secondary" Icon={ChatIcon} onClick={vm.createChatRoom}>
-                        {_t("action|start_chat")}
-                    </Button>
-                    {snapshot.canCreateRoom && (
-                        <Button size="md" kind="secondary" Icon={RoomIcon} onClick={vm.createRoom}>
-                            {_t("action|new_room")}
-                        </Button>
-                    )}
-                </Flex>
-            </GenericPlaceholder>
-        );
+        return <GenericPlaceholder title={_t("room_list|empty|no_chats")} />;
     }
 
     // Handle different filter cases based on filter ID
