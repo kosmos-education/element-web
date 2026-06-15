@@ -28,8 +28,10 @@ import SettingsStore from "./settings/SettingsStore";
 import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 import { FontWatcher } from "./settings/watchers/FontWatcher";
 
-export const DEFAULT_THEME = "light";
+export const DEFAULT_THEME = "skolengo-light";
 const HIGH_CONTRAST_THEMES: Record<string, string> = {
+    // Pas de variante HC pour les thèmes Skolengo pour l'instant.
+    // "light" est conservé ici au cas où le thème natif light serait sélectionné manuellement.
     light: "light-high-contrast",
 };
 
@@ -87,10 +89,12 @@ export function isHighContrastTheme(theme: string): boolean {
 }
 
 export function enumerateThemes(): { [key: string]: string } {
+    // Seuls les thèmes Skolengo sont proposés dans le sélecteur d'apparence.
+    // Les thèmes natifs light/dark/high-contrast restent dans le build (pour light-custom/dark-custom)
+    // mais ne sont pas listés ici afin de ne pas apparaître dans les réglages utilisateur.
     const BUILTIN_THEMES = {
-        "light": _t("common|light"),
-        "light-high-contrast": _t("theme|light_high_contrast"),
-        "dark": _t("common|dark"),
+        "skolengo-light": "Skolengo",
+        "skolengo-dark": "Skolengo Sombre",
     };
     const customThemes = SettingsStore.getValue("custom_themes") || [];
     const customThemeNames: Record<string, string> = {};

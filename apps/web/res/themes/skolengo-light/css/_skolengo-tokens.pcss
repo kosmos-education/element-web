@@ -1,0 +1,65 @@
+/* Tokens CSS de marque Skolengo — mode CLAIR
+ * Définit l'échelle IndigoEMS (100=clair → 1400=foncé) et repointe les tokens
+ * sémantiques d'accent de la palette green (défaut Compound) vers indigo.
+ * Injecté dans la couche compound-tokens pour gagner sur les tokens Compound importés
+ * (même mécanisme que generateCustomCompoundCSS dans theme.ts).
+ */
+@layer compound-tokens {
+    :root,
+    [class*="cpd-theme-"] {
+        /* ── Échelle IndigoEMS — mode clair (100=plus clair, 1400=plus foncé) ── */
+        --cpd-color-indigo-100: #fafbff;
+        --cpd-color-indigo-200: #f6f8ff;
+        --cpd-color-indigo-300: #edf1ff;
+        --cpd-color-indigo-400: #dde5ff;
+        --cpd-color-indigo-500: #c4d0ff;
+        --cpd-color-indigo-600: #b2c0ff;
+        --cpd-color-indigo-700: #98a6ff;
+        --cpd-color-indigo-800: #747aff;
+        --cpd-color-indigo-900: #5851fb;
+        --cpd-color-indigo-1000: #4c41e6;
+        --cpd-color-indigo-1100: #4135ce;
+        --cpd-color-indigo-1200: #3425ac;
+        --cpd-color-indigo-1300: #241782;
+        --cpd-color-indigo-1400: #170c5c;
+
+        /* ── Tokens sémantiques d'accent → indigo (vert conservé pour le succès) ── */
+
+        /* Fonds de boutons/badges d'accent */
+        --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-accent-pressed: var(--cpd-color-indigo-1100);
+        --cpd-color-bg-accent-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-badge-accent: var(--cpd-color-indigo-400);
+
+        /* Texte d'accent */
+        --cpd-color-text-action-accent: var(--cpd-color-indigo-1100);
+        --cpd-color-text-badge-accent: var(--cpd-color-indigo-1100);
+
+        /* Icônes et bordures d'accent */
+        --cpd-color-icon-accent-primary: var(--cpd-color-indigo-1000);
+        --cpd-color-icon-accent-tertiary: var(--cpd-color-indigo-800);
+        --cpd-color-border-accent-subtle: var(--cpd-color-indigo-700);
+
+        /* Dégradé d'action (avatar gradient, etc.) */
+        --cpd-color-gradient-action-stop1: var(--cpd-color-indigo-800);
+        --cpd-color-gradient-action-stop2: var(--cpd-color-indigo-1000);
+        --cpd-color-gradient-action-stop3: var(--cpd-color-indigo-1100);
+        --cpd-color-gradient-action-stop4: var(--cpd-color-indigo-1300);
+
+        /* ── Surfaces teintées périvenche ── */
+        /* subtle-primary : fonds de panneaux (droite, header…) ≈ #edf1ff */
+        --cpd-color-bg-subtle-primary: var(--cpd-color-indigo-300);
+        /* subtle-secondary : surface encore plus légère */
+        --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
+
+        /* ── Couleurs décoratives (noms d'expéditeurs, avatars) ── */
+        /* Correspondent aux couleurs observées dans les maquettes, issus des EMS-900 */
+        --cpd-color-text-decorative-1: #8440f3; /* PurpleEMS-900  */
+        --cpd-color-text-decorative-2: #007d28; /* GreenEMS-900   */
+        --cpd-color-text-decorative-3: #0672ac; /* CyanEMS-900    */
+        --cpd-color-text-decorative-4: #c63737; /* RedEMS-900     */
+        --cpd-color-text-decorative-5: #7d6b00; /* Rust/Yellow-900 */
+        --cpd-color-text-decorative-6: #ae5206; /* OrangeEMS-900  */
+    }
+}

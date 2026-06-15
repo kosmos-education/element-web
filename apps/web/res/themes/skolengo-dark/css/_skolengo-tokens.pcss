@@ -1,0 +1,64 @@
+/* Tokens CSS de marque Skolengo — mode SOMBRE
+ * Définit l'échelle IndigoEMS INVERSÉE (100=foncé → 1400=clair), cohérent avec
+ * la convention Compound dark où les échelles de base sont inversées.
+ * Les tokens sémantiques sont identiques à la version claire : en référençant
+ * les mêmes numéros d'échelle, ils s'adaptent automatiquement au mode.
+ */
+@layer compound-tokens {
+    :root,
+    [class*="cpd-theme-"] {
+        /* ── Échelle IndigoEMS — mode sombre (100=plus foncé, 1400=plus clair) ── */
+        --cpd-color-indigo-100: #170c5c;
+        --cpd-color-indigo-200: #241782;
+        --cpd-color-indigo-300: #3425ac;
+        --cpd-color-indigo-400: #4135ce;
+        --cpd-color-indigo-500: #4c41e6;
+        --cpd-color-indigo-600: #5851fb;
+        --cpd-color-indigo-700: #747aff;
+        --cpd-color-indigo-800: #98a6ff;
+        --cpd-color-indigo-900: #b2c0ff;
+        --cpd-color-indigo-1000: #c4d0ff;
+        --cpd-color-indigo-1100: #dde5ff;
+        --cpd-color-indigo-1200: #edf1ff;
+        --cpd-color-indigo-1300: #f6f8ff;
+        --cpd-color-indigo-1400: #fafbff;
+
+        /* ── Tokens sémantiques d'accent → indigo (identiques au mode clair) ── */
+        /* En mode sombre, indigo-900 = #b2c0ff (periwinkle clair sur fond sombre) */
+
+        /* Fonds de boutons/badges d'accent */
+        --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-accent-pressed: var(--cpd-color-indigo-1100);
+        --cpd-color-bg-accent-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-badge-accent: var(--cpd-color-indigo-400);
+
+        /* Texte d'accent */
+        --cpd-color-text-action-accent: var(--cpd-color-indigo-1100);
+        --cpd-color-text-badge-accent: var(--cpd-color-indigo-1100);
+
+        /* Icônes et bordures d'accent */
+        --cpd-color-icon-accent-primary: var(--cpd-color-indigo-1000);
+        --cpd-color-icon-accent-tertiary: var(--cpd-color-indigo-800);
+        --cpd-color-border-accent-subtle: var(--cpd-color-indigo-700);
+
+        /* Dégradé d'action */
+        --cpd-color-gradient-action-stop1: var(--cpd-color-indigo-800);
+        --cpd-color-gradient-action-stop2: var(--cpd-color-indigo-1000);
+        --cpd-color-gradient-action-stop3: var(--cpd-color-indigo-1100);
+        --cpd-color-gradient-action-stop4: var(--cpd-color-indigo-1300);
+
+        /* ── Surfaces teintées (panneaux sombres à teinte indigo) ── */
+        /* En mode sombre, indigo-300 = #3425ac (profond indigo) */
+        --cpd-color-bg-subtle-primary: var(--cpd-color-indigo-300);
+        --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
+
+        /* ── Couleurs décoratives (identiques au mode clair — restent lisibles) ── */
+        --cpd-color-text-decorative-1: #8440f3; /* PurpleEMS-900  */
+        --cpd-color-text-decorative-2: #007d28; /* GreenEMS-900   */
+        --cpd-color-text-decorative-3: #0672ac; /* CyanEMS-900    */
+        --cpd-color-text-decorative-4: #c63737; /* RedEMS-900     */
+        --cpd-color-text-decorative-5: #7d6b00; /* Rust/Yellow-900 */
+        --cpd-color-text-decorative-6: #ae5206; /* OrangeEMS-900  */
+    }
+}
