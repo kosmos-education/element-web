@@ -34,3 +34,40 @@
 .mx_RightPanel {
     background-color: var(--cpd-color-indigo-300);
 }
+
+/* ── Avatars ──────────────────────────────────────────────────────────────── */
+
+/* Initiales en blanc sur fonds décoratifs saturés.
+ * Ne touche PAS --cpd-color-text-decorative-* : les noms d'auteurs dans la
+ * timeline restent colorés (ils n'utilisent pas --cpd-avatar-color). */
+.mx_BaseAvatar {
+    --cpd-avatar-color: #fff;
+}
+
+/* Avatars de SALONS en carré arrondi — liste et en-tête uniquement.
+ * Les avatars d'auteurs dans les messages restent ronds.
+ * Compound applique border-radius via --cpd-avatar-radius sur .avatar[data-type].
+ * On surcharge la variable sur .mx_BaseAvatar pour gagner en spécificité. */
+.mx_RoomListItemView .mx_RoomAvatarView .mx_BaseAvatar,
+.mx_RoomHeader .mx_BaseAvatar {
+    --cpd-avatar-radius: 25%;
+}
+
+/* ── Liste des salons ─────────────────────────────────────────────────────── */
+
+/* Nom du salon : plus foncé et légèrement plus gras (maquette).
+ * data-testid="room-name" est le seul sélecteur stable sur cet élément
+ * (la classe CSS module est hashée à la compilation). */
+.mx_RoomListItemView [data-testid="room-name"] {
+    color: var(--cpd-color-text-primary);
+    font-weight: var(--cpd-font-weight-medium);
+}
+
+/* ── En-tête du salon ─────────────────────────────────────────────────────── */
+
+/* Titre du salon (RoomHeader) : plus d'épaisseur.
+ * Compound pose la graisse via font: shorthand sur .cpd-text-heading-lg-semibold ;
+ * !important nécessaire pour la surcharge. */
+.mx_RoomHeader .mx_RoomHeader_heading {
+    font-weight: var(--cpd-font-weight-bold) !important;
+}
