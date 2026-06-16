@@ -25,6 +25,17 @@
 
         /* ── Tokens sémantiques d'accent → indigo (vert conservé pour le succès) ── */
 
+        /* Boutons primaires + pastilles de filtre actives (ChatFilter[aria-selected])
+         * → indigo (par défaut gray-1400/noir dans Compound) */
+        --cpd-color-bg-action-primary-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-action-primary-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-action-primary-pressed: var(--cpd-color-indigo-1100);
+        /* disabled laissé au gris Compound : sémantique "indisponible" */
+
+        /* Salon sélectionné + survol des tuiles de salon → périvenche */
+        --cpd-color-bg-action-tertiary-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-action-tertiary-hovered: var(--cpd-color-indigo-200);
+
         /* Fonds de boutons/badges d'accent */
         --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
         --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
