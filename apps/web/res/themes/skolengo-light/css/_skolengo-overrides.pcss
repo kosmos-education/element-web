@@ -1,0 +1,36 @@
+/* Surcharges de sélecteurs app — fonds périvenche des panneaux latéraux
+ * Partagé par skolengo-light et skolengo-dark.
+ *
+ * Depuis la v1.12.21, la nouvelle UI (feature_new_room_list) code en dur
+ * --cpd-color-bg-canvas-default sur ces conteneurs ; les variables legacy
+ * $roomlist-bg-color / $spacePanel-bg-color n'ont plus d'effet. On repeint
+ * directement le background-color sur les sélecteurs de conteneur.
+ *
+ * IMPORTANT : on ne redéfinit PAS --cpd-color-bg-canvas-default globalement car
+ * il est aussi utilisé par la timeline (doit rester blanche), par la barre de
+ * recherche (Button secondary, doit ressortir en blanc sur le périvenche) et par
+ * les en-têtes de section sticky.
+ *
+ * Les var(--cpd-color-indigo-*) s'adaptent automatiquement au mode clair/sombre
+ * via l'échelle inversée définie dans _skolengo-tokens.pcss de chaque thème.
+ */
+
+/* Left panel (conteneur global nouvelle UI) — possède un !important d'origine */
+.mx_LeftPanel_newRoomList {
+    background-color: var(--cpd-color-indigo-300) !important;
+}
+
+/* Space panel (barre d'espaces latérale) — légèrement plus saturé (≈ #dde5ff maquette) */
+.mx_SpacePanel.newUi {
+    background-color: var(--cpd-color-indigo-400);
+}
+
+/* Room list panel (liste des salons + header + filtres) — périvenche clair ≈ #edf1ff */
+.mx_RoomListPanel {
+    background-color: var(--cpd-color-indigo-300);
+}
+
+/* Panneau de droite (infos salon / liste des membres) — périvenche clair */
+.mx_RightPanel {
+    background-color: var(--cpd-color-indigo-300);
+}
