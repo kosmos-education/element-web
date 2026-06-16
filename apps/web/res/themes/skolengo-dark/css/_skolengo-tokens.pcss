@@ -26,6 +26,17 @@
         /* ── Tokens sémantiques d'accent → indigo (identiques au mode clair) ── */
         /* En mode sombre, indigo-900 = #b2c0ff (periwinkle clair sur fond sombre) */
 
+        /* Boutons primaires + pastilles de filtre actives → indigo
+         * En mode sombre : indigo-900 = #b2c0ff (périvenche clair sur fond sombre) */
+        --cpd-color-bg-action-primary-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-action-primary-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-action-primary-pressed: var(--cpd-color-indigo-1100);
+        /* disabled laissé au gris Compound */
+
+        /* Salon sélectionné + survol → teinte indigo sombre */
+        --cpd-color-bg-action-tertiary-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-action-tertiary-hovered: var(--cpd-color-indigo-200);
+
         /* Fonds de boutons/badges d'accent */
         --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
         --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
