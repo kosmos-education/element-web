@@ -230,6 +230,33 @@ la barre de recherche distincte et les en-têtes de section sticky.
 et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `background-color`
 (`apps/web/res/css/structures/_LeftPanel.pcss`).
 
+**Avatars — forme et couleurs :**
+
+Les avatars de **salons** (liste + en-tête) sont rendus en **carré arrondi** (border-radius 25 %).
+Les avatars d'auteurs dans les messages de la timeline restent **ronds**.
+La surcharge est dans `_skolengo-overrides.pcss` via `--cpd-avatar-radius: 25%` sur les
+sélecteurs `.mx_RoomListItemView .mx_RoomAvatarView .mx_BaseAvatar` et `.mx_RoomHeader .mx_BaseAvatar`.
+
+Les fonds d'avatars (`--cpd-color-bg-decorative-1..6`) utilisent les couleurs **saturées EMS-900**
+(identiques aux `text-decorative`), avec des **initiales blanches** (`--cpd-avatar-color: #fff`
+dans `_skolengo-overrides.pcss`). Les `--cpd-color-text-decorative-*` sont conservés inchangés
+car ils servent à colorer les **noms d'auteurs** dans la timeline (ils ne passent pas par
+`--cpd-avatar-color`).
+
+⚠️ **Au prochain rebase upstream** : vérifier que `.mx_RoomAvatarView` et `.mx_RoomListItemView`
+n'ont pas été renommés, et que `RoomAvatar` passe toujours `type="round"` (et non `"square"`)
+pour les salons non-space.
+
+**Noms de salons et titre d'en-tête :**
+
+- Les noms des salons dans la liste sont **plus foncés et légèrement plus gras** (`text-primary` +
+  `font-weight-medium`) via `.mx_RoomListItemView [data-testid="room-name"]` dans `_skolengo-overrides.pcss`.
+  `data-testid="room-name"` est le seul sélecteur stable sur cet élément (la classe CSS module est hashée).
+- Le **titre du salon dans l'en-tête** (`.mx_RoomHeader_heading`) est rendu en `font-weight-bold`.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `RoomListItemContent.tsx` porte toujours
+`data-testid="room-name"` sur le div du nom du salon.
+
 **Itérations possibles :**
 
 - Ajouter une variante HC `skolengo-light-hc` et l'enregistrer dans `HIGH_CONTRAST_THEMES`.
