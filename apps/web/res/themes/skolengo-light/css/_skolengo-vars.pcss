@@ -34,8 +34,12 @@ $accent-1400: var(--cpd-color-indigo-1400);
 /* Surfaces teintées périvenche */
 /* ******************** */
 /* Room list : indigo-300 ≈ #edf1ff (correspond à la maquette #eff3ff) */
+/* NOTE : pilote l'ANCIENNE UI (legacy room list) uniquement. La nouvelle UI (v1.12.21+,
+ * feature_new_room_list) ignore ces variables et utilise --cpd-color-bg-canvas-default.
+ * Les fonds périvenche de la nouvelle UI sont définis dans _skolengo-overrides.pcss. */
 $roomlist-bg-color: var(--cpd-color-indigo-300);
 /* Space panel (barre latérale) : indigo-400 ≈ #dde5ff (correspond à la maquette #d4deff) */
+/* Même remarque : pilote l'ancienne UI seulement. Voir _skolengo-overrides.pcss. */
 $spacePanel-bg-color: var(--cpd-color-indigo-400);
 /* ******************** */
 

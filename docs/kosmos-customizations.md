@@ -161,7 +161,8 @@ apps/web/res/themes/
 ├── skolengo-light/css/
 │   ├── skolengo-light.pcss      # entrypoint (fork de light.pcss)
 │   ├── _skolengo-vars.pcss      # overrides de variables PostCSS legacy ($)
-│   └── _skolengo-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
+│   ├── _skolengo-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
+│   └── _skolengo-overrides.pcss # surcharges sélecteurs app (fonds panneaux, partagé clair+sombre)
 └── skolengo-dark/css/
     ├── skolengo-dark.pcss       # entrypoint (fork de dark.pcss)
     └── _skolengo-tokens.pcss   # échelle indigo inversée (mode sombre)
@@ -210,6 +211,24 @@ Le thème Skolengo utilise **Open Sans** à la place d'Inter (police par défaut
 ⚠️ **Au prochain rebase upstream** : vérifier que `_FormattingButtons.pcss` n'a pas réintroduit
 `font-family: Inter` ; vérifier que `theme.ts` n'a pas réimporté `@fontsource/inter` dans le
 contexte de l'app principale.
+
+**Fonds périvenche des panneaux latéraux :**
+
+Depuis la v1.12.21, la nouvelle UI (`feature_new_room_list`) code en dur
+`--cpd-color-bg-canvas-default` (blanc) sur les conteneurs latéraux via les sélecteurs
+`.mx_LeftPanel_newRoomList`, `.mx_SpacePanel.newUi`, `.mx_RoomListPanel`, `.mx_RightPanel`.
+Les variables legacy `$roomlist-bg-color` / `$spacePanel-bg-color` de `_skolengo-vars.pcss`
+ne pilotent plus que l'ancienne UI (jamais rendue) et n'ont **aucun effet**.
+
+La correction est dans `_skolengo-overrides.pcss` (importé depuis les deux entrypoints après
+`_components.pcss`) : on applique directement `background-color: var(--cpd-color-indigo-300)`
+sur ces sélecteurs. On ne redéfinit PAS le token global pour préserver la timeline blanche,
+la barre de recherche distincte et les en-têtes de section sticky.
+
+⚠️ **Au prochain rebase upstream** : vérifier que les sélecteurs `.mx_LeftPanel_newRoomList` /
+`.mx_SpacePanel.newUi` / `.mx_RoomListPanel` / `.mx_RightPanel` n'ont pas été renommés en amont,
+et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `background-color`
+(`apps/web/res/css/structures/_LeftPanel.pcss`).
 
 **Itérations possibles :**
 
