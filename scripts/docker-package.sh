@@ -5,9 +5,15 @@ set -ex
 DIR=$(dirname "$0")
 
 # Version dérivée du dernier tag git (ex: v1.12.21 -> 1.12.21), suffixée -kosmos
-DIST_VERSION=$(git describe --abbrev=0 --tags)
-DIST_VERSION=$("$DIR"/normalize-version.sh "$DIST_VERSION")
-DIST_VERSION="${DIST_VERSION}-kosmos"
+# Exception : branche kosmos/<xxx> avec xxx != "release" → on utilise le nom de branche en lowercase
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$CURRENT_BRANCH" =~ ^kosmos/(.+)$ ]] && [[ "${BASH_REMATCH[1]}" != release* ]]; then
+    DIST_VERSION=$(echo "$CURRENT_BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+else
+    DIST_VERSION=$(git describe --abbrev=0 --tags)
+    DIST_VERSION=$("$DIR"/normalize-version.sh "$DIST_VERSION")
+    DIST_VERSION="${DIST_VERSION}-kosmos"
+fi
 
 echo $DIST_VERSION
 
