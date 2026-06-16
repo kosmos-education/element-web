@@ -80,6 +80,7 @@ import { SDKContext } from "../../../contexts/SDKContext.ts";
 import { OwnProfileStore } from "../../../stores/OwnProfileStore.ts";
 import { type SDKContextClass } from "../../../contexts/SDKContextClass.ts";
 import { QuickHelp } from "./quick-help/";
+import skolengoLogo from "../../../../res/img/donut-skolengo.svg";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const sdkContext = useContext(SDKContext);
@@ -430,6 +431,7 @@ const SpacePanel: React.FC = () => {
                         ref={ref}
                         aria-label={_t("common|spaces")}
                     >
+                        <img className="mx_SpacePanel_logo" src={skolengoLogo} alt="Skolengo" />
                         <UserMenu vm={userMenuVm} className="mx_UserMenu" />
                         <AccessibleButton
                             className={classNames("mx_SpacePanel_toggleCollapse", {
