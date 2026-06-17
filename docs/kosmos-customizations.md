@@ -234,18 +234,28 @@ et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `backg
 
 Les avatars de **salons** (liste + en-tête) sont rendus en **carré arrondi** (border-radius 25 %).
 Les avatars d'auteurs dans les messages de la timeline restent **ronds**.
-La surcharge est dans `_skolengo-overrides.pcss` via `--cpd-avatar-radius: 25%` sur les
-sélecteurs `.mx_RoomListItemView .mx_RoomAvatarView .mx_BaseAvatar` et `.mx_RoomHeader .mx_BaseAvatar`.
+La surcharge est dans `_skolengo-overrides.pcss` via `--cpd-avatar-radius: 25% !important` sur
+les sélecteurs `.mx_RoomListItemView .mx_BaseAvatar`, `.mx_RoomHeader > *:first-child.mx_BaseAvatar`
+(avatar enfant direct — cas fréquent sans présence) et `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
+(avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée).
+
+Point technique en-tête : `WithPresenceIndicator` renvoie un **Fragment** (aucun nœud DOM) quand
+il n'y a pas de présence → l'avatar devient l'**enfant direct** de `.mx_RoomHeader`, pas un
+descendant ; d'où la nécessité des deux variantes du sélecteur.
 
 Les fonds d'avatars (`--cpd-color-bg-decorative-1..6`) utilisent les couleurs **saturées EMS-900**
-(identiques aux `text-decorative`), avec des **initiales blanches** (`--cpd-avatar-color: #fff`
+(identiques aux `text-decorative`), avec des **initiales blanches** (`--cpd-avatar-color: #fff !important`
 dans `_skolengo-overrides.pcss`). Les `--cpd-color-text-decorative-*` sont conservés inchangés
 car ils servent à colorer les **noms d'auteurs** dans la timeline (ils ne passent pas par
 `--cpd-avatar-color`).
 
-⚠️ **Au prochain rebase upstream** : vérifier que `.mx_RoomAvatarView` et `.mx_RoomListItemView`
-n'ont pas été renommés, et que `RoomAvatar` passe toujours `type="round"` (et non `"square"`)
-pour les salons non-space.
+L'avatar de l'**utilisateur courant** (haut du space panel, `UserMenu`) est rendu par Compound
+`<Avatar>` directement — sans classe `.mx_BaseAvatar`. On le cible via `.mx_UserMenu [data-color]`
+(attribut stable, survit au hash CSS module). Sans effet sur une photo uploadée.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `.mx_RoomListItemView` n'a pas été renommé,
+que `RoomAvatar` passe toujours `type="round"` pour les salons non-space, et que
+`WithPresenceIndicator` renvoie toujours un Fragment quand `presence` est null/undefined.
 
 **Noms de salons et titre d'en-tête :**
 
@@ -256,6 +266,39 @@ pour les salons non-space.
 
 ⚠️ **Au prochain rebase upstream** : vérifier que `RoomListItemContent.tsx` porte toujours
 `data-testid="room-name"` sur le div du nom du salon.
+
+**Espaces (space panel) — liseré et alignement :**
+
+Le `selectionWrapper` en mode narrow (barre repliée) reçoit `padding:1px; border:3px solid transparent`
+dans `_skolengo-overrides.pcss`. Cela reproduit l'équilibre 4px constant (inactif : 1px pad + 3px bord
+transparent = 4px ; actif : la règle native `.mx_SpaceButton_active.mx_SpaceButton_narrow` (0,4,0) pose
+`border:3px solid $primary-content` + `padding:1px` = 4px) sans `!important`, de sorte que l'icône ne
+« danse » pas lors d'un switch d'espace.
+
+⚠️ **Au prochain rebase upstream** : vérifier que la règle native active `_SpacePanel.pcss:145-148`
+conserve `padding: var(--activeBorder-transparent-gap)` (= 1px) + `border: 3px solid`. Si la valeur
+change, l'équilibre est à recalibrer.
+
+**Filtres de la liste et pastilles de non-lus :**
+
+- Pastilles de filtre **désélectionnées** (Non-lus, Salons, Favoris, Mentions) : fond indigo-300 +
+  liseré indigo-400 via `[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"])`.
+  La pastille **sélectionnée** est déjà conforme (indigo-900 + texte blanc) via
+  `--cpd-color-bg-action-primary-rest`.
+- Pastilles de **messages non lus** : fond indigo-600 (`--cpd-color-icon-success-primary` repointé
+  dans `[data-testid="notification-decoration"]`), texte blanc (déjà fourni par Compound). En mode
+  sombre, indigo-600 = #5851fb (accent vif, bon contraste). En mode clair, #b2c0ff — si le contraste
+  est insuffisant, remonter à indigo-900 (#5851fb).
+
+⚠️ **Au prochain rebase upstream** : vérifier que `RoomListPrimaryFilters.tsx` porte toujours
+`data-testid="primary-filters"` et `role="option"`, et que `NotificationDecoration.tsx` porte
+toujours `data-testid="notification-decoration"`.
+
+**Logo Skolengo :**
+
+Le logo (`.mx_SpacePanel_logo`, `<img>` nu 36×36) est rendu sur fond blanc circulaire via
+`.mx_SpacePanel .mx_SpacePanel_logo` avec `background-color:#fff; border-radius:50%; padding:4px;
+box-sizing:border-box`.
 
 **Itérations possibles :**
 
