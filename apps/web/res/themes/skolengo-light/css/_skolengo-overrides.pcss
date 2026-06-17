@@ -84,20 +84,22 @@
 /* Pastilles de filtre désélectionnées (Non-lus, Salons, Favoris, Mentions).
  * Compound ChatFilter : désélectionné = fond transparent, bord gris, texte sombre.
  * La classe CSS module est hashée → sélecteurs stables data-testid + role/aria.
- * Sélectionné : déjà indigo-900 + texte blanc via --cpd-color-bg-action-primary-rest. */
+ * Sélectionné : déjà indigo-900 + texte blanc via --cpd-color-bg-action-primary-rest.
+ * Bordure indigo-800 : ≥ 3:1 contre panneau indigo-300 dans les 2 modes (RGAA crit. 3.3).
+ * clair #747aff vs #edf1ff = 3,12:1 ✓ ; sombre #98a6ff vs #3425ac = 4,6:1 ✓. */
 [data-testid="primary-filters"] [role="option"]:not([aria-selected="true"]) {
     background-color: var(--cpd-color-indigo-300);
-    border-color: var(--cpd-color-indigo-400);
+    border-color: var(--cpd-color-indigo-800);
 }
 
 /* ── Pastilles de messages non lus ────────────────────────────────────────── */
 
-/* UnreadCounter Compound : fond --cpd-color-icon-success-primary (vert) → indigo-600.
- * Texte --cpd-color-text-on-solid-primary = blanc (déjà correct).
- * On repointe le token dans le scope stable data-testid="notification-decoration"
- * pour ne pas affecter les pastilles de succès ailleurs dans l'UI. */
+/* UnreadCounter Compound : fond --cpd-color-icon-success-primary (vert) → indigo-900.
+ * Texte --cpd-color-text-on-solid-primary = blanc en clair (theme-bg = #fff → 5,27:1 ✓),
+ * sombre = #101317 sur #b2c0ff (indigo-900 dark) → 10,5:1 ✓. RGAA AA conforme.
+ * indigo-600 clair (#b2c0ff) était insuffisant (1,77:1 — non conforme RGAA AA). */
 [data-testid="notification-decoration"] {
-    --cpd-color-icon-success-primary: var(--cpd-color-indigo-600);
+    --cpd-color-icon-success-primary: var(--cpd-color-indigo-900);
 }
 
 /* ── Logo Skolengo ────────────────────────────────────────────────────────── */
