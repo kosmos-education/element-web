@@ -67,16 +67,44 @@
     --cpd-avatar-radius: 25% !important;
 }
 
-/* Espaces (barre de gauche) : fond coloré jusqu'au liseré de focus/sélection,
- * sans anneau périvenche visible, sans saut d'alignement au changement d'espace.
+/* Espaces (barre de gauche) : contour intégré à la couleur de chaque espace.
  * Logique native : inactif = padding 4px, actif = padding 1px + border 3px = 4px.
- * On pose padding:1px + border transparent pour reproduire le même total inactif (4px)
- * tout en supprimant la couleur de l'anneau. La règle native active (0,4,0 sans
- * !important) reprend le dessus pour border-color → le liseré de sélection s'affiche.
+ * On pose padding:1px + border 3px pour conserver le total (4px) inactif/actif.
+ * Bordure : rgba(0,0,0,.25) — semi-transparent noir ; comme background-clip vaut
+ * border-box, le fond coloré du selectionWrapper transparaît sous la bordure →
+ * résultat : couleur de l'espace assombrie de ~25 %, sans saut d'alignement.
+ * Les 6 règles :has() posent le fond selon data-color de l'avatar (Compound Avatar
+ * pose toujours data-color="N" sur .mx_BaseAvatar, N ∈ 1..6).
+ * La règle native active (spécificité 0,4,0, sans !important) continue de prendre
+ * le dessus pour border-color → le liseré de sélection reste visible.
  * On N'utilise PAS !important afin de ne pas bloquer la règle active native. */
 .mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
     padding: 1px;
-    border: 3px solid transparent;
+    border: 3px solid rgba(0, 0, 0, 0.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="1"]) {
+    background-color: var(--cpd-color-bg-decorative-1);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="2"]) {
+    background-color: var(--cpd-color-bg-decorative-2);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="3"]) {
+    background-color: var(--cpd-color-bg-decorative-3);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="4"]) {
+    background-color: var(--cpd-color-bg-decorative-4);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="5"]) {
+    background-color: var(--cpd-color-bg-decorative-5);
+}
+
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="6"]) {
+    background-color: var(--cpd-color-bg-decorative-6);
 }
 
 /* ── Filtres de la liste des salons ───────────────────────────────────────── */
