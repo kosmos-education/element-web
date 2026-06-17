@@ -39,18 +39,32 @@
 
 /* Initiales en blanc sur fonds décoratifs saturés.
  * Ne touche PAS --cpd-color-text-decorative-* : les noms d'auteurs dans la
- * timeline restent colorés (ils n'utilisent pas --cpd-avatar-color). */
+ * timeline restent colorés (ils n'utilisent pas --cpd-avatar-color).
+ * !important nécessaire : .avatar[data-color] (0,2,0) bat .mx_BaseAvatar (0,1,0). */
 .mx_BaseAvatar {
-    --cpd-avatar-color: #fff;
+    --cpd-avatar-color: #fff !important;
 }
 
-/* Avatars de SALONS en carré arrondi — liste et en-tête uniquement.
- * Les avatars d'auteurs dans les messages restent ronds.
- * Compound applique border-radius via --cpd-avatar-radius sur .avatar[data-type].
- * On surcharge la variable sur .mx_BaseAvatar pour gagner en spécificité. */
-.mx_RoomListItemView .mx_RoomAvatarView .mx_BaseAvatar,
-.mx_RoomHeader .mx_BaseAvatar {
-    --cpd-avatar-radius: 25%;
+/* Avatars de SALONS en carré arrondi — liste et avatar principal de l'en-tête.
+ * On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
+ * .mx_RoomAvatarView QUE si l'avatar a une décoration (badge/présence) ; sinon
+ * il rend <RoomAvatar> nu, sans ce wrapper — le sélecteur .mx_RoomAvatarView
+ * ne matchait donc pas la plupart des salons.
+ * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
+ * descendant sans !important.
+ * En-tête : > *:first-child = wrapper WithPresenceIndicator ; exclut la facepile. */
+.mx_RoomListItemView .mx_BaseAvatar,
+.mx_RoomHeader > *:first-child .mx_BaseAvatar {
+    --cpd-avatar-radius: 25% !important;
+}
+
+/* Espaces (barre de gauche) : supprime le padding du selectionWrapper en mode
+ * narrow pour que le fond coloré de l'avatar remplisse le picto jusqu'au liseré
+ * de focus/sélection (3px $primary-content), sans anneau périvenche visible.
+ * !important : la règle native .mx_SpaceButton_active.mx_SpaceButton_narrow…
+ * (spécificité 0,5,0) poserait sinon padding: 1px sur l'état actif. */
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
+    padding: 0 !important;
 }
 
 /* ── Liste des salons ─────────────────────────────────────────────────────── */
