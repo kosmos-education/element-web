@@ -37,7 +37,7 @@
 
 /* ── Avatars ──────────────────────────────────────────────────────────────── */
 
-/* Initiales en blanc sur fonds décoratifs saturés.
+/* Initiales en blanc sur fonds décoratifs saturés — avatars avec classe mx_BaseAvatar.
  * Ne touche PAS --cpd-color-text-decorative-* : les noms d'auteurs dans la
  * timeline restent colorés (ils n'utilisent pas --cpd-avatar-color).
  * !important nécessaire : .avatar[data-color] (0,2,0) bat .mx_BaseAvatar (0,1,0). */
@@ -45,26 +45,70 @@
     --cpd-avatar-color: #fff !important;
 }
 
+/* Avatar de l'utilisateur courant (UserMenu, haut du space panel).
+ * Ce composant utilise Compound <Avatar> directement (sans mx_BaseAvatar).
+ * On cible [data-color] qui est stable (survit au hash CSS module).
+ * Sans effet sur une photo uploadée (pas d'initiale dans ce cas). */
+.mx_UserMenu [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
 /* Avatars de SALONS en carré arrondi — liste et avatar principal de l'en-tête.
  * On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
- * .mx_RoomAvatarView QUE si l'avatar a une décoration (badge/présence) ; sinon
- * il rend <RoomAvatar> nu, sans ce wrapper — le sélecteur .mx_RoomAvatarView
- * ne matchait donc pas la plupart des salons.
+ * .mx_RoomAvatarView QUE si l'avatar a une décoration ; sinon <RoomAvatar> nu.
+ * En-tête : WithPresenceIndicator renvoie un Fragment (sans nœud DOM) quand
+ * il n'y a pas de présence → l'avatar est l'enfant DIRECT de .mx_RoomHeader.
+ * On couvre les deux cas : enfant direct ET descendant du wrapper de présence.
  * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
- * descendant sans !important.
- * En-tête : > *:first-child = wrapper WithPresenceIndicator ; exclut la facepile. */
+ * descendants sans !important. */
 .mx_RoomListItemView .mx_BaseAvatar,
+.mx_RoomHeader > *:first-child.mx_BaseAvatar,
 .mx_RoomHeader > *:first-child .mx_BaseAvatar {
     --cpd-avatar-radius: 25% !important;
 }
 
-/* Espaces (barre de gauche) : supprime le padding du selectionWrapper en mode
- * narrow pour que le fond coloré de l'avatar remplisse le picto jusqu'au liseré
- * de focus/sélection (3px $primary-content), sans anneau périvenche visible.
- * !important : la règle native .mx_SpaceButton_active.mx_SpaceButton_narrow…
- * (spécificité 0,5,0) poserait sinon padding: 1px sur l'état actif. */
+/* Espaces (barre de gauche) : fond coloré jusqu'au liseré de focus/sélection,
+ * sans anneau périvenche visible, sans saut d'alignement au changement d'espace.
+ * Logique native : inactif = padding 4px, actif = padding 1px + border 3px = 4px.
+ * On pose padding:1px + border transparent pour reproduire le même total inactif (4px)
+ * tout en supprimant la couleur de l'anneau. La règle native active (0,4,0 sans
+ * !important) reprend le dessus pour border-color → le liseré de sélection s'affiche.
+ * On N'utilise PAS !important afin de ne pas bloquer la règle active native. */
 .mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
-    padding: 0 !important;
+    padding: 1px;
+    border: 3px solid transparent;
+}
+
+/* ── Filtres de la liste des salons ───────────────────────────────────────── */
+
+/* Pastilles de filtre désélectionnées (Non-lus, Salons, Favoris, Mentions).
+ * Compound ChatFilter : désélectionné = fond transparent, bord gris, texte sombre.
+ * La classe CSS module est hashée → sélecteurs stables data-testid + role/aria.
+ * Sélectionné : déjà indigo-900 + texte blanc via --cpd-color-bg-action-primary-rest. */
+[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"]) {
+    background-color: var(--cpd-color-indigo-300);
+    border-color: var(--cpd-color-indigo-400);
+}
+
+/* ── Pastilles de messages non lus ────────────────────────────────────────── */
+
+/* UnreadCounter Compound : fond --cpd-color-icon-success-primary (vert) → indigo-600.
+ * Texte --cpd-color-text-on-solid-primary = blanc (déjà correct).
+ * On repointe le token dans le scope stable data-testid="notification-decoration"
+ * pour ne pas affecter les pastilles de succès ailleurs dans l'UI. */
+[data-testid="notification-decoration"] {
+    --cpd-color-icon-success-primary: var(--cpd-color-indigo-600);
+}
+
+/* ── Logo Skolengo ────────────────────────────────────────────────────────── */
+
+/* Logo Skolengo sur fond blanc : l'<img> est posé nu sur le space panel indigo-400.
+ * box-sizing:border-box préserve l'emprise 36×36 existante malgré le padding. */
+.mx_SpacePanel .mx_SpacePanel_logo {
+    background-color: #fff;
+    border-radius: 50%;
+    padding: 4px;
+    box-sizing: border-box;
 }
 
 /* ── Liste des salons ─────────────────────────────────────────────────────── */
