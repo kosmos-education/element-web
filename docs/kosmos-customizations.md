@@ -313,6 +313,7 @@ Paires conformes et ratios clés :
 | Nom de salon / titre en-tête | indigo-300 | ≥14:1 ✓ | indigo-300 | ≥9:1 ✓ |
 | Noms d'auteurs (timeline) | canvas blanc `#fff` | ~5,2:1 ✓ | canvas `#101317` | ~7:1 ✓ |
 | Texte secondaire (aperçus, etc.) | indigo-300 | 4,65:1 ✓ | indigo-300 sombre | 5,9:1 ✓ |
+| Heure sur bulle « moi » | indigo-400 `#dde5ff` | 5,19:1 ✓ | indigo-400 `#4135ce` | 4,51:1 ✓ |
 | Bordure chip désélectionné (crit. 3.3) | vs panneau indigo-300 | 3,12:1 ✓ | vs panneau | 4,6:1 ✓ |
 
 Notes implémentation :
@@ -322,8 +323,21 @@ Notes implémentation :
   4,5:1 sur le canvas sombre `#101317`. Les fonds d'avatar restent saturés (initiales blanches OK).
 - **Texte secondaire sombre** : override `--cpd-color-text-secondary` → `gray-1200` (`#bdc3cc`)
   scoped sur `.mx_RoomListPanel`, `.mx_RightPanel`, `.mx_SpacePanel.newUi` dans le fichier sombre.
-- En mode **clair** le texte secondaire (4,65:1) est au seuil WCAG AA — conforme mais sans marge.
-  Si une future évolution modifie le fond périvenche, à revalider.
+- **Heure sur bulle « moi »** : la bulle est indigo-400, ce qui crée un fond pastel en clair
+  (`#dde5ff`) et saturé-foncé en sombre (`#4135ce`). L'exigence s'inverse : fond clair → texte
+  foncé, fond sombre → texte clair. Mécanisme : repointage de `--cpd-color-text-secondary`
+  (lu par `MessageTimestampView.module.css `.content`) dans le scope
+  `.mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp` ; deux règles
+  qualifiées `.cpd-theme-light` / `.cpd-theme-dark` dans `_skolengo-overrides.pcss`.
+  `gray-1000` (`#595e67`) → 5,19:1 en clair ; `gray-1200` (`#bdc3cc`) → 4,51:1 en sombre.
+  Les bulles des autres (fond gris Compound) restent non affectées.
+- En mode **clair** le texte secondaire des panneaux (4,65:1) est au seuil WCAG AA — conforme mais
+  sans marge. Si une future évolution modifie le fond périvenche, à revalider.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `MessageTimestampView.module.css` consomme
+toujours `var(--cpd-color-text-secondary)` et que le timestamp porte la classe stable
+`.mx_MessageTimestamp` ; que la bulle « moi » reste `[data-layout="bubble"][data-self="true"]`
+(`_EventBubbleTile.pcss`).
 
 **Logo Skolengo :**
 
