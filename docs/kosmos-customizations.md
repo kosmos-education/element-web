@@ -282,17 +282,48 @@ change, l'équilibre est à recalibrer.
 **Filtres de la liste et pastilles de non-lus :**
 
 - Pastilles de filtre **désélectionnées** (Non-lus, Salons, Favoris, Mentions) : fond indigo-300 +
-  liseré indigo-400 via `[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"])`.
+  liseré **indigo-800** via `[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"])`.
+  La bordure indigo-800 passe 3:1 contre le panneau indigo-300 dans les deux modes (crit. 3.3 RGAA AA) :
+  clair `#747aff` vs `#edf1ff` = 3,12:1 ; sombre `#98a6ff` vs `#3425ac` = 4,6:1.
   La pastille **sélectionnée** est déjà conforme (indigo-900 + texte blanc) via
   `--cpd-color-bg-action-primary-rest`.
-- Pastilles de **messages non lus** : fond indigo-600 (`--cpd-color-icon-success-primary` repointé
-  dans `[data-testid="notification-decoration"]`), texte blanc (déjà fourni par Compound). En mode
-  sombre, indigo-600 = #5851fb (accent vif, bon contraste). En mode clair, #b2c0ff — si le contraste
-  est insuffisant, remonter à indigo-900 (#5851fb).
+- Pastilles de **messages non lus** : fond **indigo-900** (`--cpd-color-icon-success-primary` repointé
+  dans `[data-testid="notification-decoration"]`), texte blanc (déjà fourni par Compound via
+  `--cpd-color-text-on-solid-primary` = `theme-bg`). Ratios RGAA AA : clair = blanc sur `#5851fb` = 5,27:1 ✓ ;
+  sombre = `#101317` sur `#b2c0ff` (indigo-900 sombre) = 10,5:1 ✓. indigo-600 clair (`#b2c0ff`)
+  était insuffisant (1,77:1 — non conforme).
 
 ⚠️ **Au prochain rebase upstream** : vérifier que `RoomListPrimaryFilters.tsx` porte toujours
 `data-testid="primary-filters"` et `role="option"`, et que `NotificationDecoration.tsx` porte
 toujours `data-testid="notification-decoration"`.
+
+**Accessibilité — contrastes RGAA AA (WCAG 2.1, niveau AA) :**
+
+Tous les couples texte/fond du thème Skolengo ont été audités. Seuils : texte normal ≥ 4,5:1,
+texte large/gras ≥ 3:1 (crit. 3.2), composants d'interface ≥ 3:1 (crit. 3.3).
+
+Paires conformes et ratios clés :
+
+| Élément | Fond (clair) | Ratio clair | Fond (sombre) | Ratio sombre |
+|---|---|---|---|---|
+| Initiales d'avatar | bg-decorative saturé | ~5,2:1 ✓ | bg-decorative saturé | ~5,2:1 ✓ |
+| Chip filtre sélectionné | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
+| Chip filtre désélectionné (label) | indigo-300 `#edf1ff` | 14,9:1 ✓ | indigo-300 `#3425ac` | 9,0:1 ✓ |
+| Pastille non-lus | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
+| Nom de salon / titre en-tête | indigo-300 | ≥14:1 ✓ | indigo-300 | ≥9:1 ✓ |
+| Noms d'auteurs (timeline) | canvas blanc `#fff` | ~5,2:1 ✓ | canvas `#101317` | ~7:1 ✓ |
+| Texte secondaire (aperçus, etc.) | indigo-300 | 4,65:1 ✓ | indigo-300 sombre | 5,9:1 ✓ |
+| Bordure chip désélectionné (crit. 3.3) | vs panneau indigo-300 | 3,12:1 ✓ | vs panneau | 4,6:1 ✓ |
+
+Notes implémentation :
+
+- **Noms d'auteurs en mode sombre** : `--cpd-color-text-decorative-1..6` dans
+  `skolengo-dark/_skolengo-tokens.pcss` sont éclaircis (découplés de `bg-decorative`) pour passer
+  4,5:1 sur le canvas sombre `#101317`. Les fonds d'avatar restent saturés (initiales blanches OK).
+- **Texte secondaire sombre** : override `--cpd-color-text-secondary` → `gray-1200` (`#bdc3cc`)
+  scoped sur `.mx_RoomListPanel`, `.mx_RightPanel`, `.mx_SpacePanel.newUi` dans le fichier sombre.
+- En mode **clair** le texte secondaire (4,65:1) est au seuil WCAG AA — conforme mais sans marge.
+  Si une future évolution modifie le fond périvenche, à revalider.
 
 **Logo Skolengo :**
 

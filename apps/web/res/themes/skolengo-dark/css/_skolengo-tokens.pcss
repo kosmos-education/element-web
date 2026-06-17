@@ -69,22 +69,39 @@
         --cpd-color-bg-subtle-primary: var(--cpd-color-indigo-300);
         --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
 
-        /* ── Couleurs décoratives (identiques au mode clair — restent lisibles) ── */
-        --cpd-color-text-decorative-1: #8440f3; /* PurpleEMS-900  */
-        --cpd-color-text-decorative-2: #007d28; /* GreenEMS-900   */
-        --cpd-color-text-decorative-3: #0672ac; /* CyanEMS-900    */
-        --cpd-color-text-decorative-4: #c63737; /* RedEMS-900     */
-        --cpd-color-text-decorative-5: #7d6b00; /* Rust/Yellow-900 */
-        --cpd-color-text-decorative-6: #ae5206; /* OrangeEMS-900  */
+        /* ── Couleurs décoratives — noms d'auteurs (timeline) ── */
+        /* Les bg-decorative (fonds d'avatar saturés + initiales blanches) sont conservés
+         * identiques au mode clair pour l'identité visuelle des avatars.
+         * Les text-decorative sont DÉCOUPLÉS des bg-decorative en mode sombre : les teintes
+         * EMS-900 saturées ne passent pas 4,5:1 sur le canvas sombre #101317 (~3,5:1).
+         * Ces valeurs éclaircies atteignent ≈ 7:1 sur #101317 (RGAA AA, crit. 3.2 ✓). */
+        --cpd-color-text-decorative-1: #b58cf8; /* PurpleEMS clair  */
+        --cpd-color-text-decorative-2: #66b17e; /* GreenEMS clair   */
+        --cpd-color-text-decorative-3: #6aaacd; /* CyanEMS clair    */
+        --cpd-color-text-decorative-4: #dd8787; /* RedEMS clair     */
+        --cpd-color-text-decorative-5: #ab9f59; /* YellowEMS clair  */
+        --cpd-color-text-decorative-6: #ce976a; /* OrangeEMS clair  */
 
         /* Fonds d'avatar (cercle imageless) — identiques au mode clair.
          * Fonds pleins/saturés + initiales blanches (forcées via --cpd-avatar-color
-         * dans _skolengo-overrides.pcss). Lisibles sur le périvenche sombre (#3425ac). */
+         * dans _skolengo-overrides.pcss). Lisibles sur le périvenche sombre (#3425ac).
+         * Volontairement différents des text-decorative ci-dessus (découplage bg/text)
+         * pour maintenir les initiales blanches lisibles tout en assurant les noms d'auteur. */
         --cpd-color-bg-decorative-1: #8440f3; /* Purple  */
         --cpd-color-bg-decorative-2: #007d28; /* Green   */
         --cpd-color-bg-decorative-3: #0672ac; /* Cyan    */
         --cpd-color-bg-decorative-4: #c63737; /* Red     */
         --cpd-color-bg-decorative-5: #7d6b00; /* Yellow/olive */
         --cpd-color-bg-decorative-6: #ae5206; /* Orange  */
+
+        /* ── Texte secondaire sur panneaux périvenche sombres (RGAA crit. 3.2) ── */
+        /* gray-900 (#808994) sur indigo-300 sombre (#3425ac) = 2,95:1 — non conforme.
+         * On relève text-secondary à gray-1200 (#bdc3cc) dans le scope des panneaux.
+         * #bdc3cc sur #3425ac = 5,9:1 ✓ ; sur space panel indigo-400 (#4135ce) = 4,5:1 ✓. */
+        .mx_RoomListPanel,
+        .mx_RightPanel,
+        .mx_SpacePanel.newUi {
+            --cpd-color-text-secondary: var(--cpd-color-gray-1200);
+        }
     }
 }
