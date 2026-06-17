@@ -48,8 +48,18 @@
 /* Avatar de l'utilisateur courant (UserMenu, haut du space panel).
  * Ce composant utilise Compound <Avatar> directement (sans mx_BaseAvatar).
  * On cible [data-color] qui est stable (survit au hash CSS module).
- * Sans effet sur une photo uploadée (pas d'initiale dans ce cas). */
+ * Sans effet sur une photo uploadée (pas d'initiale dans ce cas).
+ * Seul l'avatar déclencheur (36px, resté dans .mx_UserMenu) est couvert ici. */
 .mx_UserMenu [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatar dans le portail d'un menu Compound (ex. modale UserMenu au clic sur l'avatar).
+ * Le contenu du <Menu> Compound est rendu hors de .mx_UserMenu via un portail Radix
+ * (<div role="menu"> attaché à document.body) → la règle ci-dessus ne l'atteint pas.
+ * On force ici l'initiale en blanc sur le fond décoratif saturé (Skolengo).
+ * Sans effet sur une photo uploadée. */
+[role="menu"] [data-color] {
     --cpd-avatar-color: #fff !important;
 }
 
@@ -80,31 +90,37 @@
  * On N'utilise PAS !important afin de ne pas bloquer la règle active native. */
 .mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
     padding: 1px;
-    border: 3px solid rgba(0, 0, 0, 0.25);
+    border: 3px solid transparent;
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="1"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="1"]) {
     background-color: var(--cpd-color-bg-decorative-1);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="2"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="2"]) {
     background-color: var(--cpd-color-bg-decorative-2);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="3"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="3"]) {
     background-color: var(--cpd-color-bg-decorative-3);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="4"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="4"]) {
     background-color: var(--cpd-color-bg-decorative-4);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="5"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="5"]) {
     background-color: var(--cpd-color-bg-decorative-5);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
-.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper:has([data-color="6"]) {
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="6"]) {
     background-color: var(--cpd-color-bg-decorative-6);
+    border: 3px solid rgba(0,0,0,.25);
 }
 
 /* ── Filtres de la liste des salons ───────────────────────────────────────── */
