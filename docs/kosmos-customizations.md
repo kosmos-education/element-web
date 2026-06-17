@@ -195,23 +195,6 @@ apps/web/res/themes/
 - Le suivi du thème système OS bascule automatiquement entre `skolengo-light` et `skolengo-dark`.
 - Réglages → Apparence ne propose que les deux thèmes Skolengo.
 
-**Typographie — Open Sans :**
-
-Le thème Skolengo utilise **Open Sans** à la place d'Inter (police par défaut d'Element) :
-
-- `apps/web/src/theme.ts` : imports `@fontsource/open-sans/{400,500,600,700}.css` (remplacent les
-  imports Inter — `@fontsource/inter` reste en dépendance car encore utilisé par `mobile_guide` et
-  Storybook `shared-components`).
-- `_skolengo-tokens.pcss` (clair + sombre) : `--cpd-font-family-sans: "Open Sans", …` dans la
-  couche `compound-tokens` → s'applique à tous les composants Compound-web.
-- `_skolengo-vars.pcss` : `$font-family: "Open Sans", …` pour les composants legacy (PostCSS).
-- `apps/web/res/css/views/rooms/wysiwyg_composer/components/_FormattingButtons.pcss:64` :
-  référence désormais `var(--cpd-font-family-sans)` au lieu de `Inter` codé en dur.
-
-⚠️ **Au prochain rebase upstream** : vérifier que `_FormattingButtons.pcss` n'a pas réintroduit
-`font-family: Inter` ; vérifier que `theme.ts` n'a pas réimporté `@fontsource/inter` dans le
-contexte de l'app principale.
-
 **Fonds périvenche des panneaux latéraux :**
 
 Depuis la v1.12.21, la nouvelle UI (`feature_new_room_list`) code en dur

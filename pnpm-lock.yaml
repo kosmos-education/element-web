@@ -527,9 +527,6 @@ importers:
       '@fontsource/inter':
         specifier: 'catalog:'
         version: 5.2.8
-      '@fontsource/open-sans':
-        specifier: ^5
-        version: 5.2.7
       '@formatjs/intl-segmenter':
         specifier: ^12.0.0
         version: 12.2.8
@@ -3187,9 +3184,6 @@ packages:
 
   '@fontsource/inter@5.2.8':
     resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
-
-  '@fontsource/open-sans@5.2.7':
-    resolution: {integrity: sha512-8yfgDYjE5O0vmTPdrcjV35y4yMnctsokmi9gN49Gcsr0sjzkMkR97AnKDe6OqZh2SFkYlR28fxOvi21bYEgMSw==}
 
   '@formatjs/fast-memoize@3.1.5':
     resolution: {integrity: sha512-KLi3fan6WnCHmigd9pmEEN8Hid0v4wiFBW576M/d07KMWYecf1CvyMI3n34vCmHT4AoVqG2n702kiHbXjzZX2A==}
@@ -15816,8 +15810,6 @@ snapshots:
   '@fontsource/inconsolata@5.2.8': {}
 
   '@fontsource/inter@5.2.8': {}
-
-  '@fontsource/open-sans@5.2.7': {}
 
   '@formatjs/fast-memoize@3.1.5': {}
 
