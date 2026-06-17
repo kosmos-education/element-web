@@ -131,3 +131,23 @@
 .mx_RoomHeader .mx_RoomHeader_heading {
     font-weight: var(--cpd-font-weight-bold) !important;
 }
+
+/* ── Heure (timestamp) sur les bulles « moi » ────────────────────────────── */
+
+/* La bulle « moi » est en indigo-400 (clair #dde5ff / sombre #4135ce).
+ * Le timestamp consomme --cpd-color-text-secondary (gray-900), qui ne passe pas
+ * 4,5:1 sur ce fond dans aucun des deux modes. On repointe la variable dans le
+ * scope du timestamp de la bulle « moi » (sélecteur stable + repoint de var →
+ * pas de surcharge de `color`, pas de bagarre de spécificité avec la classe
+ * module hashée .content). L'exigence s'inverse par mode (bulle claire → texte
+ * foncé, bulle sombre → texte clair) d'où les deux règles.
+ * Ratios RGAA AA (texte normal 10px, seuil 4,5:1) :
+ * - clair : gray-1000 #595e67 sur #dde5ff = 5,19:1 ✓
+ * - sombre : gray-1200 #bdc3cc sur #4135ce = 4,51:1 ✓
+ * Les bulles des autres (fond gris Compound) restent non affectées. */
+.cpd-theme-light .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
+    --cpd-color-text-secondary: var(--cpd-color-gray-1000); /* #595e67 → 5,19:1 sur #dde5ff */
+}
+.cpd-theme-dark .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
+    --cpd-color-text-secondary: var(--cpd-color-gray-1200); /* #bdc3cc → 4,51:1 sur #4135ce */
+}
