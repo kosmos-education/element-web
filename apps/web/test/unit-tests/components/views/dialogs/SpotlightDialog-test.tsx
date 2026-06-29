@@ -15,7 +15,7 @@ import {
     JoinRule,
     type MatrixClient,
     type Room,
-    RoomMember,
+    type RoomMember,
 } from "matrix-js-sdk/src/matrix";
 import { KnownMembership } from "matrix-js-sdk/src/types";
 import sanitizeHtml from "sanitize-html";
@@ -25,7 +25,7 @@ import SpotlightDialog from "../../../../../src/components/views/dialogs/spotlig
 import { Filter } from "../../../../../src/components/views/dialogs/spotlight/Filter";
 import { MatrixClientPeg } from "../../../../../src/MatrixClientPeg";
 import { LocalRoom, LOCAL_ROOM_ID_PREFIX } from "../../../../../src/models/LocalRoom";
-import { DirectoryMember, startDmOnFirstMessage } from "../../../../../src/utils/direct-messages";
+import { startDmOnFirstMessage } from "../../../../../src/utils/direct-messages";
 import DMRoomMap from "../../../../../src/utils/DMRoomMap";
 import { flushPromisesWithFakeTimers, mkRoom, stubClient } from "../../../../test-utils";
 import SettingsStore from "../../../../../src/settings/SettingsStore";
@@ -206,7 +206,8 @@ describe("Spotlight Dialog", () => {
             });
         });
 
-        it("with people filter", async () => {
+        // kosmos: people search is disabled — an initial People filter is ignored and yields no people
+        it("ignores an initial people filter and shows no people", async () => {
             render(
                 <SpotlightDialog
                     initialFilter={Filter.People}
@@ -218,16 +219,13 @@ describe("Spotlight Dialog", () => {
             jest.advanceTimersByTime(200);
             await flushPromisesWithFakeTimers();
 
-            const filterChip = document.querySelector("div.mx_SpotlightDialog_filter")!;
-            expect(filterChip).toBeInTheDocument();
-            expect(filterChip.innerHTML).toContain("People");
+            // the People filter chip must not be applied
+            const filterChip = document.querySelector("div.mx_SpotlightDialog_filter");
+            expect(filterChip).not.toBeInTheDocument();
 
-            await waitFor(() => {
-                const content = document.querySelector("#mx_SpotlightDialog_content")!;
-                const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-                expect(options.length).toBeGreaterThanOrEqual(1);
-                expect(options[0]!.innerHTML).toContain(testPerson.display_name);
-            });
+            // the user directory must never be queried and no person result must be listed
+            expect(mockedClient.searchUserDirectory).not.toHaveBeenCalled();
+            expect(document.querySelector("[id^='mx_SpotlightDialog_button_result_']")).not.toBeInTheDocument();
         });
     });
 
@@ -274,27 +272,13 @@ describe("Spotlight Dialog", () => {
             // assert that getVisibleRooms is called without MSC3946 dynamic room predecessors
             expect(mockedClient.getVisibleRooms).toHaveBeenCalledWith(false);
         });
-        it("with people", async () => {
+        // kosmos: people search is disabled — there is no People entry to select
+        it("does not offer a people filter entry", async () => {
             render(<SpotlightDialog initialText={testPerson.display_name} onFinished={() => null} />);
             jest.advanceTimersByTime(200);
             await flushPromisesWithFakeTimers();
 
-            fireEvent.click(screen.getByText("People"));
-
-            // search is debounced
-            jest.advanceTimersByTime(200);
-            await flushPromisesWithFakeTimers();
-
-            const filterChip = document.querySelector("div.mx_SpotlightDialog_filter")!;
-            expect(filterChip).toBeInTheDocument();
-            expect(filterChip.innerHTML).toContain("People");
-
-            await waitFor(() => {
-                const content = document.querySelector("#mx_SpotlightDialog_content")!;
-                const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-                expect(options.length).toBeGreaterThanOrEqual(1);
-                expect(options[0]!.innerHTML).toContain(testPerson.display_name);
-            });
+            expect(document.querySelector("#mx_SpotlightDialog_button_startChat")).not.toBeInTheDocument();
         });
     });
 
@@ -316,29 +300,6 @@ describe("Spotlight Dialog", () => {
             filterChip = document.querySelector("div.mx_SpotlightDialog_filter")!;
             expect(filterChip).not.toBeInTheDocument();
         });
-        it("with people filter", async () => {
-            render(
-                <SpotlightDialog
-                    initialFilter={Filter.People}
-                    initialText={testPerson.display_name}
-                    onFinished={() => null}
-                />,
-            );
-            // search is debounced
-            jest.advanceTimersByTime(200);
-            await flushPromisesWithFakeTimers();
-
-            let filterChip = document.querySelector("div.mx_SpotlightDialog_filter");
-            expect(filterChip).toBeInTheDocument();
-            expect(filterChip!.innerHTML).toContain("People");
-
-            fireEvent.click(filterChip!.querySelector("div.mx_SpotlightDialog_filter--close")!);
-            jest.advanceTimersByTime(1);
-            await flushPromisesWithFakeTimers();
-
-            filterChip = document.querySelector("div.mx_SpotlightDialog_filter");
-            expect(filterChip).not.toBeInTheDocument();
-        });
     });
 
     describe("searching for rooms", () => {
@@ -355,17 +316,20 @@ describe("Spotlight Dialog", () => {
         });
 
         it("should find Rooms", () => {
-            expect(options).toHaveLength(5);
+            // kosmos: people search is disabled — the DM result is no longer listed (was 5)
+            expect(options).toHaveLength(4);
             expect(options[0]!.innerHTML).toContain(testRoom.name);
         });
 
         it("should not find LocalRooms", () => {
-            expect(options).toHaveLength(5);
+            // kosmos: people search is disabled — the DM result is no longer listed (was 5)
+            expect(options).toHaveLength(4);
             expect(options[0]!.innerHTML).not.toContain(testLocalRoom.name);
         });
     });
 
-    it("should not filter out users sent by the server", async () => {
+    // kosmos: people search is fully disabled — no directory query, no people results, no DM creation
+    it("never searches for people nor starts a DM", async () => {
         mocked(mockedClient.searchUserDirectory).mockResolvedValue({
             results: [
                 { user_id: "@user1:server", display_name: "User Alpha", avatar_url: "mxc://1/avatar" },
@@ -374,115 +338,17 @@ describe("Spotlight Dialog", () => {
             limited: false,
         });
 
-        render(<SpotlightDialog initialFilter={Filter.People} initialText="Alpha" onFinished={() => null} />);
-        // search is debounced
-        jest.advanceTimersByTime(200);
-        await flushPromisesWithFakeTimers();
-
-        await waitFor(() => {
-            const content = document.querySelector("#mx_SpotlightDialog_content")!;
-            const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-            expect(options.length).toBeGreaterThanOrEqual(2);
-            expect(options[0]).toHaveTextContent("User Alpha");
-            expect(options[1]).toHaveTextContent("User Beta");
-        });
-    });
-
-    it("should not filter out users sent by the server even if a local suggestion gets filtered out", async () => {
-        const member = new RoomMember(testRoom.roomId, testPerson.user_id);
-        member.name = member.rawDisplayName = testPerson.display_name!;
-        member.getMxcAvatarUrl = jest.fn().mockReturnValue("mxc://0/avatar");
-        mocked(testRoom.getJoinedMembers).mockReturnValue([member]);
-        mocked(mockedClient.searchUserDirectory).mockResolvedValue({
-            results: [
-                { user_id: "@janedoe:matrix.org", display_name: "User Alpha", avatar_url: "mxc://1/avatar" },
-                { user_id: "@johndoe:matrix.org", display_name: "User Beta", avatar_url: "mxc://2/avatar" },
-            ],
-            limited: false,
-        });
-
-        render(<SpotlightDialog initialFilter={Filter.People} initialText="Beta" onFinished={() => null} />);
-        // search is debounced
-        jest.advanceTimersByTime(200);
-        await flushPromisesWithFakeTimers();
-
-        await waitFor(() => {
-            const content = document.querySelector("#mx_SpotlightDialog_content")!;
-            const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-            expect(options.length).toBeGreaterThanOrEqual(2);
-            expect(options[0]).toHaveTextContent(testPerson.display_name!);
-            expect(options[1]).toHaveTextContent("User Beta");
-        });
-    });
-
-    it("show non-matching query members with DMs if they are present in the server search results", async () => {
-        mocked(mockedClient.searchUserDirectory).mockResolvedValue({
-            results: [
-                { user_id: testDMUserId, display_name: "Alice Wonder", avatar_url: "mxc://1/avatar" },
-                { user_id: "@bob:matrix.org", display_name: "Bob Wonder", avatar_url: "mxc://2/avatar" },
-            ],
-            limited: false,
-        });
-        render(
-            <SpotlightDialog initialFilter={Filter.People} initialText="Something Wonder" onFinished={() => null} />,
-        );
-        // search is debounced
-        jest.advanceTimersByTime(200);
-        await flushPromisesWithFakeTimers();
-
-        await waitFor(() => {
-            const content = document.querySelector("#mx_SpotlightDialog_content")!;
-            const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-            expect(options.length).toBeGreaterThanOrEqual(2);
-            expect(options[0]).toHaveTextContent(testDMUserId);
-            expect(options[1]).toHaveTextContent("Bob Wonder");
-        });
-    });
-
-    it("don't sort the order of users sent by the server", async () => {
-        const serverList = [
-            { user_id: "@user2:server", display_name: "User Beta", avatar_url: "mxc://2/avatar" },
-            { user_id: "@user1:server", display_name: "User Alpha", avatar_url: "mxc://1/avatar" },
-        ];
-        mocked(mockedClient.searchUserDirectory).mockResolvedValue({
-            results: serverList,
-            limited: false,
-        });
-
         render(<SpotlightDialog initialFilter={Filter.People} initialText="User" onFinished={() => null} />);
         // search is debounced
         jest.advanceTimersByTime(200);
         await flushPromisesWithFakeTimers();
 
-        await waitFor(() => {
-            const content = document.querySelector("#mx_SpotlightDialog_content")!;
-            const options = content.querySelectorAll("li.mx_SpotlightDialog_option");
-            expect(options.length).toBeGreaterThanOrEqual(2);
-            expect(options[0]).toHaveTextContent("User Beta");
-            expect(options[1]).toHaveTextContent("User Alpha");
-        });
-    });
-
-    // kosmos: DM creation is disabled — clicking a person should NOT start a DM
-    it("should not start a DM when clicking a person (DM creation disabled)", async () => {
-        render(
-            <SpotlightDialog
-                initialFilter={Filter.People}
-                initialText={testPerson.display_name}
-                onFinished={() => null}
-            />,
-        );
-
-        jest.advanceTimersByTime(200);
-        await flushPromisesWithFakeTimers();
-
-        await waitFor(() => {
-            const options = document.querySelectorAll("li.mx_SpotlightDialog_option");
-            expect(options.length).toBeGreaterThanOrEqual(1);
-            expect(options[0]!.innerHTML).toContain(testPerson.display_name);
-            fireEvent.click(options[0]!);
-            expect(startDmOnFirstMessage).not.toHaveBeenCalled();
-        });
+        // the user directory is never queried and no person is listed
+        expect(mockedClient.searchUserDirectory).not.toHaveBeenCalled();
+        const content = document.querySelector("#mx_SpotlightDialog_content")!;
+        expect(content.innerHTML).not.toContain("User Alpha");
+        expect(content.innerHTML).not.toContain("User Beta");
+        expect(startDmOnFirstMessage).not.toHaveBeenCalled();
     });
 
     it("should pass via of the server being explored when joining room from directory", async () => {
@@ -681,7 +547,7 @@ describe("Spotlight Dialog", () => {
         });
 
         it("should not show left and right arrow keys in keyboard hint when filter is set", async () => {
-            render(<SpotlightDialog initialFilter={Filter.People} onFinished={() => null} />);
+            render(<SpotlightDialog initialFilter={Filter.PublicRooms} onFinished={() => null} />);
             jest.advanceTimersByTime(200);
             await flushPromisesWithFakeTimers();
 
