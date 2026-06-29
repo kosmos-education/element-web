@@ -30,6 +30,29 @@ the `description` prop and the `<Button>` children were removed from the default
 The "people" filter chip is hidden via `apps/web/src/viewmodels/room-list/RoomListViewModel.ts`
 (filtered from `filterIds` alongside favourite/low-priority).
 
+### Removing people search from the Spotlight
+
+The unified search (Spotlight) used to let users search for people in the user directory and start
+DMs with them. The original `SCAT-14` customization only disabled the click (`disabled` attribute on
+people results) and removed the "start group chat" section, but the "People" entry, the directory
+search and the people results were still present.
+
+People search is now fully removed in
+`apps/web/src/components/views/dialogs/spotlight/SpotlightDialog.tsx`:
+
+- the "People" entry (`mx_SpotlightDialog_button_startChat`) is no longer rendered in the
+  "other searches" list — there is no UI path left to activate the `Filter.People` filter;
+- an initial `Filter.People` (`initialFilter` prop) is coerced to `null` so no programmatic open can
+  re-enable it (no caller currently uses it, this is a safety net);
+- the user directory / profile lookups (`useUserDirectory` / `useProfileInfo`, fed by
+  `searchPeople` / `searchProfileInfo`) are disabled — their `useDebouncedCallback` is passed `false`;
+- the `peopleSection` (existing DMs) and `suggestionsSection` (directory matches) are no longer
+  rendered.
+
+The unit tests in `apps/web/test/unit-tests/components/views/dialogs/SpotlightDialog-test.tsx` were
+updated accordingly (people-search expectations replaced by assertions that no person is searched,
+listed or DM-ed).
+
 ### Removing visible mentions of encryption
 
 We designed the solution in order to avoid needing to encrypt the server, so to avoid confusion and concern

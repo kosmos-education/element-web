@@ -330,7 +330,10 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
     const rovingContext = useContext(RovingTabIndexContext);
     const [query, _setQuery] = useState(initialText);
     const [recentSearches, clearRecentSearches] = useRecentSearches();
-    const [filter, setFilterInternal] = useState<Filter | null>(initialFilter);
+    // kosmos: people search is disabled — never honour an initial People filter
+    const [filter, setFilterInternal] = useState<Filter | null>(
+        initialFilter === Filter.People ? null : initialFilter,
+    );
     const setFilter = useCallback((filter: Filter | null) => {
         setFilterInternal(filter);
         inputRef.current?.focus();
@@ -384,8 +387,9 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
         searchPublicRooms,
         searchParams,
     );
-    useDebouncedCallback(filter === Filter.People, searchPeople, searchParams);
-    useDebouncedCallback(filter === Filter.People, searchProfileInfo, searchParams);
+    // kosmos: people search is disabled — never query the user directory or profiles
+    useDebouncedCallback(false, searchPeople, searchParams);
+    useDebouncedCallback(false, searchProfileInfo, searchParams);
 
     const possibleResults = useMemo<Result[]>(() => {
         const visibleRooms = findVisibleRooms(cli, msc3946ProcessDynamicPredecessor);
@@ -624,12 +628,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                             {filterToLabel(Filter.PublicRooms)}
                         </Option>
                     )}
-                    {filter !== Filter.People && (
-                        <Option id="mx_SpotlightDialog_button_startChat" onClick={() => setFilter(Filter.People)}>
-                            {filterToIcon(Filter.People)}
-                            {filterToLabel(Filter.People)}
-                        </Option>
-                    )}
+                    {/* kosmos: people search is disabled — the People filter entry is removed */}
                     {filter === null && (
                         <Option
                             id="mx_SpotlightDialog_button_searchMessages"
@@ -796,33 +795,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
             );
         };
 
-        let peopleSection: JSX.Element | undefined;
-        if (results[Section.People].length) {
-            peopleSection = (
-                <div
-                    className="mx_SpotlightDialog_section mx_SpotlightDialog_results"
-                    role="group"
-                    aria-labelledby="mx_SpotlightDialog_section_people"
-                >
-                    <h4 id="mx_SpotlightDialog_section_people">{_t("invite|recents_section")}</h4>
-                    <div>{results[Section.People].slice(0, SECTION_LIMIT).map(resultMapper)}</div>
-                </div>
-            );
-        }
-
-        let suggestionsSection: JSX.Element | undefined;
-        if (results[Section.Suggestions].length && filter === Filter.People) {
-            suggestionsSection = (
-                <div
-                    className="mx_SpotlightDialog_section mx_SpotlightDialog_results"
-                    role="group"
-                    aria-labelledby="mx_SpotlightDialog_section_suggestions"
-                >
-                    <h4 id="mx_SpotlightDialog_section_suggestions">{_t("common|suggestions")}</h4>
-                    <div>{results[Section.Suggestions].slice(0, SECTION_LIMIT).map(resultMapper)}</div>
-                </div>
-            );
-        }
+        // kosmos: people search is disabled — the People and Suggestions sections are not built
 
         let roomsSection: JSX.Element | undefined;
         if (results[Section.Rooms].length) {
@@ -1019,8 +992,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
 
         content = (
             <>
-                {peopleSection}
-                {suggestionsSection}
+                {/* kosmos: people search is disabled — people & suggestions sections are not rendered */}
                 {roomsSection}
                 {spacesSection}
                 {spaceRoomsSection}
