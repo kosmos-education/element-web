@@ -306,11 +306,9 @@ describe("<UserInfo />", () => {
             expect(screen.getByText(/try with a different client/i)).toBeInTheDocument();
         });
 
-        it("renders the message button", () => {
-            render(<UserInfo {...defaultProps} />, clientAndSDKContextRenderOptions(mockClient, sdkContext));
-
-            screen.getByRole("button", { name: "Send message" });
-        });
+        // SCAT-14 (customisation kosmos) : le bouton « Send message » est retiré de UserInfo.
+        // Le test « renders the message button » est donc obsolète ; on conserve celui qui
+        // vérifie l'absence du bouton.
 
         it("hides the message button if the visibility customisation hides all create room features", () => {
             mocked(shouldShowComponent).withImplementation(

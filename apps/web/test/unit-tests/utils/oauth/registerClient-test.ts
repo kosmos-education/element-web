@@ -73,7 +73,7 @@ describe("getOAuthClientId()", () => {
                 redirect_uris: [baseUrl],
                 token_endpoint_auth_method: "none",
                 application_type: "web",
-                logo_uri: `${baseUrl}/vector-icons/1024.png`,
+                logo_uri: `${baseUrl}/kosmos-icons/1024.png`,
             },
         });
     });

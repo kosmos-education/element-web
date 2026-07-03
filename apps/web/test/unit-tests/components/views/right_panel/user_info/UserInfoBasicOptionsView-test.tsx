@@ -188,14 +188,8 @@ describe("<UserOptionsSection />", () => {
         expect(onInviteUserButton).toHaveBeenCalled();
     });
 
-    it("should show directMessageButton when user is not me", () => {
-        // User is not me, direct message button should display
-        mocked(useUserInfoBasicOptionsViewModel).mockReturnValue(defaultValue);
-        mocked(shouldShowComponent).mockReturnValue(true);
-        render(<UserInfoBasicOptionsView {...defaultProps} />);
-        const dmButton = screen.getByRole("button", { name: "Send message" });
-        expect(dmButton).toBeInTheDocument();
-    });
+    // SCAT-14 (customisation kosmos) : le bouton « Send message » (message direct) est retiré
+    // de UserInfoBasicOptionsView. Le test « should show directMessageButton » est donc obsolète.
 
     it("should not show directMessageButton when user is me", () => {
         mocked(useUserInfoBasicOptionsViewModel).mockReturnValue({ ...defaultValue, isMe: true });

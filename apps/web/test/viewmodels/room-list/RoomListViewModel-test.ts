@@ -1070,7 +1070,7 @@ describe("RoomListViewModel", () => {
                 expect(viewModel.getSnapshot().sections).toHaveLength(0);
             });
 
-            it("should exclude favourite and low_priority from filter list", () => {
+            it("should exclude favourite, low_priority and people from filter list", () => {
                 viewModel = new RoomListViewModel({
                     client: matrixClient,
                     spaceStore: SDKContextClass.instance.spaceStore,
@@ -1080,9 +1080,10 @@ describe("RoomListViewModel", () => {
                 const snapshot = viewModel.getSnapshot();
                 expect(snapshot.filterIds).not.toContain("favourite");
                 expect(snapshot.filterIds).not.toContain("low_priority");
+                // Kosmos : le filtre "people" est retiré (création de conversations 1-1 indisponible)
+                expect(snapshot.filterIds).not.toContain("people");
                 // Other filters should still be present
                 expect(snapshot.filterIds).toContain("unread");
-                expect(snapshot.filterIds).toContain("people");
             });
 
             it("should omit empty sections from snapshot", () => {

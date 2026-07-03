@@ -17,7 +17,6 @@ import MatrixClientContext from "../../../../../src/contexts/MatrixClientContext
 import {
     shouldShowSpaceSettings,
     showCreateNewRoom,
-    showCreateNewSubspace,
     showSpaceInvite,
     showSpaceSettings,
 } from "../../../../../src/utils/space";
@@ -170,7 +169,8 @@ describe("<SpaceContextMenu />", () => {
             renderComponent({ space });
 
             expect(shouldShowComponent).toHaveBeenCalledWith(UIComponent.CreateRooms);
-            expect(shouldShowComponent).toHaveBeenCalledWith(UIComponent.CreateSpaces);
+            // SCAT-14 (customisation kosmos) : la création de sous-espace est désactivée en dur
+            // (canAddSubSpaces = false), UIComponent.CreateSpaces n'est donc plus consulté.
 
             expect(screen.queryByTestId("add-to-space-header")).not.toBeInTheDocument();
             expect(screen.queryByTestId("new-room-option")).not.toBeInTheDocument();
@@ -187,15 +187,8 @@ describe("<SpaceContextMenu />", () => {
             expect(screen.queryByTestId("new-subspace-option")).not.toBeInTheDocument();
         });
 
-        it("renders section with add space button when UIComponent customisation allows CreateSpace", () => {
-            // only allow CreateSpaces
-            mocked(shouldShowComponent).mockImplementation((feature) => feature === UIComponent.CreateSpaces);
-            renderComponent({ space });
-
-            expect(screen.getByTestId("add-to-space-header")).toBeInTheDocument();
-            expect(screen.queryByTestId("new-room-option")).not.toBeInTheDocument();
-            expect(screen.getByTestId("new-subspace-option")).toBeInTheDocument();
-        });
+        // SCAT-14 (customisation kosmos) : la création de sous-espace étant désactivée en dur,
+        // les tests « add space button » (rendu de l'option et ouverture du dialogue) sont obsolètes.
 
         it("opens create room dialog on add room button click", async () => {
             const onFinished = jest.fn();
@@ -206,13 +199,5 @@ describe("<SpaceContextMenu />", () => {
             expect(onFinished).toHaveBeenCalled();
         });
 
-        it("opens create space dialog on add space button click", async () => {
-            const onFinished = jest.fn();
-            renderComponent({ space, onFinished });
-
-            await userEvent.click(screen.getByTestId("new-subspace-option"));
-            expect(showCreateNewSubspace).toHaveBeenCalledWith(space);
-            expect(onFinished).toHaveBeenCalled();
-        });
     });
 });

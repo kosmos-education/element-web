@@ -163,25 +163,9 @@ describe("<SpacePanel />", () => {
         spySettingsStore.mockRestore();
     });
 
-    describe("create new space button", () => {
-        it("renders create space button when UIComponent.CreateSpaces component should be shown", () => {
-            render(<SpacePanel />);
-            screen.getByTestId("create-space-button");
-        });
-
-        it("does not render create space button when UIComponent.CreateSpaces component should not be shown", () => {
-            mocked(shouldShowComponent).mockReturnValue(false);
-            render(<SpacePanel />);
-            expect(shouldShowComponent).toHaveBeenCalledWith(UIComponent.CreateSpaces);
-            expect(screen.queryByTestId("create-space-button")).toBeFalsy();
-        });
-
-        it("opens context menu on create space button click", () => {
-            render(<SpacePanel />);
-            fireEvent.click(screen.getByTestId("create-space-button"));
-            screen.getByTestId("create-space-button");
-        });
-    });
+    // SCAT-14 (customisation kosmos) : le bouton de création d'espace est entièrement retiré
+    // du SpacePanel. Le bloc « create new space button » (rendu, absence conditionnelle et
+    // ouverture du menu) est donc obsolète et a été supprimé.
 
     it("should allow rearranging via drag and drop", async () => {
         (sdkContext.spaceStore.spacePanelSpaces as any) = [

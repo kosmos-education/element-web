@@ -83,26 +83,6 @@ exports[`<UserInfoHeaderView /> renders custom user identifiers in the header 1`
         </span>
       </p>
     </div>
-    <div
-      class="_flex_4dswl_9 mx_UserInfo_verification"
-      style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: 0; --mx-flex-wrap: nowrap;"
-    >
-      <svg
-        class="_icon_1855a_18"
-        fill="currentColor"
-        height="1em"
-        style="width: 24px; height: 24px;"
-        viewBox="0 0 24 24"
-        width="1em"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          clip-rule="evenodd"
-          d="M12 4.031a8 8 0 1 0 8 8 1 1 0 0 1 2 0c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10a1 1 0 1 1 0 2"
-          fill-rule="evenodd"
-        />
-      </svg>
-    </div>
   </div>
 </div>
 `;
