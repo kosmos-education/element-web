@@ -133,23 +133,8 @@ describe("<RoomListView />", () => {
         expect(Default.args.onToggleFilter).toHaveBeenCalled();
     });
 
-    it("should call createRoom when New room button is clicked", async () => {
-        const user = userEvent.setup();
-        renderWithMockContext(<Empty />);
-
-        await user.click(screen.getByRole("button", { name: "New room" }));
-
-        expect(Empty.args.createRoom).toHaveBeenCalled();
-    });
-
-    it("should call createChatRoom when Start chat button is clicked", async () => {
-        const user = userEvent.setup();
-        renderWithMockContext(<Empty />);
-
-        await user.click(screen.getByRole("button", { name: "Start chat" }));
-
-        expect(Empty.args.createChatRoom).toHaveBeenCalled();
-    });
+    // kosmos SCAT/2d77928 : les boutons « New room » et « Start chat » de l'état vide par défaut
+    // ont été retirés (report de fonctionnalités désactivé), ces tests comportementaux sont donc obsolètes.
 
     it("should call onToggleFilter when Show all chats is clicked in unread empty state", async () => {
         const user = userEvent.setup();
