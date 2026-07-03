@@ -130,7 +130,9 @@ describe("RoomListHeader", () => {
         const menu = screen.getByRole("menu");
         const items = menu.querySelectorAll(".mx_IconizedContextMenu_item");
 
-        checkMenuLabels(items, ["Space home", "Manage & explore rooms", "Preferences", "Settings", "Room", "Space"]);
+        // SCAT-14 (customisation kosmos) : la création d'espace est désactivée (canCreateSpaces = false),
+        // l'entrée « Space » n'apparaît donc plus dans le menu principal.
+        checkMenuLabels(items, ["Space home", "Manage & explore rooms", "Preferences", "Settings", "Room"]);
     });
 
     it("renders a plus menu for spaces", async () => {
@@ -140,7 +142,8 @@ describe("RoomListHeader", () => {
         const menu = screen.getByRole("menu");
         const items = menu.querySelectorAll(".mx_IconizedContextMenu_item");
 
-        checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room", "Add space"]);
+        // SCAT-14 (customisation kosmos) : plus d'entrée « Add space » (création d'espace désactivée).
+        checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room"]);
     });
 
     it("closes menu if space changes from under it", async () => {
@@ -196,7 +199,7 @@ describe("RoomListHeader", () => {
                     "Preferences",
                     "Settings",
                     // no add room
-                    "Space",
+                    // SCAT-14 (customisation kosmos) : plus d'entrée « Space » (création d'espace désactivée)
                 ]);
             });
         });
@@ -230,7 +233,8 @@ describe("RoomListHeader", () => {
                 const menu = screen.getByRole("menu");
                 const items = menu.querySelectorAll<HTMLElement>(".mx_IconizedContextMenu_item");
 
-                checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room", "Add space"]);
+                // SCAT-14 (customisation kosmos) : plus d'entrée « Add space » (création d'espace désactivée).
+                checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room"]);
 
                 // "Add existing room" is disabled
                 checkIsDisabled(items[2]);
@@ -270,12 +274,11 @@ describe("RoomListHeader", () => {
             const menu = screen.getByRole("menu");
             const items = menu.querySelectorAll<HTMLElement>(".mx_IconizedContextMenu_item");
 
-            checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room", "Add space"]);
+            // SCAT-14 (customisation kosmos) : plus d'entrée « Add space » (création d'espace désactivée).
+            checkMenuLabels(items, ["New room", "Explore rooms", "Add existing room"]);
 
             // "Add existing room" is disabled
             checkIsDisabled(items[2]);
-            // "Add space" is disabled
-            checkIsDisabled(items[3]);
         });
     });
 });

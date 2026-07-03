@@ -283,48 +283,44 @@ exports[`<SpacePanel /> should show all activated MetaSpaces in the correct orde
           </div>
         </div>
       </li>
-      <li
-        aria-selected="false"
-        class="mx_SpaceItem mx_SpaceItem_new collapsed"
-        role="treeitem"
+    </ul>
+    <div
+      class="mx_QuickHelp_container"
+    >
+      <button
+        aria-disabled="false"
+        aria-expanded="false"
+        aria-haspopup="menu"
+        aria-label="Help"
+        aria-labelledby="react-use-id-2"
+        class="_icon-button_1215g_8 mx_QuickHelpButton"
+        data-kind="primary"
+        data-state="closed"
+        id="radix-react-use-id-3"
+        role="button"
+        style="--cpd-icon-button-size: 32px;"
+        tabindex="0"
+        type="button"
       >
         <div
-          aria-label="Create a space"
-          class="mx_AccessibleButton mx_SpaceButton mx_SpaceButton_new mx_SpaceButton_narrow mx_SpaceButton_withIcon"
-          data-testid="create-space-button"
-          role="button"
-          tabindex="-1"
+          class="_indicator-icon_147l5_17"
+          style="--cpd-icon-button-size: 100%;"
         >
-          <div
-            class="mx_SpaceButton_selectionWrapper"
+          <svg
+            class="mx_QuickHelpButton_Icon"
+            fill="currentColor"
+            height="1em"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <div
-              class="mx_SpaceButton_avatarWrapper"
-            >
-              <div
-                class="mx_SpaceButton_avatarPlaceholder"
-              >
-                <div
-                  class="mx_SpaceButton_icon"
-                >
-                  <svg
-                    fill="currentColor"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                    width="1em"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M11 13H6a.97.97 0 0 1-.713-.287A.97.97 0 0 1 5 12q0-.424.287-.713A.97.97 0 0 1 6 11h5V6q0-.424.287-.713A.97.97 0 0 1 12 5q.424 0 .713.287Q13 5.576 13 6v5h5q.424 0 .712.287.288.288.288.713 0 .424-.288.713A.97.97 0 0 1 18 13h-5v5q0 .424-.287.712A.97.97 0 0 1 12 19a.97.97 0 0 1-.713-.288A.97.97 0 0 1 11 18z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
+            <path
+              d="M12 17q.424 0 .713-.288A.97.97 0 0 0 13 16v-4a.97.97 0 0 0-.287-.713A.97.97 0 0 0 12 11a.97.97 0 0 0-.713.287A.97.97 0 0 0 11 12v4q0 .424.287.712.288.288.713.288m0-8q.424 0 .713-.287A.97.97 0 0 0 13 8a.97.97 0 0 0-.287-.713A.97.97 0 0 0 12 7a.97.97 0 0 0-.713.287A.97.97 0 0 0 11 8q0 .424.287.713Q11.576 9 12 9m0 13a9.7 9.7 0 0 1-3.9-.788 10.1 10.1 0 0 1-3.175-2.137q-1.35-1.35-2.137-3.175A9.7 9.7 0 0 1 2 12q0-2.075.788-3.9a10.1 10.1 0 0 1 2.137-3.175q1.35-1.35 3.175-2.137A9.7 9.7 0 0 1 12 2q2.075 0 3.9.788a10.1 10.1 0 0 1 3.175 2.137q1.35 1.35 2.137 3.175A9.7 9.7 0 0 1 22 12a9.7 9.7 0 0 1-.788 3.9 10.1 10.1 0 0 1-2.137 3.175q-1.35 1.35-3.175 2.137A9.7 9.7 0 0 1 12 22"
+            />
+          </svg>
         </div>
-      </li>
-    </ul>
+      </button>
+    </div>
     <div
       class="mx_ThreadsActivityCentre_container"
     >
@@ -333,11 +329,11 @@ exports[`<SpacePanel /> should show all activated MetaSpaces in the correct orde
         aria-expanded="false"
         aria-haspopup="menu"
         aria-label="Threads"
-        aria-labelledby="react-use-id-2"
+        aria-labelledby="react-use-id-4"
         class="_icon-button_1215g_8 mx_ThreadsActivityCentreButton"
         data-kind="primary"
         data-state="closed"
-        id="radix-react-use-id-3"
+        id="radix-react-use-id-5"
         role="button"
         style="--cpd-icon-button-size: 32px;"
         tabindex="0"
@@ -365,7 +361,7 @@ exports[`<SpacePanel /> should show all activated MetaSpaces in the correct orde
     <button
       aria-expanded="false"
       aria-label="Quick settings"
-      aria-labelledby="react-use-id-4"
+      aria-labelledby="react-use-id-6"
       class="_icon-button_1215g_8 mx_QuickSettingsButton"
       data-kind="primary"
       role="button"

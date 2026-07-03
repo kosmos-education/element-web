@@ -273,22 +273,8 @@ describe("<RoomSummaryCard />", () => {
         });
     });
 
-    describe("poll history", () => {
-        it("renders poll history option", () => {
-            const { getByText } = getComponent();
-
-            expect(getByText("Polls")).toBeInTheDocument();
-        });
-
-        it("opens poll history dialog on button click", () => {
-            const permalinkCreator = new RoomPermalinkCreator(room);
-            const { getByText } = getComponent({ permalinkCreator });
-
-            fireEvent.click(getByText("Polls"));
-
-            expect(vmDefaultValues.onRoomPollHistoryClick).toHaveBeenCalled();
-        });
-    });
+    // SCAT-14 (customisation kosmos) : l'option « Polls » (historique des sondages) est retirée
+    // de RoomSummaryCardView. Le bloc « poll history » est donc obsolète et a été supprimé.
 
     describe("public room label", () => {
         it("does not show public room label for a DM", async () => {

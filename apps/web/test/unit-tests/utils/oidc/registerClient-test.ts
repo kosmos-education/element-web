@@ -99,7 +99,7 @@ describe("getOidcClientId()", () => {
                 id_token_signed_response_alg: "RS256",
                 token_endpoint_auth_method: "none",
                 application_type: "web",
-                logo_uri: `${baseUrl}/vector-icons/1024.png`,
+                logo_uri: `${baseUrl}/kosmos-icons/1024.png`,
             },
         });
     });
