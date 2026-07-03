@@ -632,9 +632,11 @@ describe("DeviceListener", () => {
             it("does not check keybackup status when setup encryption toast has been dismissed", async () => {
                 // Given our device is not verified (this is the default in the mock)
 
-                // And we have run the checks once (and we were told to verify)
+                // And we have run the checks once. SCAT-32 : le toast "verify_this_session"
+                // est masqué par Kosmos, il n'est donc jamais affiché ; seul l'état interne
+                // (appareil non vérifié) est calculé, ce qui suffit pour la suite du test.
                 const instance = await createAndStart();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledWith("verify_this_session");
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
                 vi.mocked(SetupEncryptionToast.showToast).mockClear();
                 mockCrypto.getDeviceVerificationStatus.mockClear();
 
