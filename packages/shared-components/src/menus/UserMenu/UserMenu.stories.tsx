@@ -24,6 +24,7 @@ const UserMenuWrapperImpl = (snapshot: UserMenuViewSnapshot): JSX.Element => {
         openHomePage: fn(),
         openSecurity: fn(),
         openSettings: fn(),
+        signOut: fn(),
         clearStatus: fn(),
     });
     return <UserMenuView vm={vm} />;
@@ -47,6 +48,7 @@ const meta = {
             openSecurity: true,
             openFeedback: true,
             openSettings: true,
+            signOut: true,
         },
     },
     parameters: {

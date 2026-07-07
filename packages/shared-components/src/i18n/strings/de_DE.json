@@ -164,6 +164,9 @@
             "enabled_local": "Nachrichten in diesem Chat werden Ende-zu-Ende-verschlüsselt."
         }
     },
+    "user_menu": {
+        "sign_out": "Abmelden"
+    },
     "widget": {
         "context_menu": {
             "move_left": "Nach links schieben",

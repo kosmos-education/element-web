@@ -3135,6 +3135,10 @@
         "verify_button": "Verificar usuario",
         "verify_explainer": "Para mayor seguridad, verifica a este usuario comprobando un código temporal vez dos de tus dispositivos."
     },
+    "user_menu": {
+        "sign_out": "Cerrar sesión",
+        "sign_out_confirm": "¿Seguro que quieres cerrar sesión?"
+    },
     "voip": {
         "already_in_call": "Ya en una llamada",
         "already_in_call_person": "Ya estás en una llamada con esta persona.",

@@ -3869,6 +3869,10 @@
         "verify_button": "Vérifier l’utilisateur",
         "verify_explainer": "Pour une sécurité supplémentaire, vérifiez cet utilisateur en comparant un code à usage unique sur vos deux appareils."
     },
+    "user_menu": {
+        "sign_out": "Se déconnecter",
+        "sign_out_confirm": "Voulez-vous vraiment vous déconnecter ?"
+    },
     "voip": {
         "already_in_call": "Déjà en cours d’appel",
         "already_in_call_person": "Vous êtes déjà en cours d’appel avec cette personne.",

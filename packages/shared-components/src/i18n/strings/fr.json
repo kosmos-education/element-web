@@ -274,7 +274,8 @@
         "open_feedback": "Commentaire",
         "open_home": "Accueil",
         "open_security": "Sécurité et confidentialité",
-        "open_settings": "Tous les paramètres"
+        "open_settings": "Tous les paramètres",
+        "sign_out": "Se déconnecter"
     },
     "widget": {
         "context_menu": {

@@ -78,6 +78,36 @@ Changing the favicon logos to ours.
 
 When a users tries to upload a file exceeding their quota (size per week for example), the error messages now mentions it.
 
+### Restoring the "Sign out" button in the user menu
+
+Upstream removed the "Sign out" entry from the user menu in v1.12.19 (PR
+[element-hq/element-web#32812](https://github.com/element-hq/element-web/pull/32812), commit
+`d4f419d1b5`, "Refactor and redesign user menu"). The menu moved to a shared-component + ViewModel
+architecture and logout was relocated to the settings (`UserProfileSettings.tsx`). Losing the
+one-click sign out from the menu is not acceptable for us (`SCAT-36`), so the entry is restored.
+
+The `signOut` action is re-added across the two layers:
+
+- `packages/shared-components/src/menus/UserMenu/UserMenu.tsx`: `signOut` added to the snapshot
+  `actions` type and to the `UserMenuViewActions` interface; a critical (red) `MenuItem`
+  (`SignOutIcon`, `kind="critical"`) is rendered below a `Separator` at the bottom of the actions
+  section, gated on `actions.signOut`;
+- `packages/shared-components/src/i18n/strings/{en_EN,fr}.json`: new key `user_menu|sign_out`
+  ("Sign out" / "Se déconnecter"). Note the pre-existing `action|sign_out` key was repurposed
+  upstream to "Remove this device" and must **not** be reused for logout;
+- `apps/web/src/viewmodels/menus/UserMenuViewModel.ts`: `signOut: isAuthenticated` in the snapshot
+  and a `signOut()` method that opens a simple `QuestionDialog` confirmation
+  (`user_menu|sign_out` / `user_menu|sign_out_confirm`, `danger: true`) and, on confirmation,
+  dispatches `{ action: "logout" }`. We deliberately do **not** use the upstream `LogoutDialog`
+  (`shouldShowLogoutDialog`): our deployment has no E2EE, so its wording about recovery keys and
+  "removing this device" is confusing and irrelevant.
+- `apps/web/src/i18n/strings/{en_EN,fr}.json`: `user_menu|sign_out` and `user_menu|sign_out_confirm`
+  keys for the confirmation dialog (separate i18n store from the shared component).
+
+Stories (`UserMenu.stories.tsx`) and unit tests (`UserMenu.test.tsx` snapshots,
+`apps/web/test/viewmodels/menus/UserMenuViewModel-test.ts`) were updated accordingly. Guests do not
+see the entry (`signOut` is gated on authentication).
+
 ### Build pipeline : rebuild des packages partagés
 
 Les packages sous `packages/**` (`shared-components`, `module-api`) sont consommés par
