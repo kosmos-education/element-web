@@ -14,6 +14,7 @@ import {
     LockIcon,
     PopOutIcon,
     SettingsIcon,
+    SignOutIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
 import classNames from "classnames";
 
@@ -77,6 +78,7 @@ export interface UserMenuViewSnapshot {
         openSecurity: boolean;
         openFeedback: boolean;
         openSettings: boolean;
+        signOut: boolean;
     }>;
 }
 
@@ -113,6 +115,10 @@ export declare interface UserMenuViewActions {
      * Called to open the settings dialog.
      */
     openSettings: () => void;
+    /**
+     * Called to sign the user out of their session.
+     */
+    signOut: () => void;
     /**
      * Called when the user clicks the button to clear their status.
      */
@@ -233,6 +239,17 @@ export function UserMenuView({ vm, className }: UserMenuViewProps): JSX.Element 
                             label={_t("user_menu|open_settings")}
                             onSelect={vm.openSettings}
                         />
+                    )}
+                    {actions.signOut && (
+                        <>
+                            <Separator />
+                            <MenuItem
+                                kind="critical"
+                                Icon={SignOutIcon}
+                                label={_t("user_menu|sign_out")}
+                                onSelect={vm.signOut}
+                            />
+                        </>
                     )}
                 </section>
             </Menu>

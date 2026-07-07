@@ -35,5 +35,8 @@
             "error_downloading_audio": "Error al descargar el audio",
             "unnamed_audio": "Audio sin título"
         }
+    },
+    "user_menu": {
+        "sign_out": "Cerrar sesión"
     }
 }

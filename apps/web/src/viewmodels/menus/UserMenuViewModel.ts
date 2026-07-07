@@ -15,6 +15,8 @@ import Modal from "../../Modal";
 import { Action } from "../../dispatcher/actions";
 import { UserTab } from "../../components/views/dialogs/UserTab";
 import FeedbackDialog from "../../components/views/dialogs/FeedbackDialog";
+import QuestionDialog from "../../components/views/dialogs/QuestionDialog";
+import { _t } from "../../languageHandler";
 import { shouldShowFeedback } from "../../utils/Feedback";
 import { getHomePageUrl } from "../../utils/pages";
 import SdkConfig from "../../SdkConfig";
@@ -70,6 +72,7 @@ export class UserMenuViewModel
                 openSecurity: isAuthenticated,
                 openFeedback: shouldShowFeedback(),
                 openSettings: true,
+                signOut: isAuthenticated,
             },
         };
     }
@@ -149,6 +152,20 @@ export class UserMenuViewModel
         this.dispatcher.dispatch({
             action: Action.ViewUserSettings,
         });
+    };
+
+    public readonly signOut = async (): Promise<void> => {
+        this.setOpen(false);
+        const { finished } = Modal.createDialog(QuestionDialog, {
+            title: _t("user_menu|sign_out"),
+            description: _t("user_menu|sign_out_confirm"),
+            button: _t("user_menu|sign_out"),
+            danger: true,
+        });
+        const [confirmed] = await finished;
+        if (confirmed) {
+            this.dispatcher.dispatch({ action: "logout" });
+        }
     };
 
     public readonly clearStatus = (): void => {

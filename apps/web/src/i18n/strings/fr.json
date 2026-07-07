@@ -3807,6 +3807,10 @@
         "verify_button": "Vérifier l’utilisateur",
         "verify_explainer": "Pour une sécurité supplémentaire, vérifiez cet utilisateur en comparant un code à usage unique sur vos deux appareils."
     },
+    "user_menu": {
+        "sign_out": "Se déconnecter",
+        "sign_out_confirm": "Voulez-vous vraiment vous déconnecter ?"
+    },
     "user_status": {
         "on_a_call": "En appel"
     },

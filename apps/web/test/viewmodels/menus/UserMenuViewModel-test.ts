@@ -19,6 +19,7 @@ import Modal from "../../../src/Modal";
 import FeedbackDialog from "../../../src/components/views/dialogs/FeedbackDialog";
 import { type OwnProfileStore } from "../../../src/stores/OwnProfileStore";
 import { TestSDKContext } from "../../unit-tests/TestSDKContext.ts";
+import QuestionDialog from "../../../src/components/views/dialogs/QuestionDialog";
 
 describe("UserMenuViewModel", () => {
     let dispatcher: MatrixDispatcher;
@@ -176,6 +177,39 @@ describe("UserMenuViewModel", () => {
                 action: Action.ViewUserSettings,
             }),
         );
+    });
+
+    it("asks for confirmation before signing out", async () => {
+        jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([false]) } as any);
+        const vm = new UserMenuViewModel(dispatcher, client, true);
+        vm.setOpen(true);
+        await vm.signOut();
+        expect(Modal.createDialog).toHaveBeenCalledWith(QuestionDialog, expect.objectContaining({ danger: true }));
+        expect(vm.getSnapshot().open).toEqual(false);
+    });
+
+    it("dispatches logout when the confirmation is accepted", async () => {
+        jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([true]) } as any);
+        const dispatcherSpy = jest.fn();
+        dispatcher.register(dispatcherSpy);
+        const vm = new UserMenuViewModel(dispatcher, client, true);
+        vm.setOpen(true);
+        await vm.signOut();
+        await waitFor(() =>
+            expect(dispatcherSpy).toHaveBeenCalledWith({
+                action: "logout",
+            }),
+        );
+    });
+
+    it("does not dispatch logout when the confirmation is cancelled", async () => {
+        jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([false]) } as any);
+        const dispatcherSpy = jest.fn();
+        dispatcher.register(dispatcherSpy);
+        const vm = new UserMenuViewModel(dispatcher, client, true);
+        vm.setOpen(true);
+        await vm.signOut();
+        expect(dispatcherSpy).not.toHaveBeenCalledWith({ action: "logout" });
     });
 
     it("can clear a user status", async () => {
