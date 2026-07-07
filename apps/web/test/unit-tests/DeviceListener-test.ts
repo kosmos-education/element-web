@@ -379,38 +379,42 @@ describe("DeviceListener", () => {
                 jest.spyOn(mockClient.getCrypto()!, "isEncryptionEnabledInRoom").mockResolvedValue(true);
             });
 
-            it("hides setup encryption toast when it is dismissed", async () => {
+            // SCAT-32 : le toast "verify_this_session" est masqué par Kosmos.
+            // Avant : showToast était appelé, puis hideToast après dismiss.
+            // Après : hideToast est appelé directement (jamais showToast pour verify_this_session).
+            it("hides setup encryption toast (never shows verify_this_session, SCAT-32)", async () => {
                 const instance = await createAndStart();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalled();
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
+                expect(SetupEncryptionToast.hideToast).toHaveBeenCalled();
 
                 instance.dismissEncryptionSetup();
                 await flushPromises();
                 expect(SetupEncryptionToast.hideToast).toHaveBeenCalled();
             });
 
-            it("re-shows toast after two days", async () => {
+            // SCAT-32 : le toast n'étant jamais affiché, il n'est pas non plus
+            // ré-affiché après 2 jours. Le mécanisme de nag tourne toujours en
+            // interne mais n'aboutit jamais à un showToast pour verify_this_session.
+            it("does not re-show toast after two days (SCAT-32: toast is always hidden)", async () => {
                 const instance = await createAndStart();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledTimes(1);
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
 
                 jest.useFakeTimers({ advanceTimers: true });
                 instance.dismissEncryptionSetup();
                 await flushPromises();
                 expect(SetupEncryptionToast.hideToast).toHaveBeenCalled();
 
-                // 1.5 days after the toast was dismissed, we don't re-show the
-                // toast yet.
-                jest.advanceTimersByTime(1.5 * 24 * 60 * 60 * 1000);
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledTimes(1);
-
-                // 2 days after the toast was dismissed, we re-show the toast.
-                jest.advanceTimersByTime(0.5 * 24 * 60 * 60 * 1000);
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledTimes(2);
+                // 2 days after the toast was dismissed, we still don't show it.
+                jest.advanceTimersByTime(2 * 24 * 60 * 60 * 1000);
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
                 jest.useRealTimers();
             });
 
-            it("doesn't re-show toast if the device is now verified", async () => {
+            // SCAT-32 : le toast n'est jamais affiché pour verify_this_session,
+            // qu'il y ait eu vérification de l'appareil ou non.
+            it("doesn't show toast, even after device becomes verified (SCAT-32)", async () => {
                 const instance = await createAndStart();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledTimes(1);
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
 
                 jest.useFakeTimers({ advanceTimers: true });
                 instance.dismissEncryptionSetup();
@@ -428,7 +432,7 @@ describe("DeviceListener", () => {
                 instance.recheck();
                 await flushPromises();
                 jest.advanceTimersByTime(2 * 24 * 60 * 60 * 1000);
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledTimes(1);
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
                 jest.useRealTimers();
             });
 
@@ -439,19 +443,37 @@ describe("DeviceListener", () => {
                 expect(SetupEncryptionToast.showToast).not.toHaveBeenCalled();
             });
 
-            it("shows toasts even when no rooms are encrypted", async () => {
+            // SCAT-32 : même sans salle chiffrée, le toast verify_this_session
+            // ne doit pas être affiché (il est masqué par Kosmos).
+            it("does not show verify_this_session toast even when no rooms are encrypted (SCAT-32)", async () => {
                 jest.spyOn(mockClient.getCrypto()!, "isEncryptionEnabledInRoom").mockResolvedValue(false);
                 await createAndStart();
 
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalled();
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
             });
 
-            it("shows verify session toast when account has cross signing", async () => {
+            // SCAT-32 : le toast "verify_this_session" est masqué par Kosmos.
+            // L'état interne est toujours calculé mais aucun toast n'est affiché.
+            it("does not show verify session toast when account has cross signing (SCAT-32: Kosmos hides this toast)", async () => {
                 mockCrypto!.isCrossSigningReady.mockResolvedValue(true);
                 await createAndStart();
 
                 expect(mockCrypto!.getUserDeviceInfo).toHaveBeenCalled();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledWith("verify_this_session");
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
+                expect(SetupEncryptionToast.hideToast).toHaveBeenCalled();
+            });
+
+            // SCAT-32 : guard de non-régression — quelles que soient les conditions,
+            // le toast "verify_this_session" ne doit jamais être affiché par Kosmos.
+            it("never shows the verify_this_session toast regardless of cross-signing state (SCAT-32)", async () => {
+                // Appareil non vérifié (cas le plus courant qui déclencherait le toast)
+                mockCrypto!.isCrossSigningReady.mockResolvedValue(true);
+                mockCrypto!.getDeviceVerificationStatus.mockResolvedValue(
+                    new DeviceVerificationStatus({ trustCrossSignedDevices: false, crossSigningVerified: false }),
+                );
+                await createAndStart();
+
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
             });
 
             describe("when current device is verified", () => {
@@ -606,9 +628,11 @@ describe("DeviceListener", () => {
             it("does not check keybackup status when setup encryption toast has been dismissed", async () => {
                 // Given our device is not verified (this is the default in the mock)
 
-                // And we have run the checks once (and we were told to verify)
+                // And we have run the checks once. SCAT-32 : le toast "verify_this_session"
+                // est masqué par Kosmos, il n'est donc jamais affiché ; seul l'état interne
+                // (appareil non vérifié) est calculé, ce qui suffit pour la suite du test.
                 const instance = await createAndStart();
-                expect(SetupEncryptionToast.showToast).toHaveBeenCalledWith("verify_this_session");
+                expect(SetupEncryptionToast.showToast).not.toHaveBeenCalledWith("verify_this_session");
                 mocked(SetupEncryptionToast.showToast).mockClear();
                 mockCrypto.getDeviceVerificationStatus.mockClear();
 
