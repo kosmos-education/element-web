@@ -18,6 +18,7 @@ import { type RefCallback } from "react";
 import { loadApp } from "./app.tsx";
 import SdkConfig from "../SdkConfig.ts";
 import PlatformPeg from "../PlatformPeg.ts";
+import * as Lifecycle from "../Lifecycle.ts";
 import type MatrixChat from "../components/structures/MatrixChat.tsx";
 
 const defaultConfig = {
@@ -67,6 +68,33 @@ describe("sso_redirect_options", () => {
 
             await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
             expect(startSingleSignOnSpy).toHaveBeenCalledWith(expect.any(MatrixClient), "sso", "/room/#room:server");
+        });
+
+        // SCAT-37: a soft-logged-out session keeps its (unusable) token in storage. It must not
+        // prevent the `immediate` SSO auto-redirect, otherwise landing on #/start_sso gets stuck
+        // on the soft-logout screen.
+        it("should redirect when the stored session is soft-logged-out", async () => {
+            fetchMock.getOnce("https://synapse/_matrix/client/v3/login", {
+                flows: [{ stages: ["m.login.sso"] }],
+            });
+
+            vi.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            vi.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(true);
+
+            const startSingleSignOnSpy = vi.spyOn(PlatformPeg.get()!, "startSingleSignOn");
+
+            await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
+            expect(startSingleSignOnSpy).toHaveBeenCalledWith(expect.any(MatrixClient), "sso", "/room/#room:server");
+        });
+
+        it("should not redirect when a valid (non soft-logged-out) session is stored", async () => {
+            vi.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            vi.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(false);
+
+            const startSingleSignOnSpy = vi.spyOn(PlatformPeg.get()!, "startSingleSignOn");
+
+            await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
+            expect(startSingleSignOnSpy).not.toHaveBeenCalled();
         });
 
         it("should redirect for native OAuth2", async () => {
