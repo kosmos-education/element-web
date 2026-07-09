@@ -23,6 +23,73 @@ import { sanitizedHtmlNode } from "../../HtmlUtils.tsx";
 import { sanitizeHtmlParams, transformTags } from "../../Linkify.ts";
 import { objectExcluding } from "../../utils/objects.ts";
 
+// Balises SVG de présentation autorisées pour les pages embarquées (contenu de confiance,
+// fourni par l'exploitant via embedded_pages.home_url). On exclut les vecteurs XSS
+// (script, foreignObject, animate, a, use/image avec href externe).
+const EMBEDDED_SVG_TAGS = [
+    "svg",
+    "g",
+    "defs",
+    "path",
+    "rect",
+    "circle",
+    "ellipse",
+    "line",
+    "polyline",
+    "polygon",
+    "linearGradient",
+    "radialGradient",
+    "stop",
+    "clipPath",
+    "title",
+    "desc",
+    "text",
+    "tspan",
+];
+
+// Attributs SVG de présentation (appliqués via la clé "*"). Aucun attribut d'URL/href.
+const EMBEDDED_SVG_ATTRS = [
+    "xmlns",
+    "viewBox",
+    "preserveAspectRatio",
+    "width",
+    "height",
+    "x",
+    "y",
+    "x1",
+    "x2",
+    "y1",
+    "y2",
+    "cx",
+    "cy",
+    "r",
+    "rx",
+    "ry",
+    "d",
+    "points",
+    "fill",
+    "fill-rule",
+    "fill-opacity",
+    "clip-rule",
+    "clip-path",
+    "stroke",
+    "stroke-width",
+    "stroke-linecap",
+    "stroke-linejoin",
+    "stroke-dasharray",
+    "stroke-opacity",
+    "opacity",
+    "transform",
+    "gradientUnits",
+    "gradientTransform",
+    "offset",
+    "stop-color",
+    "stop-opacity",
+    "class",
+    "id",
+    "style",
+];
+
 interface IProps {
     // URL to request embedded page content from
     url?: string;
@@ -131,6 +198,18 @@ export default class EmbeddedPage extends React.PureComponent<IProps, IState> {
 
         const content = sanitizedHtmlNode(this.state.page, `${className}_body`, {
             ...sanitizeHtmlParams,
+            // On autorise aussi la balise <style> : la page embarquée (de confiance) porte
+            // toute sa mise en forme — layout, couleurs des icônes SVG, classes — dans un bloc CSS.
+            allowedTags: [...sanitizeHtmlParams.allowedTags!, ...EMBEDDED_SVG_TAGS, "style"],
+            // <style> est marqué "vulnérable" par sanitize-html (XSS via CSS). Contenu de confiance
+            // ici (fourni par l'exploitant, même niveau que config.json), donc explicitement accepté.
+            allowVulnerableTags: true,
+            allowedAttributes: {
+                ...sanitizeHtmlParams.allowedAttributes,
+                "*": [...(sanitizeHtmlParams.allowedAttributes?.["*"] ?? []), ...EMBEDDED_SVG_ATTRS],
+            },
+            // Préserver la casse : sinon sanitize-html renomme viewBox -> viewbox et casse le rendu SVG.
+            parser: { ...sanitizeHtmlParams.parser, lowerCaseTags: false, lowerCaseAttributeNames: false },
             transformTags: objectExcluding(transformTags, [
                 // Disable the transformer for `img` as it only allows mxc resources
                 "img",
