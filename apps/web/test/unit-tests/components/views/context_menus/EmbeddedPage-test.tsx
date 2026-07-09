@@ -8,7 +8,7 @@ Please see LICENSE files in the repository root for full details.
 
 import React from "react";
 import fetchMock from "@fetch-mock/jest";
-import { render, screen } from "jest-matrix-react";
+import { render, screen, waitFor } from "jest-matrix-react";
 import { mocked } from "jest-mock";
 
 import { _t } from "../../../../../src/languageHandler";
@@ -55,5 +55,30 @@ describe("<EmbeddedPage />", () => {
         await expect(screen.findByText("Foo")).resolves.toBeVisible();
         expect(screen.queryByRole("iframe")).not.toBeInTheDocument();
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it("should preserve inline SVG icons", async () => {
+        fetchMock.get(
+            "https://svg.page",
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" rx="48"></rect><path d="M68 76V64H52"></path></svg>`,
+        );
+
+        const { container } = render(<EmbeddedPage url="https://svg.page" />);
+        await waitFor(() => expect(container.querySelector("svg")).toBeInTheDocument());
+        const svg = container.querySelector("svg")!;
+        expect(svg.getAttribute("viewBox")).toBe("0 0 96 96");
+        expect(container.querySelector("svg path")).toBeInTheDocument();
+    });
+
+    it("should preserve inline <style> blocks and class attributes", async () => {
+        fetchMock.get(
+            "https://styled.page",
+            `<style>.fill-pink { fill: #f0f; }</style><div class="room-content"><span class="fill-pink">Hello</span></div>`,
+        );
+
+        const { container } = render(<EmbeddedPage url="https://styled.page" />);
+        await waitFor(() => expect(container.querySelector("style")).toBeInTheDocument());
+        expect(container.querySelector("style")!.textContent).toContain(".fill-pink");
+        expect(container.querySelector(".room-content .fill-pink")).toBeInTheDocument();
     });
 });
