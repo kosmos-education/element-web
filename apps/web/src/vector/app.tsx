@@ -111,7 +111,10 @@ export async function loadApp(urlParams: URLParams, matrixChatRef: React.Ref<Mat
 
     // Before we continue, let's see if we're supposed to do an SSO redirect
     const [userId] = await Lifecycle.getStoredSessionOwner();
-    const hasPossibleToken = !!userId;
+    // A soft-logged-out session keeps its (now-unusable) token in storage. Treat it as "no token"
+    // so that the `immediate` SSO auto-redirect fires again instead of getting stuck on the
+    // soft-logout screen when landing on e.g. #/start_sso (see SCAT-37).
+    const hasPossibleToken = !!userId && !Lifecycle.isSoftLogout();
     const isReturningFromSso = !!urlParams.legacy_sso || !!urlParams.oidc_fragment || !!urlParams.oidc_query;
     const ssoRedirects = config.sso_redirect_options || {};
     let autoRedirect = ssoRedirects.immediate === true;

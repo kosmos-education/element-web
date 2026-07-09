@@ -17,6 +17,7 @@ import { Crypto } from "@peculiar/webcrypto";
 import { loadApp } from "../../../src/vector/app.tsx";
 import SdkConfig from "../../../src/SdkConfig.ts";
 import PlatformPeg from "../../../src/PlatformPeg.ts";
+import * as Lifecycle from "../../../src/Lifecycle.ts";
 import { mockPlatformPeg, unmockPlatformPeg } from "../../test-utils";
 import { makeDelegatedAuthConfig } from "../../test-utils/oidc";
 
@@ -64,6 +65,11 @@ describe("sso_redirect_options", () => {
             fetchMock.get("https://synapse/_matrix/client/versions", { versions: ["v1.1", "v1.15"] });
         });
 
+        afterEach(() => {
+            // Restore any Lifecycle spies so they don't leak into subsequent tests
+            jest.restoreAllMocks();
+        });
+
         it("should redirect for legacy SSO", async () => {
             fetchMock.getOnce("https://synapse/_matrix/client/v3/login", {
                 flows: [{ stages: ["m.login.sso"] }],
@@ -73,6 +79,33 @@ describe("sso_redirect_options", () => {
 
             await loadApp({}, jest.fn());
             expect(startSingleSignOnSpy).toHaveBeenCalledWith(expect.any(MatrixClient), "sso", "/room/#room:server");
+        });
+
+        // SCAT-37: a soft-logged-out session keeps its (unusable) token in storage. It must not
+        // prevent the `immediate` SSO auto-redirect, otherwise landing on #/start_sso gets stuck
+        // on the soft-logout screen.
+        it("should redirect when the stored session is soft-logged-out", async () => {
+            fetchMock.getOnce("https://synapse/_matrix/client/v3/login", {
+                flows: [{ stages: ["m.login.sso"] }],
+            });
+
+            jest.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            jest.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(true);
+
+            const startSingleSignOnSpy = jest.spyOn(PlatformPeg.get()!, "startSingleSignOn");
+
+            await loadApp({}, jest.fn());
+            expect(startSingleSignOnSpy).toHaveBeenCalledWith(expect.any(MatrixClient), "sso", "/room/#room:server");
+        });
+
+        it("should not redirect when a valid (non soft-logged-out) session is stored", async () => {
+            jest.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            jest.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(false);
+
+            const startSingleSignOnSpy = jest.spyOn(PlatformPeg.get()!, "startSingleSignOn");
+
+            await loadApp({}, jest.fn());
+            expect(startSingleSignOnSpy).not.toHaveBeenCalled();
         });
 
         it("should redirect for native OIDC", async () => {
