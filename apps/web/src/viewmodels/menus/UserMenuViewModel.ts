@@ -73,8 +73,9 @@ export class UserMenuViewModel
                 createAccount: !isAuthenticated,
                 signIn: !isAuthenticated,
                 openHomePage: hasHomePage,
-                linkNewDevice: isAuthenticated,
-                openSecurity: isAuthenticated,
+                // Masqués pour Kosmos (SCAT-41) : entrées retirées du menu utilisateur.
+                linkNewDevice: false,
+                openSecurity: false,
                 openFeedback: shouldShowFeedback(),
                 openSettings: true,
                 signOut: isAuthenticated,
