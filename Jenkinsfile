@@ -4,7 +4,7 @@
 def localBuildClosure = { defaultStep, args ->
     // Comme en plus de faire l'image docker, on va utiliser yarn publish, on utilise les credentials de Nexus
     withCredentials([usernamePassword(credentialsId: 'JENKINS_NEXUS_AUTH', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-        sh "docker build -f apps/web/Dockerfile --secret id=NEXUS_USER --secret id=NEXUS_PASS ."
+        sh "docker build -f apps/web/Dockerfile --build-arg GIT_BRANCH=${env.BRANCH_NAME} --secret id=NEXUS_USER --secret id=NEXUS_PASS ."
         defaultStep()
     }
 }
