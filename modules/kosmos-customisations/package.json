@@ -1,0 +1,18 @@
+{
+    "name": "@kosmos/element-web-module-customisations",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "main": "lib/index.js",
+    "license": "SEE LICENSE IN README.md",
+    "scripts": {
+        "build": "nx build",
+        "lint:types": "nx lint:types"
+    },
+    "devDependencies": {
+        "@element-hq/element-web-module-api": "workspace:*",
+        "@types/node": "^22.10.7",
+        "typescript": "catalog:",
+        "vite": "catalog:"
+    }
+}

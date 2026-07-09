@@ -61,6 +61,11 @@ echo $DIST_VERSION
 # Cf. docs/kosmos-customizations.md — section "Build pipeline".
 NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build
 
+# Le module de customisations Kosmos est chargé au runtime via config.json (`modules`).
+# Son bundle (lib/, gitignoré) est copié dans webapp/ par webpack — il doit donc être
+# buildé AVANT l'app, sinon la copie est silencieusement ignorée (noErrorOnMissing).
+NX_SKIP_NX_CACHE=true pnpm --filter @kosmos/element-web-module-customisations build
+
 VERSION=$DIST_VERSION pnpm --dir apps/web build
 
 pushd /src/apps/web/webapp

@@ -17,6 +17,7 @@ import { UserTab } from "../../components/views/dialogs/UserTab";
 import FeedbackDialog from "../../components/views/dialogs/FeedbackDialog";
 import QuestionDialog from "../../components/views/dialogs/QuestionDialog";
 import { _t } from "../../languageHandler";
+import UserIdentifierCustomisations from "../../customisations/UserIdentifier";
 import { shouldShowFeedback } from "../../utils/Feedback";
 import { getHomePageUrl } from "../../utils/pages";
 import SdkConfig from "../../SdkConfig";
@@ -45,6 +46,9 @@ export class UserMenuViewModel
         const hasHomePage = !!getHomePageUrl(SdkConfig.get(), client);
         const isAuthenticated = !client.isGuest();
         const userId = client.getSafeUserId();
+        // Displayed identifier, routed through the UserIdentifier customisation so a
+        // deployment can hide it (returns null). `userId` is kept for the avatar colour.
+        const userIdentifier = UserIdentifierCustomisations.getDisplayUserIdentifier(userId, { withDisplayName: true });
         const displayName = ownProfileStore.displayName || userId;
         const avatarUrl = ownProfileStore.getHttpAvatarUrl(AVATAR_PX) ?? undefined;
 
@@ -56,6 +60,7 @@ export class UserMenuViewModel
         return {
             open: false,
             userId,
+            userIdentifier,
             displayName,
             avatarUrl,
             expanded: !isPanelCollapsed,

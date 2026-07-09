@@ -717,6 +717,13 @@ export default (env: string, argv: Record<string, any>): webpack.Configuration =
                     { from: "themes/**", context: path.resolve(__dirname, "res") },
                     { from: "vector-icons/**", context: path.resolve(__dirname, "res") },
                     { from: "kosmos-icons/**", context: path.resolve(__dirname, "res") },
+                    // Module de customisations Kosmos (chargé via config.json `modules`)
+                    {
+                        from: "**",
+                        context: path.resolve(__dirname, "../../modules/kosmos-customisations/lib"),
+                        to: path.join(__dirname, "webapp", "modules", "kosmos-customisations"),
+                        noErrorOnMissing: true,
+                    },
                     { from: "decoder-ring/**", context: path.resolve(__dirname, "res") },
                     { from: "media/**", context: path.resolve(__dirname, "res/") },
                     { from: "config.json", noErrorOnMissing: true },

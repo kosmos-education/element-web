@@ -46,9 +46,15 @@ export interface UserMenuViewSnapshot {
      */
     displayName: string;
     /**
-     * Matrix user ID for the user.
+     * Matrix user ID for the user. Used to derive the avatar colour.
      */
     userId: string;
+    /**
+     * Identifier to display under the display name (e.g. the Matrix user ID).
+     * When `null`, no identifier is shown — allows deployments to hide it via
+     * the `UserIdentifier` customisation.
+     */
+    userIdentifier: string | null;
     /**
      * Account management URL if the user is using OIDC.
      */
@@ -136,6 +142,7 @@ export type UserMenuViewProps = {
 export function UserMenuView({ vm, className }: UserMenuViewProps): JSX.Element {
     const {
         userId,
+        userIdentifier,
         displayName,
         avatarUrl,
         expanded,
@@ -183,9 +190,11 @@ export function UserMenuView({ vm, className }: UserMenuViewProps): JSX.Element 
                     {showUserStatus && <SetStatusView vm={setStatusViewModel} />}
                 </section>
                 <section className={classNames(styles.profile, styles.profileSecondary)}>
-                    <Text data-testid="userId" size="md" as="span" type="body" className={styles.userId}>
-                        {userId}
-                    </Text>
+                    {userIdentifier && (
+                        <Text data-testid="userId" size="md" as="span" type="body" className={styles.userId}>
+                            {userIdentifier}
+                        </Text>
+                    )}
                     {manageAccountHref && (
                         <Button as="a" size="md" kind="tertiary" href={manageAccountHref} Icon={PopOutIcon}>
                             {_t("menus|user_menu|manage_account")}
