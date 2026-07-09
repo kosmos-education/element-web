@@ -23,6 +23,12 @@ export interface ConfigOptions extends WebConfigJson {
      * This is not a real config field, we're just abusing the config structure to pass around a validated server config
      */
     validated_server_config?: ValidatedServerConfig;
+
+    /**
+     * Kosmos: identifiants d'onglets (`UserTab`) à masquer dans la modale de paramétrage utilisateur.
+     * Ex. ["USER_SESSION_MANAGER_TAB", "USER_SECURITY_TAB"]. Absent/vide ⇒ aucun onglet masqué.
+     */
+    disable_settings_tabs?: string[];
 }
 
 /**

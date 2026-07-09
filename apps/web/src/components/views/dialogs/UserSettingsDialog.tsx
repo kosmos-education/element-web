@@ -29,6 +29,7 @@ import TabbedView, { Tab, useActiveTabWithDefault } from "../../structures/Tabbe
 import { _t, _td } from "../../../languageHandler";
 import AccountUserSettingsTab from "../settings/tabs/user/AccountUserSettingsTab";
 import SettingsStore from "../../../settings/SettingsStore";
+import SdkConfig from "../../../SdkConfig";
 import LabsUserSettingsTab, { showLabsFlags } from "../settings/tabs/user/LabsUserSettingsTab";
 import AppearanceUserSettingsTab from "../settings/tabs/user/AppearanceUserSettingsTab";
 import SecurityUserSettingsTab from "../settings/tabs/user/SecurityUserSettingsTab";
@@ -249,7 +250,9 @@ export default function UserSettingsDialog(props: IProps): JSX.Element {
             ),
         );
 
-        return tabs as NonEmptyArray<Tab<UserTab>>;
+        // Kosmos : masque les onglets listés dans la configuration (config.json `disable_settings_tabs`).
+        const hiddenTabs = SdkConfig.get("disable_settings_tabs") ?? [];
+        return tabs.filter((tab) => !hiddenTabs.includes(tab.id)) as NonEmptyArray<Tab<UserTab>>;
     };
 
     const [activeTabId, _setActiveTabId] = useActiveTabWithDefault(getTabs(), UserTab.Account, props.initialTabId);

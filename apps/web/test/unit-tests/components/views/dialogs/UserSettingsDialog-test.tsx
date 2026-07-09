@@ -115,6 +115,29 @@ describe("<UserSettingsDialog />", () => {
         expect(container.querySelectorAll(".mx_TabbedView_tabLabel")).toMatchSnapshot();
     });
 
+    it("hides settings tabs listed in disable_settings_tabs config", () => {
+        SdkConfig.add({
+            show_labs_settings: true, // sinon l'onglet Labs ne serait pas rendu du tout
+            disable_settings_tabs: [
+                UserTab.SessionManager,
+                UserTab.Labs,
+                UserTab.Sidebar,
+                UserTab.Security,
+                UserTab.Encryption,
+            ],
+        });
+        const { queryByTestId, getByTestId } = render(getComponent());
+        // Onglets masqués : absents
+        expect(queryByTestId(`settings-tab-${UserTab.SessionManager}`)).toBeNull();
+        expect(queryByTestId(`settings-tab-${UserTab.Labs}`)).toBeNull();
+        expect(queryByTestId(`settings-tab-${UserTab.Sidebar}`)).toBeNull();
+        expect(queryByTestId(`settings-tab-${UserTab.Security}`)).toBeNull();
+        expect(queryByTestId(`settings-tab-${UserTab.Encryption}`)).toBeNull();
+        // Onglets non listés : toujours présents
+        expect(getByTestId(`settings-tab-${UserTab.Account}`)).toBeTruthy();
+        expect(getByTestId(`settings-tab-${UserTab.Help}`)).toBeTruthy();
+    });
+
     it("renders ignored users tab when feature_mjolnir is enabled", () => {
         mockSettingsStore.getValue.mockImplementation((settingName) => settingName === "feature_mjolnir");
         const { getByTestId } = render(getComponent());
