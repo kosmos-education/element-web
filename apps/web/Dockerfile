@@ -9,10 +9,6 @@ ARG USE_CUSTOM_SDKS=false
 ARG JS_SDK_REPO="https://github.com/matrix-org/matrix-js-sdk.git"
 ARG JS_SDK_BRANCH="master"
 
-# Nom de la branche buildée, injecté par la CI. Nécessaire car le checkout CI est en
-# detached HEAD : docker-package.sh en dérive la version pour les branches kosmos/release/*.
-ARG GIT_BRANCH=""
-
 WORKDIR /src
 
 # Install dependencies
