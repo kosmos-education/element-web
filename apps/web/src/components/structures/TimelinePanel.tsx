@@ -1503,6 +1503,17 @@ class TimelinePanel extends React.Component<IProps, IState> {
             this.setState({ timelineLoading: false });
             logger.error(`Error loading timeline panel at ${this.props.timelineSet.room?.roomId}/${eventId}`, error);
 
+            // Un chargement non explicite (restauration de scroll, saut read-marker) peut
+            // cibler un événement que le serveur ne renvoie plus (purge/redaction). Ce n'est
+            // pas une navigation demandée par l'utilisateur (elle n'est pas surlignée) : on
+            // retombe silencieusement sur la live timeline au lieu d'un dialog bloquant.
+            const wasExplicitNavigation = !!eventId && eventId === this.props.highlightedEventId;
+            if (eventId && this.props.timelineSet.room && !wasExplicitNavigation) {
+                logger.warn(`Impossible de charger la position ${eventId}, retour à la live timeline`, error);
+                this.loadTimeline(); // eventId undefined → live timeline, pas d'appel /context
+                return;
+            }
+
             let onFinished: (() => void) | undefined;
 
             // if we were given an event ID, then when the user closes the

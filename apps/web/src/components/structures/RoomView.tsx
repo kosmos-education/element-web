@@ -765,7 +765,11 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
             // in the scroll state store. Assume initialEventPixelOffset should be set.
             if (!newState.initialEventId && newState.roomId) {
                 const roomScrollState = RoomScrollStateStore.getScrollState(newState.roomId);
-                if (roomScrollState) {
+                // N'utiliser la position sauvegardée que si l'événement est toujours connu
+                // localement ; sinon, la charger déclencherait un /context réseau qui peut
+                // échouer en 404 si le serveur ne l'a plus (purge/redaction). Dans ce cas on
+                // laisse la timeline se charger sur la live timeline.
+                if (roomScrollState?.focussedEvent && room?.findEventById(roomScrollState.focussedEvent)) {
                     newState.initialEventId = roomScrollState.focussedEvent;
                     newState.initialEventPixelOffset = roomScrollState.pixelOffset;
                 }

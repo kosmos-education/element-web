@@ -13,6 +13,7 @@ import {
     EventTimelineSet,
     EventType,
     type MatrixClient,
+    MatrixError,
     MatrixEvent,
     PendingEventOrdering,
     RelationType,
@@ -35,6 +36,7 @@ import { type Mocked, mocked } from "jest-mock";
 import { forEachRight } from "lodash";
 
 import TimelinePanel from "../../../../src/components/structures/TimelinePanel";
+import Modal from "../../../../src/Modal";
 import { MatrixClientPeg } from "../../../../src/MatrixClientPeg";
 import {
     clientAndSDKContextRenderOptions,
@@ -588,6 +590,85 @@ describe("TimelinePanel", () => {
             client.emit(RoomEvent.Timeline, event, room, false, false, data);
 
             expect(paginateSpy).toHaveBeenCalledWith(EventTimeline.FORWARDS, 1, false);
+        });
+    });
+
+    describe("when loading the timeline around an event fails", () => {
+        const missingEventId = "$missing-event";
+
+        // Build a timelineSet whose getTimelineForEvent returns null so loadTimeline
+        // takes the asynchronous path (and thus its onError handler) instead of the
+        // synchronous hot-path.
+        const getErroringProps = (
+            room: Room,
+            events: MatrixEvent[],
+            overrides: Partial<TimelinePanel["props"]> = {},
+        ): TimelinePanel["props"] => {
+            const [timeline] = mkTimeline(room, events);
+            const timelineSet = {
+                room,
+                getLiveTimeline: () => timeline,
+                getTimelineForEvent: () => null,
+                getPendingEvents: () => [] as MatrixEvent[],
+            } as unknown as EventTimelineSet;
+
+            return {
+                timelineSet,
+                manageReadReceipts: true,
+                sendReadReceiptOnLoad: true,
+                ...overrides,
+            };
+        };
+
+        filterConsole("Error loading timeline panel", "Impossible de charger la position");
+
+        let loadSpy: jest.SpyInstance;
+        let createDialogSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+            // Reject only when targeting a specific event; loading the live timeline
+            // (eventId === undefined) succeeds, as it would in production.
+            loadSpy = jest
+                .spyOn(TimelineWindow.prototype, "load")
+                .mockImplementation(async (eventId?: string): Promise<void> => {
+                    if (eventId) {
+                        throw new MatrixError({ errcode: "M_NOT_FOUND", error: "Event not found." }, 404);
+                    }
+                });
+            createDialogSpy = jest
+                .spyOn(Modal, "createDialog")
+                .mockReturnValue({ finished: Promise.resolve([]), close: jest.fn() } as any);
+        });
+
+        afterEach(() => {
+            // Avoid leaking these prototype/module spies into the following describe blocks.
+            loadSpy.mockRestore();
+            createDialogSpy.mockRestore();
+        });
+
+        it("falls back to the live timeline without a dialog for a non-explicit load (restored scroll position)", async () => {
+            const [client, room, events] = setupTestData();
+            const props = getErroringProps(room, events, { eventId: missingEventId });
+
+            render(<TimelinePanel {...props} />, clientAndSDKContextRenderOptions(client, sdkContext));
+
+            // Wait for the load of the missing event to have been attempted (and rejected)...
+            await waitFor(() => expect(loadSpy).toHaveBeenCalledWith(missingEventId, expect.anything()));
+            await flushPromises();
+            // ...then confirm the blocking error dialog is never surfaced (silent live fallback).
+            expect(createDialogSpy).not.toHaveBeenCalled();
+        });
+
+        it("shows the error dialog for an explicit navigation to a highlighted event", async () => {
+            const [client, room, events] = setupTestData();
+            const props = getErroringProps(room, events, {
+                eventId: missingEventId,
+                highlightedEventId: missingEventId,
+            });
+
+            render(<TimelinePanel {...props} />, clientAndSDKContextRenderOptions(client, sdkContext));
+
+            await waitFor(() => expect(createDialogSpy).toHaveBeenCalled());
         });
     });
 
