@@ -14,7 +14,6 @@ import AccessibleButton from "../../../elements/AccessibleButton";
 import { _t } from "../../../../../languageHandler";
 import SdkConfig from "../../../../../SdkConfig";
 import PlatformPeg from "../../../../../PlatformPeg";
-import UpdateCheckButton from "../../UpdateCheckButton";
 import CopyableText from "../../../elements/CopyableText";
 import SettingsTab from "../SettingsTab";
 import { SettingsSection } from "../../shared/SettingsSection";
@@ -25,7 +24,6 @@ import { BugReportDialogButton } from "../../../elements/BugReportDialogButton";
 
 interface IState {
     appVersion: string | null;
-    canUpdate: boolean;
 }
 
 export default class HelpUserSettingsTab extends React.Component<EmptyObject, IState> {
@@ -37,7 +35,6 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
 
         this.state = {
             appVersion: null,
-            canUpdate: false,
         };
     }
 
@@ -47,12 +44,6 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
             .then((ver) => this.setState({ appVersion: ver }))
             .catch((e) => {
                 logger.error("Error getting vector version: ", e);
-            });
-        PlatformPeg.get()
-            ?.canSelfUpdate()
-            .then((v) => this.setState({ canUpdate: v }))
-            .catch((e) => {
-                logger.error("Error getting self updatability: ", e);
             });
     }
 
@@ -211,11 +202,6 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
             },
         );
 
-        let updateButton: JSX.Element | undefined;
-        if (this.state.canUpdate) {
-            updateButton = <UpdateCheckButton />;
-        }
-
         let bugReportingSection;
         if (SdkConfig.get().bug_report_endpoint_url) {
             bugReportingSection = (
@@ -261,7 +247,7 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
                                 {cryptoVersion}
                                 <br />
                             </CopyableText>
-                            {updateButton}
+                            {/* Kosmos : le bouton « Rechercher une mise à jour » n'est volontairement pas affiché (cf. SCAT-42). */}
                         </SettingsSubsectionText>
                     </SettingsSubsection>
                     {this.renderLegal()}
