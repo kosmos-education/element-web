@@ -267,17 +267,7 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
                     {this.renderLegal()}
                     {this.renderCredits()}
                     <SettingsSubsection heading={_t("common|advanced")}>
-                        <SettingsSubsectionText>
-                            {_t(
-                                "setting|help_about|homeserver",
-                                {
-                                    homeserverUrl: this.context.getHomeserverUrl(),
-                                },
-                                {
-                                    code: (sub) => <code>{sub}</code>,
-                                },
-                            )}
-                        </SettingsSubsectionText>
+                        {/* Kosmos : l'URL du homeserver n'est volontairement pas affichée (cf. SCAT-42). */}
                         {this.context.getIdentityServerUrl() && (
                             <SettingsSubsectionText>
                                 {_t(
@@ -291,17 +281,7 @@ export default class HelpUserSettingsTab extends React.Component<EmptyObject, IS
                                 )}
                             </SettingsSubsectionText>
                         )}
-                        <SettingsSubsectionText>
-                            <details>
-                                <summary className="mx_HelpUserSettingsTab_accessTokenDetails">
-                                    {_t("common|access_token")}
-                                </summary>
-                                <strong>{_t("setting|help_about|access_token_detail")}</strong>
-                                <CopyableText getTextToCopy={() => this.context.getAccessToken()}>
-                                    {this.context.getAccessToken()}
-                                </CopyableText>
-                            </details>
-                        </SettingsSubsectionText>
+                        {/* Kosmos : le jeton d'accès n'est volontairement pas affiché (cf. SCAT-42). */}
                         <AccessibleButton onClick={this.onClearCacheAndReload} kind="danger_outline">
                             {_t("setting|help_about|clear_cache_reload")}
                         </AccessibleButton>
