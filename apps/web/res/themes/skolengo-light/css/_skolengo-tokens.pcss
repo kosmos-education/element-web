@@ -64,6 +64,13 @@
         /* subtle-secondary : surface encore plus légère */
         --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
 
+        /* ── Variables de marque découplées par mode (cf. _skolengo-overrides.pcss
+         * et _skolengo-vars.pcss). En clair, elles reprennent EXACTEMENT les valeurs
+         * historiques → rendu clair inchangé. Le fichier de tokens sombre les abaisse. */
+        --skolengo-bubble-self-bg: var(--cpd-color-indigo-400); /* #dde5ff — bulle « moi » */
+        --skolengo-panel-bg: var(--cpd-color-indigo-300); /* #edf1ff — listes / panneau droit / left */
+        --skolengo-spacepanel-bg: var(--cpd-color-indigo-400); /* #dde5ff — barre d'espaces */
+
         /* ── Couleurs décoratives (noms d'expéditeurs, avatars) ── */
         /* Correspondent aux couleurs observées dans les maquettes, issus des EMS-900 */
         --cpd-color-text-decorative-1: #8440f3; /* PurpleEMS-900  */
