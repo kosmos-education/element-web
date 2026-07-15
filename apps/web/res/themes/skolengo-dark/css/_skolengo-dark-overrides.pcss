@@ -1,0 +1,107 @@
+/* Surcharges de sélecteurs app — mode SOMBRE Skolengo
+ * Le mode sombre repart du dark Element par défaut. Ce fichier ne conserve QUE
+ * l'identité visuelle des avatars demandée : couleurs (via bg-decorative dans
+ * _skolengo-tokens.pcss), initiales blanches, forme carrée, logo Skolengo et
+ * contours d'espace intégrés à la couleur de l'avatar.
+ *
+ * Contrairement au thème clair (skolengo-light/_skolengo-overrides.pcss), on NE
+ * repeint PAS les fonds de panneaux, les filtres, les bulles ni les noms de salons.
+ */
+
+/* ── Avatars : initiales blanches sur fonds décoratifs saturés ──────────────── */
+
+/* Avatars avec classe mx_BaseAvatar. Ne touche PAS --cpd-color-text-decorative-* :
+ * les noms d'auteurs dans la timeline restent colorés (ils n'utilisent pas
+ * --cpd-avatar-color).
+ * !important nécessaire : .avatar[data-color] (0,2,0) bat .mx_BaseAvatar (0,1,0). */
+.mx_BaseAvatar {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatar de l'utilisateur courant (UserMenu, haut du space panel).
+ * Ce composant utilise Compound <Avatar> directement (sans mx_BaseAvatar).
+ * On cible [data-color] qui est stable (survit au hash CSS module).
+ * Sans effet sur une photo uploadée (pas d'initiale dans ce cas). */
+.mx_UserMenu [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatar dans le portail d'un menu Compound (ex. modale UserMenu au clic sur l'avatar).
+ * Le contenu du <Menu> Compound est rendu hors de .mx_UserMenu via un portail Radix
+ * (<div role="menu"> attaché à document.body) → la règle ci-dessus ne l'atteint pas. */
+[role="menu"] [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* ── Avatars de SALONS en carré arrondi — liste et avatar principal de l'en-tête ── */
+
+/* On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
+ * .mx_RoomAvatarView QUE si l'avatar a une décoration ; sinon <RoomAvatar> nu.
+ * En-tête : WithPresenceIndicator renvoie un Fragment (sans nœud DOM) quand
+ * il n'y a pas de présence → l'avatar est l'enfant DIRECT de .mx_RoomHeader.
+ * On couvre les deux cas : enfant direct ET descendant du wrapper de présence.
+ * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
+ * descendants sans !important. */
+.mx_RoomListItemView .mx_BaseAvatar,
+.mx_RoomHeader > *:first-child.mx_BaseAvatar,
+.mx_RoomHeader > *:first-child .mx_BaseAvatar {
+    --cpd-avatar-radius: 25% !important;
+}
+
+/* ── Contour des espaces intégré à la couleur de chaque espace ──────────────── */
+
+/* Logique native : inactif = padding 4px, actif = padding 1px + border 3px = 4px.
+ * On pose padding:1px + border 3px pour conserver le total (4px) inactif/actif.
+ * Bordure : rgba(0,0,0,.25) — semi-transparent noir ; comme background-clip vaut
+ * border-box, le fond coloré du selectionWrapper transparaît sous la bordure →
+ * résultat : couleur de l'espace assombrie de ~25 %, sans saut d'alignement.
+ * Les 6 règles :has() posent le fond selon data-color de l'avatar (Compound Avatar
+ * pose toujours data-color="N" sur .mx_BaseAvatar, N ∈ 1..6).
+ * La règle native active (spécificité 0,4,0, sans !important) continue de prendre
+ * le dessus pour border-color → le liseré de sélection reste visible.
+ * On N'utilise PAS !important afin de ne pas bloquer la règle active native. */
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
+    padding: 1px;
+    border: 3px solid transparent;
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="1"]) {
+    background-color: var(--cpd-color-bg-decorative-1);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="2"]) {
+    background-color: var(--cpd-color-bg-decorative-2);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="3"]) {
+    background-color: var(--cpd-color-bg-decorative-3);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="4"]) {
+    background-color: var(--cpd-color-bg-decorative-4);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="5"]) {
+    background-color: var(--cpd-color-bg-decorative-5);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="6"]) {
+    background-color: var(--cpd-color-bg-decorative-6);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+/* ── Logo Skolengo ──────────────────────────────────────────────────────────── */
+
+/* Logo Skolengo sur fond blanc : l'<img> est posé nu sur le space panel.
+ * box-sizing:border-box préserve l'emprise 36×36 existante malgré le padding. */
+.mx_SpacePanel .mx_SpacePanel_logo {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 8px;
+    box-sizing: border-box;
+}
