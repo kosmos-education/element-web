@@ -149,7 +149,31 @@
     background-color: var(--cpd-color-bg-canvas-default);
 }
 
-/* ── Filtres de la liste des salons ───────────────────────────────────────── */
+/* ── Menubar du room summary panel : fond des items transparent ─────────────── */
+
+/* Les MenuItem/ToggleMenuItem Compound ont un fond BLANC au repos
+ * (--cpd-color-bg-action-secondary-rest = theme-bg = #fff), qui ressort en blanc
+ * sur le panneau périvenche. On repointe, dans le seul scope du menubar :
+ *
+ *  1. le fond de repos → transparent : les items se fondent dans le panneau ;
+ *  2. le fond de hover → indigo-400 (#dde5ff) : le hover Compound par défaut
+ *     (alpha-gray à 4 % d'opacité) est quasi imperceptible sur le périvenche ; une
+ *     teinte indigo douce le rend visible et reste dans l'identité de marque ;
+ *  3. le texte secondaire → gray-1000 (#595e67) : les compteurs / nav-hints
+ *     (text-secondary = gray-900) tombaient à ~4,4:1 sur le hover indigo ; gray-1000
+ *     les remonte à ≥ 5:1.
+ *
+ * L'état critique (report/leave) garde son hover rouge (--cpd-color-bg-critical-subtle,
+ * token distinct) ; l'état pressé garde le token pressed Compound.
+ *
+ * Contrastes RGAA AA (mode clair) :
+ *  - labels (text-primary #1b1d22)  : ~15:1 (repos) / ~13:1 (hover indigo-400) ✓
+ *  - secondaire (gray-1000 #595e67) : ~5,8:1 (repos) / ~5,2:1 (hover indigo-400) ✓ */
+.mx_RoomSummaryCard [role="menubar"] {
+    --cpd-color-bg-action-secondary-rest: transparent;
+    --cpd-color-bg-action-secondary-hovered: var(--cpd-color-indigo-400);
+    --cpd-color-text-secondary: var(--cpd-color-gray-1000);
+}
 
 /* Pastilles de filtre désélectionnées (Non-lus, Salons, Favoris, Mentions).
  * Compound ChatFilter : désélectionné = fond transparent, bord gris, texte sombre.
