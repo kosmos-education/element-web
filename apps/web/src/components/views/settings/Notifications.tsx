@@ -6,15 +6,13 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { type ChangeEvent, type ChangeEventHandler, type JSX, type ReactNode } from "react";
+import React, { type ChangeEventHandler, type JSX } from "react";
 import {
     type IAnnotatedPushRule,
     type IPusher,
-    type PushRuleAction,
-    PushRuleKind,
+    type PushRuleKind,
     RuleId,
     type IThreepid,
-    ThreepidMedium,
     type LocalNotificationSettings,
     type EmptyObject,
 } from "matrix-js-sdk/src/matrix";
@@ -26,31 +24,17 @@ import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import {
     ContentRules,
     type IContentRules,
-    PushRuleVectorState,
     VectorPushRulesDefinitions,
     VectorState,
     type VectorPushRuleDefinition,
 } from "../../../notifications";
 import { _t, type TranslatedString } from "../../../languageHandler";
 import SettingsStore from "../../../settings/SettingsStore";
-import StyledRadioButton from "../elements/StyledRadioButton";
 import { SettingLevel } from "../../../settings/SettingLevel";
 import Modal from "../../../Modal";
 import ErrorDialog from "../dialogs/ErrorDialog";
-import SdkConfig from "../../../SdkConfig";
-import AccessibleButton from "../elements/AccessibleButton";
-import TagComposer from "../elements/TagComposer";
-import { objectClone } from "../../../utils/objects";
-import { arrayDiff, filterBoolean } from "../../../utils/arrays";
-import { clearAllNotifications, getLocalNotificationAccountDataEventType } from "../../../utils/notifications";
-import {
-    updateExistingPushRulesWithActions,
-    updatePushRuleActions,
-} from "../../../utils/pushRules/updatePushRuleActions";
-import { Caption } from "../typography/Caption";
-import { SettingsSubsectionHeading } from "./shared/SettingsSubsectionHeading";
+import { getLocalNotificationAccountDataEventType } from "../../../utils/notifications";
 import { SettingsSubsection } from "./shared/SettingsSubsection";
-import { doesRoomHaveUnreadMessages } from "../../../Unread";
 import SettingsFlag from "../elements/SettingsFlag";
 import { onSubmitPreventDefault } from "../../../utils/form.ts";
 import { keywordRuleId } from "../../../models/notificationsettings/keywordRuleId.ts";
@@ -189,20 +173,6 @@ const maximumVectorState = (
     }, definition.ruleToVectorState(rule)!);
 
     return vectorState;
-};
-
-const NotificationActivitySettings = (): JSX.Element => {
-    return (
-        <Form.Root
-            onSubmit={(evt) => {
-                evt.preventDefault();
-                evt.stopPropagation();
-            }}
-        >
-            <SettingsFlag name="Notifications.showbold" level={SettingLevel.DEVICE} />
-            <SettingsFlag name="Notifications.tac_only_notifications" level={SettingLevel.DEVICE} />
-        </Form.Root>
-    );
 };
 
 /**
@@ -417,231 +387,6 @@ export default class Notifications extends React.PureComponent<EmptyObject, ISta
         }
     };
 
-    private setSavingError = (ruleId: RuleId | string): void => {
-        this.setState(({ ruleIdsWithError }) => ({
-            phase: Phase.SavingError,
-            ruleIdsWithError: { ...ruleIdsWithError, [ruleId]: true },
-        }));
-    };
-
-    private onEmailNotificationsChanged = async (email: string, evt: ChangeEvent<HTMLInputElement>): Promise<void> => {
-        const { checked } = evt.target;
-        this.setState({ phase: Phase.Persisting });
-
-        try {
-            if (checked) {
-                await MatrixClientPeg.safeGet().setPusher({
-                    kind: "email",
-                    app_id: "m.email",
-                    pushkey: email,
-                    app_display_name: "Email Notifications",
-                    device_display_name: email,
-                    lang: navigator.language,
-                    data: {
-                        brand: SdkConfig.get().brand,
-                    },
-
-                    // We always append for email pushers since we don't want to stop other
-                    // accounts notifying to the same email address
-                    append: true,
-                });
-            } else {
-                const pusher = this.state.pushers?.find((p) => p.kind === "email" && p.pushkey === email);
-                if (pusher) {
-                    await MatrixClientPeg.safeGet().removePusher(pusher.pushkey, pusher.app_id);
-                }
-            }
-
-            await this.refreshFromServer();
-        } catch (e) {
-            this.setState({ phase: Phase.Error });
-            logger.error("Error updating email pusher:", e);
-            this.showSaveError();
-        }
-    };
-
-    private onRadioChecked = async (rule: IVectorPushRule, checkedState: VectorState): Promise<void> => {
-        this.setState(({ ruleIdsWithError }) => ({
-            phase: Phase.Persisting,
-            ruleIdsWithError: { ...ruleIdsWithError, [rule.ruleId]: false },
-        }));
-
-        try {
-            const cli = MatrixClientPeg.safeGet();
-            if (rule.ruleId === KEYWORD_RULE_ID) {
-                // should not encounter this
-                if (!this.state.vectorKeywordRuleInfo) {
-                    throw new Error("Notification data is incomplete.");
-                }
-                // Update all the keywords
-                for (const rule of this.state.vectorKeywordRuleInfo.rules) {
-                    let enabled: boolean | undefined;
-                    let actions: PushRuleAction[] | undefined;
-                    if (checkedState === VectorState.On) {
-                        if (rule.actions.length !== 1) {
-                            // XXX: Magic number
-                            actions = PushRuleVectorState.actionsFor(checkedState);
-                        }
-                        if (this.state.vectorKeywordRuleInfo.vectorState === VectorState.Off) {
-                            enabled = true;
-                        }
-                    } else if (checkedState === VectorState.Loud) {
-                        if (rule.actions.length !== 3) {
-                            // XXX: Magic number
-                            actions = PushRuleVectorState.actionsFor(checkedState);
-                        }
-                        if (this.state.vectorKeywordRuleInfo.vectorState === VectorState.Off) {
-                            enabled = true;
-                        }
-                    } else {
-                        enabled = false;
-                    }
-
-                    if (actions) {
-                        await cli.setPushRuleActions("global", rule.kind, rule.rule_id, actions);
-                    }
-                    if (enabled !== undefined) {
-                        await cli.setPushRuleEnabled("global", rule.kind, rule.rule_id, enabled);
-                    }
-                }
-            } else {
-                const definition: VectorPushRuleDefinition = VectorPushRulesDefinitions[rule.ruleId];
-                const actions = definition.vectorStateToActions[checkedState];
-                // we should not encounter this
-                // satisfies types
-                if (!rule.rule) {
-                    throw new Error("Cannot update rule: push rule data is incomplete.");
-                }
-                await updatePushRuleActions(cli, rule.rule.rule_id, rule.rule.kind, actions);
-                await updateExistingPushRulesWithActions(cli, definition.syncedRuleIds, actions);
-            }
-
-            await this.refreshFromServer();
-        } catch (e) {
-            this.setSavingError(rule.ruleId);
-            logger.error("Error updating push rule:", e);
-        }
-    };
-
-    private onClearNotificationsClicked = async (): Promise<void> => {
-        try {
-            this.setState({ clearingNotifications: true });
-            const client = MatrixClientPeg.safeGet();
-            await clearAllNotifications(client);
-        } finally {
-            this.setState({ clearingNotifications: false });
-        }
-    };
-
-    private async setKeywords(
-        unsafeKeywords: (string | undefined)[],
-        originalRules: IAnnotatedPushRule[],
-    ): Promise<void> {
-        try {
-            // De-duplicate and remove empties
-            const keywords = filterBoolean<string>(Array.from(new Set(unsafeKeywords)));
-            const oldKeywords = filterBoolean<string>(Array.from(new Set(originalRules.map((r) => r.pattern))));
-
-            // Note: Technically because of the UI interaction (at the time of writing), the diff
-            // will only ever be +/-1 so we don't really have to worry about efficiently handling
-            // tons of keyword changes.
-
-            const diff = arrayDiff<string>(oldKeywords, keywords);
-
-            for (const word of diff.removed) {
-                for (const rule of originalRules.filter((r) => r.pattern === word)) {
-                    await MatrixClientPeg.safeGet().deletePushRule("global", rule.kind, rule.rule_id);
-                }
-            }
-
-            let ruleVectorState = this.state.vectorKeywordRuleInfo!.vectorState;
-            if (ruleVectorState === VectorState.Off) {
-                // When the current global keywords rule is OFF, we need to look at
-                // the flavor of existing rules to apply the same actions
-                // when creating the new rule.
-                const existingRuleVectorState = originalRules.length
-                    ? PushRuleVectorState.contentRuleVectorStateKind(originalRules[0])
-                    : undefined;
-                // set to same state as existing rule, or default to On
-                ruleVectorState = existingRuleVectorState ?? VectorState.On; //default
-            }
-            const kind = PushRuleKind.ContentSpecific;
-            const ruleIds = new Set(originalRules.map((r) => r.rule_id));
-            for (const word of diff.added) {
-                const ruleId = keywordRuleId(word, ruleIds);
-                ruleIds.add(ruleId);
-                await MatrixClientPeg.safeGet().addPushRule("global", kind, ruleId, {
-                    actions: PushRuleVectorState.actionsFor(ruleVectorState),
-                    pattern: word,
-                });
-                if (ruleVectorState === VectorState.Off) {
-                    await MatrixClientPeg.safeGet().setPushRuleEnabled("global", kind, ruleId, false);
-                }
-            }
-
-            await this.refreshFromServer();
-        } catch (e) {
-            this.setState({ phase: Phase.Error });
-            logger.error("Error updating keyword push rules:", e);
-            this.showSaveError();
-        }
-    }
-
-    private onKeywordAdd = (keyword: string): void => {
-        // should not encounter this
-        if (!this.state.vectorKeywordRuleInfo) {
-            throw new Error("Notification data is incomplete.");
-        }
-        const originalRules = objectClone(this.state.vectorKeywordRuleInfo.rules);
-
-        // We add the keyword immediately as a sort of local echo effect
-        this.setState(
-            {
-                phase: Phase.Persisting,
-                vectorKeywordRuleInfo: {
-                    ...this.state.vectorKeywordRuleInfo,
-                    rules: [
-                        ...this.state.vectorKeywordRuleInfo.rules,
-
-                        // XXX: Horrible assumption that we don't need the remaining fields
-                        { pattern: keyword } as IAnnotatedPushRule,
-                    ],
-                },
-            },
-            async (): Promise<void> => {
-                await this.setKeywords(
-                    this.state.vectorKeywordRuleInfo!.rules.map((r) => r.pattern),
-                    originalRules,
-                );
-            },
-        );
-    };
-
-    private onKeywordRemove = (keyword: string): void => {
-        // should not encounter this
-        if (!this.state.vectorKeywordRuleInfo) {
-            throw new Error("Notification data is incomplete.");
-        }
-        const originalRules = objectClone(this.state.vectorKeywordRuleInfo.rules);
-
-        // We remove the keyword immediately as a sort of local echo effect
-        this.setState(
-            {
-                phase: Phase.Persisting,
-                vectorKeywordRuleInfo: {
-                    ...this.state.vectorKeywordRuleInfo,
-                    rules: this.state.vectorKeywordRuleInfo.rules.filter((r) => r.pattern !== keyword),
-                },
-            },
-            async (): Promise<void> => {
-                await this.setKeywords(
-                    this.state.vectorKeywordRuleInfo!.rules.map((r) => r.pattern),
-                    originalRules,
-                );
-            },
-        );
-    };
-
     private renderTopSection(): JSX.Element {
         const masterSwitch = (
             <SettingsToggleInput
@@ -659,19 +404,8 @@ export default class Notifications extends React.PureComponent<EmptyObject, ISta
             return <Form.Root onSubmit={onSubmitPreventDefault}>{masterSwitch}</Form.Root>;
         }
 
-        const emailSwitches = (this.state.threepids || [])
-            .filter((t) => t.medium === ThreepidMedium.Email)
-            .map((e) => (
-                <SettingsToggleInput
-                    name="notif-email-switch"
-                    key={e.address}
-                    checked={!!this.state.pushers?.some((p) => p.kind === "email" && p.pushkey === e.address)}
-                    label={_t("settings|notifications|enable_email_notifications", { email: e.address })}
-                    onChange={this.onEmailNotificationsChanged.bind(this, e.address)}
-                    disabled={this.state.phase === Phase.Persisting}
-                />
-            ));
-
+        // Customisation Kosmos (SCAT-42) : les interrupteurs de notifications par e-mail sont retirés
+        // (l'onglet Notifications est limité aux 5 options du haut).
         return (
             <SettingsSubsection>
                 <Form.Root onSubmit={onSubmitPreventDefault}>
@@ -686,116 +420,8 @@ export default class Notifications extends React.PureComponent<EmptyObject, ISta
                             <SettingsFlag name="audioNotificationsEnabled" level={SettingLevel.DEVICE} />
                         </>
                     )}
-
-                    {emailSwitches}
                 </Form.Root>
             </SettingsSubsection>
-        );
-    }
-
-    private renderCategory(category: RuleClass): ReactNode {
-        if (this.isInhibited) {
-            return null; // nothing to show for the section
-        }
-
-        let keywordComposer: JSX.Element | undefined;
-        if (category === RuleClass.VectorMentions) {
-            const tags = filterBoolean<string>(this.state.vectorKeywordRuleInfo?.rules.map((r) => r.pattern) || []);
-            keywordComposer = (
-                <TagComposer
-                    tags={tags}
-                    onAdd={this.onKeywordAdd}
-                    onRemove={this.onKeywordRemove}
-                    disabled={this.state.phase === Phase.Persisting}
-                    label={_t("notifications|keyword")}
-                    placeholder={_t("notifications|keyword_new")}
-                />
-            );
-        }
-
-        const VectorStateToLabel = {
-            [VectorState.On]: _t("common|on"),
-            [VectorState.Off]: _t("common|off"),
-            [VectorState.Loud]: _t("settings|notifications|noisy"),
-        };
-
-        const makeRadio = (r: IVectorPushRule, s: VectorState): JSX.Element => (
-            <StyledRadioButton
-                key={r.ruleId + s}
-                name={r.ruleId}
-                checked={(r.syncedVectorState ?? r.vectorState) === s}
-                onChange={this.onRadioChecked.bind(this, r, s)}
-                disabled={this.state.phase === Phase.Persisting}
-                aria-label={VectorStateToLabel[s]}
-            />
-        );
-
-        const fieldsetRows = this.state.vectorPushRules?.[category]?.map((r) => (
-            <fieldset
-                key={category + r.ruleId}
-                data-testid={category + r.ruleId}
-                className="mx_UserNotifSettings_gridRowContainer"
-            >
-                <legend className="mx_UserNotifSettings_gridRowLabel">{r.description}</legend>
-                {makeRadio(r, VectorState.Off)}
-                {makeRadio(r, VectorState.On)}
-                {makeRadio(r, VectorState.Loud)}
-                {this.state.ruleIdsWithError[r.ruleId] && (
-                    <div className="mx_UserNotifSettings_gridRowError">
-                        <Caption isError>{_t("settings|notifications|error_updating")}</Caption>
-                    </div>
-                )}
-            </fieldset>
-        ));
-
-        let sectionName: string;
-        switch (category) {
-            case RuleClass.VectorGlobal:
-                sectionName = _t("notifications|class_global");
-                break;
-            case RuleClass.VectorMentions:
-                sectionName = _t("notifications|mentions_keywords");
-                break;
-            case RuleClass.VectorOther:
-                sectionName = _t("notifications|class_other");
-                break;
-            default:
-                throw new Error("Developer error: Unnamed notifications section: " + category);
-        }
-
-        return (
-            <div>
-                <div data-testid={`notif-section-${category}`} className="mx_UserNotifSettings_grid">
-                    <SettingsSubsectionHeading heading={sectionName} as="h2" />
-                    <span className="mx_UserNotifSettings_gridColumnLabel">{VectorStateToLabel[VectorState.Off]}</span>
-                    <span className="mx_UserNotifSettings_gridColumnLabel">{VectorStateToLabel[VectorState.On]}</span>
-                    <span className="mx_UserNotifSettings_gridColumnLabel">{VectorStateToLabel[VectorState.Loud]}</span>
-                    {fieldsetRows}
-                </div>
-                {keywordComposer}
-            </div>
-        );
-    }
-
-    private renderTargets(): ReactNode {
-        if (this.isInhibited) return null; // no targets if there's no notifications
-
-        const rows = this.state.pushers?.map((p) => (
-            <tr key={p.kind + p.pushkey}>
-                <td>{p.app_display_name}</td>
-                <td>{p.device_display_name}</td>
-            </tr>
-        ));
-
-        if (!rows?.length) return null; // no targets to show
-
-        return (
-            <div className="mx_UserNotifSettings_floatingSection">
-                <div>{_t("settings|notifications|push_targets")}</div>
-                <table>
-                    <tbody>{rows}</tbody>
-                </table>
-            </div>
         );
     }
 
@@ -807,35 +433,9 @@ export default class Notifications extends React.PureComponent<EmptyObject, ISta
             return <p data-testid="error-message">{_t("settings|notifications|error_loading")}</p>;
         }
 
-        let clearNotifsButton: JSX.Element | undefined;
-        if (
-            MatrixClientPeg.safeGet()
-                .getRooms()
-                .some((r) => doesRoomHaveUnreadMessages(r, true))
-        ) {
-            clearNotifsButton = (
-                <AccessibleButton
-                    onClick={this.onClearNotificationsClicked}
-                    disabled={this.state.clearingNotifications}
-                    kind="danger"
-                    className="mx_UserNotifSettings_clearNotifsButton"
-                    data-testid="clear-notifications"
-                >
-                    {_t("notifications|mark_all_read")}
-                </AccessibleButton>
-            );
-        }
-
-        return (
-            <>
-                {this.renderTopSection()}
-                {this.renderCategory(RuleClass.VectorGlobal)}
-                {this.renderCategory(RuleClass.VectorMentions)}
-                {this.renderCategory(RuleClass.VectorOther)}
-                {this.renderTargets()}
-                <NotificationActivitySettings />
-                {clearNotifsButton}
-            </>
-        );
+        // Customisation Kosmos (SCAT-42) : l'onglet Notifications est limité aux 5 options du haut.
+        // Les catégories de règles push (Global/Mentions/Autres), les cibles push, les réglages
+        // d'activité et le bouton « Tout marquer comme lu » sont retirés de l'interface.
+        return <>{this.renderTopSection()}</>;
     }
 }
