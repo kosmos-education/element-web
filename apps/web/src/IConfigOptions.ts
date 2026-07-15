@@ -29,6 +29,11 @@ export interface ConfigOptions extends WebConfigJson {
      * Ex. ["USER_SESSION_MANAGER_TAB", "USER_SECURITY_TAB"]. Absent/vide ⇒ aucun onglet masqué.
      */
     disable_settings_tabs?: string[];
+    /**
+     * Kosmos: liste blanche des codes de langue (`fr`, `en`, ...) proposés dans les sélecteurs de langue
+     * (paramètres utilisateur et écran de connexion). Absent/vide ⇒ toutes les langues restent proposées.
+     */
+    available_languages?: string[];
 }
 
 /**

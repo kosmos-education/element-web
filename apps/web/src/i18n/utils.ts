@@ -7,8 +7,17 @@
 
 import { getLangsJson, getLocale, normalizeLanguageKey } from "@element-hq/web-shared-components";
 
+import SdkConfig from "../SdkConfig";
+
 async function getAllLanguagesFromJson(): Promise<string[]> {
-    return Object.keys(await getLangsJson());
+    const languages = Object.keys(await getLangsJson());
+    // Kosmos : restreint les langues proposées à la liste blanche `available_languages` (config.json).
+    // Absente ou vide ⇒ toutes les langues sont conservées (comportement upstream inchangé).
+    const availableLanguages = SdkConfig.get("available_languages");
+    if (availableLanguages?.length) {
+        return languages.filter((lang) => availableLanguages.includes(lang));
+    }
+    return languages;
 }
 
 type Language = {
