@@ -110,3 +110,43 @@
         outline-offset: 1px;
     }
 }
+
+/* ── Boutons secondary (Compound) → identité indigo ─────────────────────────────
+ * Objectif : contour, icône et texte indigo sur fond blanc. Compound stylise le
+ * secondary en gris neutre (border-interactive-secondary + text/icon-primary) →
+ * l'état actif se distingue mal de l'état désactivé (ex. « + Inviter » du
+ * memberListPanel).
+ *
+ * On écrit dans le layer compound-web (PAS app-web), depuis ce fichier de tokens
+ * importé APRÈS @vector-im/compound-web (cf. ordre des @import de skolengo-light.pcss :
+ * _compound.pcss puis _skolengo-tokens.pcss). Dans un même layer, à spécificité
+ * ÉGALE la source la plus tardive gagne → cela préserve automatiquement les cas
+ * plus spécifiques de Compound :
+ *  - secondary normal        : nos règles (0,2,0) battent le style de base Compound
+ *    (.button[data-kind] = 0,2,0, déclaré avant) → indigo.
+ *  - secondary destructive   : Compound (.button[data-kind].destructive = 0,3,0)
+ *    reste prioritaire → le rouge critique est conservé (.destructive est une classe
+ *    CSS-module hashée, pas de sélecteur stable pour l'exclure autrement).
+ *  - désactivé               : exclu via :not([aria-disabled="true"]) → gris Compound
+ *    conservé → l'actif (indigo) tranche nettement avec l'inactif (gris).
+ *
+ * Contraste : indigo-900 #5851fb sur blanc = 5,27:1 → RGAA AA (texte) ✓. */
+@layer compound-web {
+    [data-kind="secondary"]:not([aria-disabled="true"]) {
+        border-color: var(--cpd-color-indigo-900);
+        color: var(--cpd-color-indigo-900);
+        background-color: var(--cpd-color-bg-canvas-default);
+    }
+
+    [data-kind="secondary"]:not([aria-disabled="true"]) > svg {
+        color: var(--cpd-color-indigo-900);
+    }
+
+    /* Survol / activation : indigo plus soutenu + léger fond indigo (feedback). */
+    [data-kind="secondary"]:not([aria-disabled="true"]):hover,
+    [data-kind="secondary"]:not([aria-disabled="true"]):active,
+    [data-kind="secondary"]:not([aria-disabled="true"])[aria-expanded="true"] {
+        border-color: var(--cpd-color-indigo-1000);
+        background-color: var(--cpd-color-indigo-100);
+    }
+}
