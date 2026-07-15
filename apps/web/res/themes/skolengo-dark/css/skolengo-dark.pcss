@@ -1,7 +1,15 @@
 /* Thème Skolengo — mode sombre
- * Fork du thème dark d'Element. Suit le même motif que dark.pcss :
- * importe _light.pcss puis _dark.pcss pour les overrides sombres, puis nos
- * surcharges de marque Skolengo (_skolengo-vars.pcss et _skolengo-tokens.pcss).
+ * Choix produit : le mode sombre repart du thème dark d'Element PAR DÉFAUT.
+ * Contrairement au thème clair, on ne réimporte donc PAS les surcharges de marque
+ * partagées (_skolengo-vars.pcss / _skolengo-overrides.pcss) : accent, fonds de
+ * panneaux périvenche, bulles « moi », filtres et noms de salons reviennent aux
+ * couleurs Compound/Element par défaut.
+ * On conserve UNIQUEMENT l'identité visuelle des avatars via deux fichiers dédiés
+ * au sombre : _skolengo-dark-overrides.pcss (initiales blanches, forme carrée,
+ * logo, contours d'espace) et _skolengo-tokens.pcss (couleurs bg/text-decorative).
+ *
+ * La liste d'imports ci-dessous est identique à dark/css/dark.pcss, augmentée des
+ * deux imports Skolengo.
  */
 @layer compound-tokens, compound-web, shared-components, app-web;
 
@@ -9,14 +17,12 @@
 @import "../../light/css/_fonts.pcss" layer(app-web);
 @import "../../light/css/_light.pcss" layer(app-web);
 @import "../../dark/css/_dark.pcss" layer(app-web);
-/* Surcharge des variables PostCSS legacy de marque (après _dark.pcss, avant _components.pcss) */
-@import "../../skolengo-light/css/_skolengo-vars.pcss" layer(app-web);
 @import "../../light/css/_mods.pcss" layer(app-web);
 @import "../../../../res/css/_components.pcss" layer(app-web);
-/* Surcharges sélecteurs app : fonds périvenche des panneaux latéraux (nouvelle UI) */
-@import "../../skolengo-light/css/_skolengo-overrides.pcss" layer(app-web);
+/* Surcharges sélecteurs app : uniquement identité avatars (couleurs, forme), logo, contours d'espace */
+@import "_skolengo-dark-overrides.pcss" layer(app-web);
 @import "../../../../res/css/_compound.pcss";
-/* Tokens CSS de marque Skolengo — échelle indigo inversée pour le mode sombre */
+/* Tokens CSS de marque Skolengo — uniquement couleurs décoratives (avatars, noms d'auteurs) */
 @import "_skolengo-tokens.pcss";
 @import url("highlight.js/styles/atom-one-dark.min.css") layer(app-web);
 @import url("github-markdown-css/github-markdown-dark.css") layer(app-web);

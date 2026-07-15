@@ -38,8 +38,11 @@ $spacePanel-bg-color: var(--cpd-color-indigo-400);
 
 /* Bulles de messages */
 /* ******************** */
-/* Bulle de mes propres messages : indigo-400 ≈ #dde5ff (conforme maquette) */
-$eventbubble-self-bg: var(--cpd-color-indigo-400);
+/* Bulle de mes propres messages. Découplée par mode via une variable de marque
+ * définie dans chaque _skolengo-tokens.pcss :
+ * - clair : indigo-400 ≈ #dde5ff (périvenche pâle, conforme maquette)
+ * - sombre : indigo-200 = #241782 (indigo profond discret, au lieu de l'indigo vif) */
+$eventbubble-self-bg: var(--skolengo-bubble-self-bg);
 /* ******************** */
 
 /* Réactions */

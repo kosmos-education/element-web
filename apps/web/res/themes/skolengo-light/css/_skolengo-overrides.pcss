@@ -15,24 +15,30 @@
  * via l'échelle inversée définie dans _skolengo-tokens.pcss de chaque thème.
  */
 
+/* Fonds des panneaux découplés par mode via des variables de marque définies dans
+ * chaque _skolengo-tokens.pcss (clair = valeurs actuelles inchangées ; sombre = teintes
+ * indigo abaissées pour un rendu sobre) :
+ * - --skolengo-panel-bg      : clair indigo-300 #edf1ff / sombre indigo-200 #241782
+ * - --skolengo-spacepanel-bg : clair indigo-400 #dde5ff / sombre indigo-300 #3425ac */
+
 /* Left panel (conteneur global nouvelle UI) — possède un !important d'origine */
 .mx_LeftPanel_newRoomList {
-    background-color: var(--cpd-color-indigo-300) !important;
+    background-color: var(--skolengo-panel-bg) !important;
 }
 
-/* Space panel (barre d'espaces latérale) — légèrement plus saturé (≈ #dde5ff maquette) */
+/* Space panel (barre d'espaces latérale) — légèrement plus saturé que les listes */
 .mx_SpacePanel.newUi {
-    background-color: var(--cpd-color-indigo-400);
+    background-color: var(--skolengo-spacepanel-bg);
 }
 
-/* Room list panel (liste des salons + header + filtres) — périvenche clair ≈ #edf1ff */
+/* Room list panel (liste des salons + header + filtres) — teinte périvenche */
 .mx_RoomListPanel {
-    background-color: var(--cpd-color-indigo-300);
+    background-color: var(--skolengo-panel-bg);
 }
 
-/* Panneau de droite (infos salon / liste des membres) — périvenche clair */
+/* Panneau de droite (infos salon / liste des membres) — teinte périvenche */
 .mx_RightPanel {
-    background-color: var(--cpd-color-indigo-300);
+    background-color: var(--skolengo-panel-bg);
 }
 
 /* ── Avatars ──────────────────────────────────────────────────────────────── */
@@ -169,7 +175,8 @@
 
 /* ── Heure (timestamp) sur les bulles « moi » ────────────────────────────── */
 
-/* La bulle « moi » est en indigo-400 (clair #dde5ff / sombre #4135ce).
+/* La bulle « moi » est en périvenche pâle en clair (#dde5ff) et en indigo profond
+ * en sombre (#241782, cf. --skolengo-bubble-self-bg).
  * Le timestamp consomme --cpd-color-text-secondary (gray-900), qui ne passe pas
  * 4,5:1 sur ce fond dans aucun des deux modes. On repointe la variable dans le
  * scope du timestamp de la bulle « moi » (sélecteur stable + repoint de var →
@@ -178,11 +185,11 @@
  * foncé, bulle sombre → texte clair) d'où les deux règles.
  * Ratios RGAA AA (texte normal 10px, seuil 4,5:1) :
  * - clair : gray-1000 #595e67 sur #dde5ff = 5,19:1 ✓
- * - sombre : gray-1200 #bdc3cc sur #4135ce = 4,51:1 ✓
+ * - sombre : gray-1200 #bdc3cc sur #241782 = 7,79:1 ✓
  * Les bulles des autres (fond gris Compound) restent non affectées. */
 .cpd-theme-light .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
     --cpd-color-text-secondary: var(--cpd-color-gray-1000); /* #595e67 → 5,19:1 sur #dde5ff */
 }
 .cpd-theme-dark .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
-    --cpd-color-text-secondary: var(--cpd-color-gray-1200); /* #bdc3cc → 4,51:1 sur #4135ce */
+    --cpd-color-text-secondary: var(--cpd-color-gray-1200); /* #bdc3cc → 7,79:1 sur #241782 */
 }

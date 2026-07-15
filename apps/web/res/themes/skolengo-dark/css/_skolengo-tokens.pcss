@@ -1,75 +1,15 @@
 /* Tokens CSS de marque Skolengo — mode SOMBRE
- * Définit l'échelle IndigoEMS INVERSÉE (100=foncé → 1400=clair), cohérent avec
- * la convention Compound dark où les échelles de base sont inversées.
- * Les tokens sémantiques sont identiques à la version claire : en référençant
- * les mêmes numéros d'échelle, ils s'adaptent automatiquement au mode.
+ * Le mode sombre repart du thème dark d'Element par défaut : on NE surcharge plus
+ * l'échelle indigo, ni les tokens sémantiques d'accent, ni les surfaces de panneaux.
+ * On conserve UNIQUEMENT l'identité couleur des avatars et des noms d'auteurs.
  */
 @layer compound-tokens {
     :root,
     [class*="cpd-theme-"] {
-        /* ── Échelle IndigoEMS — mode sombre (100=plus foncé, 1400=plus clair) ── */
-        --cpd-color-indigo-100: #170c5c;
-        --cpd-color-indigo-200: #241782;
-        --cpd-color-indigo-300: #3425ac;
-        --cpd-color-indigo-400: #4135ce;
-        --cpd-color-indigo-500: #4c41e6;
-        --cpd-color-indigo-600: #5851fb;
-        --cpd-color-indigo-700: #747aff;
-        --cpd-color-indigo-800: #98a6ff;
-        --cpd-color-indigo-900: #b2c0ff;
-        --cpd-color-indigo-1000: #c4d0ff;
-        --cpd-color-indigo-1100: #dde5ff;
-        --cpd-color-indigo-1200: #edf1ff;
-        --cpd-color-indigo-1300: #f6f8ff;
-        --cpd-color-indigo-1400: #fafbff;
-
-        /* ── Tokens sémantiques d'accent → indigo (identiques au mode clair) ── */
-        /* En mode sombre, indigo-900 = #b2c0ff (periwinkle clair sur fond sombre) */
-
-        /* Boutons primaires + pastilles de filtre actives → indigo
-         * En mode sombre : indigo-900 = #b2c0ff (périvenche clair sur fond sombre) */
-        --cpd-color-bg-action-primary-rest: var(--cpd-color-indigo-900);
-        --cpd-color-bg-action-primary-hovered: var(--cpd-color-indigo-1000);
-        --cpd-color-bg-action-primary-pressed: var(--cpd-color-indigo-1100);
-        /* disabled laissé au gris Compound */
-
-        /* Salon sélectionné + survol → teinte indigo sombre */
-        --cpd-color-bg-action-tertiary-selected: var(--cpd-color-indigo-300);
-        --cpd-color-bg-action-tertiary-hovered: var(--cpd-color-indigo-200);
-
-        /* Fonds de boutons/badges d'accent */
-        --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
-        --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
-        --cpd-color-bg-accent-pressed: var(--cpd-color-indigo-1100);
-        --cpd-color-bg-accent-selected: var(--cpd-color-indigo-300);
-        --cpd-color-bg-badge-accent: var(--cpd-color-indigo-400);
-
-        /* Texte d'accent */
-        --cpd-color-text-action-accent: var(--cpd-color-indigo-1100);
-        --cpd-color-text-badge-accent: var(--cpd-color-indigo-1100);
-
-        /* Icônes et bordures d'accent */
-        --cpd-color-icon-accent-primary: var(--cpd-color-indigo-1000);
-        --cpd-color-icon-accent-tertiary: var(--cpd-color-indigo-800);
-        --cpd-color-border-accent-subtle: var(--cpd-color-indigo-700);
-
-        /* Dégradé d'action */
-        --cpd-color-gradient-action-stop1: var(--cpd-color-indigo-800);
-        --cpd-color-gradient-action-stop2: var(--cpd-color-indigo-1000);
-        --cpd-color-gradient-action-stop3: var(--cpd-color-indigo-1100);
-        --cpd-color-gradient-action-stop4: var(--cpd-color-indigo-1300);
-
-        /* ── Surfaces teintées (panneaux sombres à teinte indigo) ── */
-        /* En mode sombre, indigo-300 = #3425ac (profond indigo) */
-        --cpd-color-bg-subtle-primary: var(--cpd-color-indigo-300);
-        --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
-
         /* ── Couleurs décoratives — noms d'auteurs (timeline) ── */
-        /* Les bg-decorative (fonds d'avatar saturés + initiales blanches) sont conservés
-         * identiques au mode clair pour l'identité visuelle des avatars.
-         * Les text-decorative sont DÉCOUPLÉS des bg-decorative en mode sombre : les teintes
-         * EMS-900 saturées ne passent pas 4,5:1 sur le canvas sombre #101317 (~3,5:1).
-         * Ces valeurs éclaircies atteignent ≈ 7:1 sur #101317 (RGAA AA, crit. 3.2 ✓). */
+        /* text-decorative DÉCOUPLÉS des bg-decorative en sombre : les teintes EMS-900
+         * saturées ne passent pas 4,5:1 sur le canvas dark d'Element (#101317, ~3,5:1).
+         * Ces versions éclaircies atteignent ≈ 7:1 sur #101317 (RGAA AA, crit. 3.2 ✓). */
         --cpd-color-text-decorative-1: #b58cf8; /* PurpleEMS clair  */
         --cpd-color-text-decorative-2: #66b17e; /* GreenEMS clair   */
         --cpd-color-text-decorative-3: #6aaacd; /* CyanEMS clair    */
@@ -77,26 +17,16 @@
         --cpd-color-text-decorative-5: #ab9f59; /* YellowEMS clair  */
         --cpd-color-text-decorative-6: #ce976a; /* OrangeEMS clair  */
 
-        /* Fonds d'avatar (cercle imageless) — identiques au mode clair.
-         * Fonds pleins/saturés + initiales blanches (forcées via --cpd-avatar-color
-         * dans _skolengo-overrides.pcss). Lisibles sur le périvenche sombre (#3425ac).
-         * Volontairement différents des text-decorative ci-dessus (découplage bg/text)
-         * pour maintenir les initiales blanches lisibles tout en assurant les noms d'auteur. */
+        /* ── Fonds d'avatar (cercle/carré imageless) — identiques au mode clair ── */
+        /* Fonds pleins/saturés EMS + initiales blanches (forcées via --cpd-avatar-color
+         * dans _skolengo-dark-overrides.pcss). Volontairement différents des
+         * text-decorative ci-dessus (découplage bg/text) pour garder les initiales
+         * blanches lisibles tout en assurant les noms d'auteur. */
         --cpd-color-bg-decorative-1: #8440f3; /* Purple  */
         --cpd-color-bg-decorative-2: #007d28; /* Green   */
         --cpd-color-bg-decorative-3: #0672ac; /* Cyan    */
         --cpd-color-bg-decorative-4: #c63737; /* Red     */
         --cpd-color-bg-decorative-5: #7d6b00; /* Yellow/olive */
         --cpd-color-bg-decorative-6: #ae5206; /* Orange  */
-
-        /* ── Texte secondaire sur panneaux périvenche sombres (RGAA crit. 3.2) ── */
-        /* gray-900 (#808994) sur indigo-300 sombre (#3425ac) = 2,95:1 — non conforme.
-         * On relève text-secondary à gray-1200 (#bdc3cc) dans le scope des panneaux.
-         * #bdc3cc sur #3425ac = 5,9:1 ✓ ; sur space panel indigo-400 (#4135ce) = 4,5:1 ✓. */
-        .mx_RoomListPanel,
-        .mx_RightPanel,
-        .mx_SpacePanel.newUi {
-            --cpd-color-text-secondary: var(--cpd-color-gray-1200);
-        }
     }
 }
