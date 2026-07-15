@@ -69,17 +69,21 @@
     --cpd-avatar-color: #fff !important;
 }
 
-/* Avatars de SALONS en carré arrondi — liste et avatar principal de l'en-tête.
+/* Avatars de SALONS en carré arrondi — liste, avatar de l'en-tête et room summary panel.
  * On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
  * .mx_RoomAvatarView QUE si l'avatar a une décoration ; sinon <RoomAvatar> nu.
  * En-tête : WithPresenceIndicator renvoie un Fragment (sans nœud DOM) quand
  * il n'y a pas de présence → l'avatar est l'enfant DIRECT de .mx_RoomHeader.
  * On couvre les deux cas : enfant direct ET descendant du wrapper de présence.
+ * Room summary panel : <RoomAvatar size="80px"> nu dans .mx_RoomSummaryCard_container ;
+ * RoomAvatar n'envoie "square" que pour les Espaces → sans cette règle le salon
+ * resterait rond.
  * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
  * descendants sans !important. */
 .mx_RoomListItemView .mx_BaseAvatar,
 .mx_RoomHeader > *:first-child.mx_BaseAvatar,
-.mx_RoomHeader > *:first-child .mx_BaseAvatar {
+.mx_RoomHeader > *:first-child .mx_BaseAvatar,
+.mx_RoomSummaryCard_container .mx_BaseAvatar {
     --cpd-avatar-radius: 25% !important;
 }
 
@@ -127,6 +131,22 @@
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="6"]) {
     background-color: var(--cpd-color-bg-decorative-6);
     border: 3px solid rgba(0,0,0,.25);
+}
+
+/* ── Recherche du room summary panel ──────────────────────────────────────── */
+
+/* Champ de recherche du room summary panel homogénéisé en blanc, comme celui de
+ * la liste des salons (RoomListSearchView = Button secondary → fond
+ * --cpd-color-bg-canvas-default).
+ * Le Compound <Search> ne pose aucun background → il laisse voir le périvenche du
+ * .mx_RightPanel (--skolengo-panel-bg). On repeint le fond blanc sur la pastille
+ * elle-même (le <label>.search, porteur de la classe stable .mx_no_textinput passée
+ * en className) pour respecter son border-radius ; l'<input> interne a
+ * background:inherit → il devient blanc lui aussi.
+ * Light uniquement : --cpd-color-bg-canvas-default = blanc en clair et n'est jamais
+ * redéfini globalement (cf. entête de fichier) → même source de blanc que la room list. */
+.mx_RoomSummaryCard_search .mx_no_textinput {
+    background-color: var(--cpd-color-bg-canvas-default);
 }
 
 /* ── Filtres de la liste des salons ───────────────────────────────────────── */
