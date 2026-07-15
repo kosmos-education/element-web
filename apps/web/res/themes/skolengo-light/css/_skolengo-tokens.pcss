@@ -52,10 +52,6 @@
         --cpd-color-icon-accent-tertiary: var(--cpd-color-indigo-800);
         --cpd-color-border-accent-subtle: var(--cpd-color-indigo-700);
 
-        /* Anneau de focus global → indigo (par défaut blue-900 dans Compound).
-         * Couvre tous les focus visibles de l'app (boutons, champs, liens, etc.). */
-        --cpd-color-border-focused: var(--cpd-color-indigo-900);
-
         /* Dégradé d'action (avatar gradient, etc.) */
         --cpd-color-gradient-action-stop1: var(--cpd-color-indigo-800);
         --cpd-color-gradient-action-stop2: var(--cpd-color-indigo-1000);
@@ -95,19 +91,6 @@
         --cpd-color-bg-decorative-4: #c63737; /* Red     */
         --cpd-color-bg-decorative-5: #7d6b00; /* Yellow/olive */
         --cpd-color-bg-decorative-6: #ae5206; /* Orange  */
-    }
-
-    /* Anneau de focus clavier global → indigo.
-     * Les éléments sans style de focus propre (Button Compound, boutons/éléments
-     * focusables génériques…) retombent sinon sur l'anneau natif du navigateur
-     * (outline: auto → -webkit-focus-ring-color / Highlight = couleur système,
-     * rouge sur certains postes Linux). On le remplace ici par un outline indigo.
-     * Posé dans le layer compound-tokens (le plus bas) : il bat l'anneau natif (UA)
-     * mais cède aux styles de focus propres à Compound (layer compound-web) et à
-     * l'app (layer app-web), qui pointent déjà sur --cpd-color-border-focused (indigo). */
-    :focus-visible {
-        outline: 2px solid var(--cpd-color-border-focused);
-        outline-offset: 1px;
     }
 }
 
