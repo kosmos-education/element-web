@@ -28,12 +28,31 @@ import SettingsStore from "./settings/SettingsStore";
 import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 import { FontWatcher } from "./settings/watchers/FontWatcher";
 
-export const DEFAULT_THEME = "skolengo-light";
+export const DEFAULT_THEME = "la-bulle-light";
 const HIGH_CONTRAST_THEMES: Record<string, string> = {
-    // Pas de variante HC pour les thèmes Skolengo pour l'instant.
+    // Pas de variante HC pour les thèmes La Bulle pour l'instant.
     // "light" est conservé ici au cas où le thème natif light serait sélectionné manuellement.
     light: "light-high-contrast",
 };
+
+/**
+ * Anciens identifiants de thème renommés (SCAT-33). Utilisé pour migrer à la volée
+ * une valeur héritée « skolengo-* » vers « la-bulle-* » afin que la feuille de style
+ * correspondante soit trouvée. La migration persistante du réglage utilisateur est
+ * faite une fois pour toutes dans SettingsStore.runMigrations.
+ */
+const LEGACY_THEME_RENAMES: Record<string, string> = {
+    "skolengo-light": "la-bulle-light",
+    "skolengo-dark": "la-bulle-dark",
+};
+
+/**
+ * Traduit un ancien identifiant de thème vers son nouvel identifiant, ou renvoie
+ * la valeur inchangée si ce n'est pas un identifiant hérité.
+ */
+export function migrateThemeName(theme: string): string {
+    return LEGACY_THEME_RENAMES[theme] ?? theme;
+}
 
 interface IFontFaces extends Omit<Record<(typeof allowedFontFaceProps)[number], string>, "src"> {
     src: {
@@ -89,12 +108,12 @@ export function isHighContrastTheme(theme: string): boolean {
 }
 
 export function enumerateThemes(): { [key: string]: string } {
-    // Seuls les thèmes Skolengo sont proposés dans le sélecteur d'apparence.
+    // Seuls les thèmes La Bulle sont proposés dans le sélecteur d'apparence.
     // Les thèmes natifs light/dark/high-contrast restent dans le build (pour light-custom/dark-custom)
     // mais ne sont pas listés ici afin de ne pas apparaître dans les réglages utilisateur.
     const BUILTIN_THEMES = {
-        "skolengo-light": "Skolengo",
-        "skolengo-dark": "Skolengo Sombre",
+        "la-bulle-light": "La Bulle",
+        "la-bulle-dark": "La Bulle Sombre",
     };
     const customThemes = SettingsStore.getValue("custom_themes") || [];
     const customThemeNames: Record<string, string> = {};
@@ -327,6 +346,9 @@ export async function setTheme(theme?: string): Promise<void> {
         const themeWatcher = new ThemeWatcher();
         theme = themeWatcher.getEffectiveTheme();
     }
+    // Migre un éventuel identifiant hérité (skolengo-*) vers le nouvel identifiant (la-bulle-*)
+    // afin que la feuille de style correspondante soit trouvée pour les réglages non encore migrés.
+    theme = migrateThemeName(theme);
     clearCustomTheme();
     let stylesheetName = theme;
     if (theme.startsWith("custom-")) {

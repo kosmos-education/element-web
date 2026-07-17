@@ -986,7 +986,7 @@ export const SETTINGS: Settings = {
     },
     "theme": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
-        default: "skolengo-light",
+        default: "la-bulle-light",
         controller: new ThemeController(),
     },
     "custom_themes": {

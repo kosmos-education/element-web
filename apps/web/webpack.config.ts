@@ -63,9 +63,9 @@ const cssThemes = {
     "theme-dark": "./res/themes/dark/css/dark.pcss",
     "theme-light-custom": "./res/themes/light-custom/css/light-custom.pcss",
     "theme-dark-custom": "./res/themes/dark-custom/css/dark-custom.pcss",
-    // Thèmes natifs Skolengo (IndigoEMS)
-    "theme-skolengo-light": "./res/themes/skolengo-light/css/skolengo-light.pcss",
-    "theme-skolengo-dark": "./res/themes/skolengo-dark/css/skolengo-dark.pcss",
+    // Thèmes natifs La Bulle (IndigoEMS)
+    "theme-la-bulle-light": "./res/themes/la-bulle-light/css/la-bulle-light.pcss",
+    "theme-la-bulle-dark": "./res/themes/la-bulle-dark/css/la-bulle-dark.pcss",
 };
 
 // See docs/customisations.md

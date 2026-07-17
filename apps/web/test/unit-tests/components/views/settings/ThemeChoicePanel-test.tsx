@@ -44,7 +44,7 @@ describe("<ThemeChoicePanel />", () => {
         });
 
         await enableSystemTheme(false);
-        await setTheme("skolengo-light");
+        await setTheme("la-bulle-light");
     });
 
     it("renders the theme choice UI", () => {
@@ -103,12 +103,12 @@ describe("<ThemeChoicePanel />", () => {
             it("should have light theme selected", async () => {
                 render(<ThemeChoicePanel />);
 
-                // We expect the Skolengo (light) theme to be selected
-                const lightTheme = screen.getByRole("radio", { name: "Skolengo" });
+                // We expect the La Bulle (light) theme to be selected
+                const lightTheme = screen.getByRole("radio", { name: "La Bulle" });
                 expect(lightTheme).toBeChecked();
 
                 // And the dark theme shouldn't be selected
-                const darkTheme = screen.getByRole("radio", { name: "Skolengo Sombre" });
+                const darkTheme = screen.getByRole("radio", { name: "La Bulle Sombre" });
                 expect(darkTheme).not.toBeChecked();
             });
 
@@ -117,20 +117,20 @@ describe("<ThemeChoicePanel />", () => {
 
                 render(<ThemeChoicePanel />);
 
-                const darkTheme = screen.getByRole("radio", { name: "Skolengo Sombre" });
-                const lightTheme = screen.getByRole("radio", { name: "Skolengo" });
+                const darkTheme = screen.getByRole("radio", { name: "La Bulle Sombre" });
+                const lightTheme = screen.getByRole("radio", { name: "La Bulle" });
                 expect(darkTheme).not.toBeChecked();
 
                 // Switch to the dark theme
                 act(() => darkTheme.click());
-                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "skolengo-dark");
+                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "la-bulle-dark");
 
                 // Dark theme is now selected
                 await waitFor(() => expect(darkTheme).toBeChecked());
                 // Light theme is not selected anymore
                 expect(lightTheme).not.toBeChecked();
                 // The setting should be updated
-                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "skolengo-dark");
+                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "la-bulle-dark");
             });
         });
     });
