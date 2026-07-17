@@ -144,28 +144,37 @@ reste inoffensive (double build) mais peut être retirée.
 
 Since upstream v1.12.21, the default composer placeholder keys (`composer|placeholder`, `composer|placeholder_reply`, `composer|placeholder_thread`) now explicitly mention "unencrypted" in their text (e.g. "Send an unencrypted message…"). To stay consistent with our goal of hiding encryption mentions, `MessageComposer.tsx` now always uses the `_encrypted` variants of those keys (`composer|placeholder_encrypted`, etc.), which carry neutral wording regardless of the room's actual encryption status. The corresponding `fr.json` overrides and the Jest unit tests (`MessageComposer-test.tsx`, `test-utils/composer.ts`) were updated accordingly.
 
-### Thème natif Skolengo (IndigoEMS)
+### Thème natif La Bulle (IndigoEMS)
 
-Deux thèmes PCSS natifs ont été créés pour habiller Element aux couleurs de la marque Skolengo,
-sur la base de la palette **IndigoEMS** (confirmée par échantillonnage des maquettes de l'UI) :
+> **Renommage (SCAT-33)** : ce thème s'appelait initialement « Skolengo ». Il a été renommé en
+> **« La Bulle »** — identifiants, dossiers, fichiers `.pcss`, feuilles CSS émises et réglage
+> par défaut. Les anciens identifiants `skolengo-light` / `skolengo-dark` encore stockés côté
+> utilisateur sont migrés automatiquement (voir « Migration » plus bas). En revanche, le **logo
+> reste le donut Skolengo** (`donut-skolengo.svg`, `alt="Skolengo"`) et les variables CSS internes
+> `--skolengo-*` (invisibles) sont conservées telles quelles : « Skolengo » reste la marque ombrelle.
+
+Deux thèmes PCSS natifs ont été créés pour habiller Element aux couleurs de la marque Skolengo
+(thème « La Bulle »), sur la base de la palette **IndigoEMS** (confirmée par échantillonnage des
+maquettes de l'UI) :
 
 | Identifiant | Sélecteur affiché | Feuille CSS émise |
 |---|---|---|
-| `skolengo-light` | Skolengo | `theme-skolengo-light.css` |
-| `skolengo-dark` | Skolengo Sombre | `theme-skolengo-dark.css` |
+| `la-bulle-light` | La Bulle | `theme-la-bulle-light.css` |
+| `la-bulle-dark` | La Bulle Sombre | `theme-la-bulle-dark.css` |
 
 **Structure des fichiers :**
 
 ```
 apps/web/res/themes/
-├── skolengo-light/css/
-│   ├── skolengo-light.pcss      # entrypoint (fork de light.pcss)
-│   ├── _skolengo-vars.pcss      # overrides de variables PostCSS legacy ($)
-│   ├── _skolengo-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
-│   └── _skolengo-overrides.pcss # surcharges sélecteurs app (fonds panneaux, partagé clair+sombre)
-└── skolengo-dark/css/
-    ├── skolengo-dark.pcss       # entrypoint (fork de dark.pcss)
-    └── _skolengo-tokens.pcss   # échelle indigo inversée (mode sombre)
+├── la-bulle-light/css/
+│   ├── la-bulle-light.pcss      # entrypoint (fork de light.pcss)
+│   ├── _la-bulle-vars.pcss      # overrides de variables PostCSS legacy ($)
+│   ├── _la-bulle-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
+│   └── _la-bulle-overrides.pcss # surcharges sélecteurs app (fonds panneaux, partagé clair+sombre)
+└── la-bulle-dark/css/
+    ├── la-bulle-dark.pcss       # entrypoint (fork de dark.pcss)
+    ├── _la-bulle-dark-overrides.pcss # identité avatars/logo/contours d'espace (sombre)
+    └── _la-bulle-tokens.pcss   # échelle indigo inversée (mode sombre)
 ```
 
 **Palette IndigoEMS — valeurs clés :**
@@ -178,21 +187,32 @@ apps/web/res/themes/
 
 **Points d'enregistrement (à vérifier à chaque rebase upstream) :**
 
-1. `apps/web/webpack.config.ts` — `cssThemes` : entrées `theme-skolengo-light` et `theme-skolengo-dark`.
-2. `apps/web/src/theme.ts` — `DEFAULT_THEME = "skolengo-light"` ; `BUILTIN_THEMES` liste uniquement
-   les deux thèmes Skolengo (masque light/dark/high-contrast du sélecteur).
-3. `apps/web/src/settings/Settings.tsx` — `theme.default = "skolengo-light"`.
+1. `apps/web/webpack.config.ts` — `cssThemes` : entrées `theme-la-bulle-light` et `theme-la-bulle-dark`.
+2. `apps/web/src/theme.ts` — `DEFAULT_THEME = "la-bulle-light"` ; `BUILTIN_THEMES` liste uniquement
+   les deux thèmes La Bulle (masque light/dark/high-contrast du sélecteur). `migrateThemeName()`
+   traduit les anciens identifiants `skolengo-*` au runtime (filet de sécurité si le réglage n'est
+   pas encore migré).
+3. `apps/web/src/settings/Settings.tsx` — `theme.default = "la-bulle-light"`.
 4. `apps/web/src/settings/watchers/ThemeWatcher.ts` — `themeBasedOnSystem()` route vers
-   `skolengo-dark`/`skolengo-light` au lieu de `dark`/`light` ; `isUserOnDarkTheme()` inclut
-   `skolengo-dark`.
-5. `config.json` — `default_theme: "skolengo-light"` (le bloc `custom_themes` a été supprimé).
+   `la-bulle-dark`/`la-bulle-light` au lieu de `dark`/`light` ; `isUserOnDarkTheme()` inclut
+   `la-bulle-dark`.
+5. `apps/web/src/settings/SettingsStore.ts` — `migrateSkolengoThemeToLaBulle()` (appelée dans
+   `runMigrations`) réécrit une fois pour toutes le réglage `theme` stocké `skolengo-*` → `la-bulle-*`
+   (flag localStorage `mx_theme_skolengo_to_la_bulle_done`).
+
+**Migration :** un utilisateur ayant déjà sélectionné l'ancien thème a `theme: "skolengo-light"`
+(ou `-dark`) stocké dans ses réglages. Deux mécanismes complémentaires assurent la continuité :
+`theme.ts#migrateThemeName` (runtime, pour trouver la bonne feuille de style) et
+`SettingsStore#migrateSkolengoThemeToLaBulle` (persistante, pour que le sélecteur Apparence mette
+bien en surbrillance le thème actif). Le `config.json` déployé ne fixe pas de `default_theme` ; la
+valeur par défaut vient de `Settings.tsx` / `DEFAULT_THEME`.
 
 **Comportement :**
 
-- `setTheme` dans `theme.ts` détecte `"light"` dans le nom du thème (`skolengo-light.includes("light")`)
-  et assigne la classe `cpd-theme-light` (Compound tokens mode clair). Même logique pour `skolengo-dark`
+- `setTheme` dans `theme.ts` détecte `"light"` dans le nom du thème (`la-bulle-light.includes("light")`)
+  et assigne la classe `cpd-theme-light` (Compound tokens mode clair). Même logique pour `la-bulle-dark`
   → `cpd-theme-dark`.
-- Le suivi du thème système OS bascule automatiquement entre `skolengo-light` et `skolengo-dark`.
+- Le suivi du thème système OS bascule automatiquement entre `la-bulle-light` et `la-bulle-dark`.
 - Réglages → Apparence ne propose que les deux thèmes Skolengo.
 
 **Fonds périvenche des panneaux latéraux :**
@@ -200,10 +220,10 @@ apps/web/res/themes/
 Depuis la v1.12.21, la nouvelle UI (`feature_new_room_list`) code en dur
 `--cpd-color-bg-canvas-default` (blanc) sur les conteneurs latéraux via les sélecteurs
 `.mx_LeftPanel_newRoomList`, `.mx_SpacePanel.newUi`, `.mx_RoomListPanel`, `.mx_RightPanel`.
-Les variables legacy `$roomlist-bg-color` / `$spacePanel-bg-color` de `_skolengo-vars.pcss`
+Les variables legacy `$roomlist-bg-color` / `$spacePanel-bg-color` de `_la-bulle-vars.pcss`
 ne pilotent plus que l'ancienne UI (jamais rendue) et n'ont **aucun effet**.
 
-La correction est dans `_skolengo-overrides.pcss` (importé depuis les deux entrypoints après
+La correction est dans `_la-bulle-overrides.pcss` (importé depuis les deux entrypoints après
 `_components.pcss`) : on applique directement `background-color: var(--cpd-color-indigo-300)`
 sur ces sélecteurs. On ne redéfinit PAS le token global pour préserver la timeline blanche,
 la barre de recherche distincte et les en-têtes de section sticky.
@@ -217,7 +237,7 @@ et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `backg
 
 Les avatars de **salons** (liste + en-tête) sont rendus en **carré arrondi** (border-radius 25 %).
 Les avatars d'auteurs dans les messages de la timeline restent **ronds**.
-La surcharge est dans `_skolengo-overrides.pcss` via `--cpd-avatar-radius: 25% !important` sur
+La surcharge est dans `_la-bulle-overrides.pcss` via `--cpd-avatar-radius: 25% !important` sur
 les sélecteurs `.mx_RoomListItemView .mx_BaseAvatar`, `.mx_RoomHeader > *:first-child.mx_BaseAvatar`
 (avatar enfant direct — cas fréquent sans présence) et `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
 (avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée).
@@ -228,7 +248,7 @@ descendant ; d'où la nécessité des deux variantes du sélecteur.
 
 Les fonds d'avatars (`--cpd-color-bg-decorative-1..6`) utilisent les couleurs **saturées EMS-900**
 (identiques aux `text-decorative`), avec des **initiales blanches** (`--cpd-avatar-color: #fff !important`
-dans `_skolengo-overrides.pcss`). Les `--cpd-color-text-decorative-*` sont conservés inchangés
+dans `_la-bulle-overrides.pcss`). Les `--cpd-color-text-decorative-*` sont conservés inchangés
 car ils servent à colorer les **noms d'auteurs** dans la timeline (ils ne passent pas par
 `--cpd-avatar-color`).
 
@@ -243,7 +263,7 @@ que `RoomAvatar` passe toujours `type="round"` pour les salons non-space, et que
 **Noms de salons et titre d'en-tête :**
 
 - Les noms des salons dans la liste sont **plus foncés et légèrement plus gras** (`text-primary` +
-  `font-weight-medium`) via `.mx_RoomListItemView [data-testid="room-name"]` dans `_skolengo-overrides.pcss`.
+  `font-weight-medium`) via `.mx_RoomListItemView [data-testid="room-name"]` dans `_la-bulle-overrides.pcss`.
   `data-testid="room-name"` est le seul sélecteur stable sur cet élément (la classe CSS module est hashée).
 - Le **titre du salon dans l'en-tête** (`.mx_RoomHeader_heading`) est rendu en `font-weight-bold`.
 
@@ -253,7 +273,7 @@ que `RoomAvatar` passe toujours `type="round"` pour les salons non-space, et que
 **Espaces (space panel) — liseré et alignement :**
 
 Le `selectionWrapper` en mode narrow (barre repliée) reçoit `padding:1px; border:3px solid transparent`
-dans `_skolengo-overrides.pcss`. Cela reproduit l'équilibre 4px constant (inactif : 1px pad + 3px bord
+dans `_la-bulle-overrides.pcss`. Cela reproduit l'équilibre 4px constant (inactif : 1px pad + 3px bord
 transparent = 4px ; actif : la règle native `.mx_SpaceButton_active.mx_SpaceButton_narrow` (0,4,0) pose
 `border:3px solid $primary-content` + `padding:1px` = 4px) sans `!important`, de sorte que l'icône ne
 « danse » pas lors d'un switch d'espace.
@@ -302,7 +322,7 @@ Paires conformes et ratios clés :
 Notes implémentation :
 
 - **Noms d'auteurs en mode sombre** : `--cpd-color-text-decorative-1..6` dans
-  `skolengo-dark/_skolengo-tokens.pcss` sont éclaircis (découplés de `bg-decorative`) pour passer
+  `la-bulle-dark/_la-bulle-tokens.pcss` sont éclaircis (découplés de `bg-decorative`) pour passer
   4,5:1 sur le canvas sombre `#101317`. Les fonds d'avatar restent saturés (initiales blanches OK).
 - **Texte secondaire sombre** : override `--cpd-color-text-secondary` → `gray-1200` (`#bdc3cc`)
   scoped sur `.mx_RoomListPanel`, `.mx_RightPanel`, `.mx_SpacePanel.newUi` dans le fichier sombre.
@@ -311,7 +331,7 @@ Notes implémentation :
   foncé, fond sombre → texte clair. Mécanisme : repointage de `--cpd-color-text-secondary`
   (lu par `MessageTimestampView.module.css `.content`) dans le scope
   `.mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp` ; deux règles
-  qualifiées `.cpd-theme-light` / `.cpd-theme-dark` dans `_skolengo-overrides.pcss`.
+  qualifiées `.cpd-theme-light` / `.cpd-theme-dark` dans `_la-bulle-overrides.pcss`.
   `gray-1000` (`#595e67`) → 5,19:1 en clair ; `gray-1200` (`#bdc3cc`) → 4,51:1 en sombre.
   Les bulles des autres (fond gris Compound) restent non affectées.
 - En mode **clair** le texte secondaire des panneaux (4,65:1) est au seuil WCAG AA — conforme mais
@@ -330,7 +350,7 @@ box-sizing:border-box`.
 
 **Itérations possibles :**
 
-- Ajouter une variante HC `skolengo-light-hc` et l'enregistrer dans `HIGH_CONTRAST_THEMES`.
+- Ajouter une variante HC `la-bulle-light-hc` et l'enregistrer dans `HIGH_CONTRAST_THEMES`.
 - Remap optionnel des échelles EMS pour les états succès/erreur/info (comme dans l'ancien plan
   `config.json`), si l'on veut aligner aussi ces palettes sur les teintes EMS exactes.
 - Les translucides `--cpd-color-alpha-*` ne sont pas teintés (impact visuel mineur).

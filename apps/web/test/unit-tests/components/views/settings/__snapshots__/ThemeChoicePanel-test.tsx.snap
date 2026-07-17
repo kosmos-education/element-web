@@ -74,7 +74,7 @@ exports[`<ThemeChoicePanel /> custom theme should display custom theme 1`] = `
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-light"
+                value="la-bulle-light"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -88,7 +88,7 @@ exports[`<ThemeChoicePanel /> custom theme should display custom theme 1`] = `
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-2"
             >
-              Skolengo
+              La Bulle
             </label>
           </div>
         </div>
@@ -107,7 +107,7 @@ exports[`<ThemeChoicePanel /> custom theme should display custom theme 1`] = `
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-dark"
+                value="la-bulle-dark"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -121,7 +121,7 @@ exports[`<ThemeChoicePanel /> custom theme should display custom theme 1`] = `
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-3"
             >
-              Skolengo Sombre
+              La Bulle Sombre
             </label>
           </div>
         </div>
@@ -353,7 +353,7 @@ exports[`<ThemeChoicePanel /> custom theme should render the custom theme sectio
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-light"
+                value="la-bulle-light"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -367,7 +367,7 @@ exports[`<ThemeChoicePanel /> custom theme should render the custom theme sectio
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-2"
             >
-              Skolengo
+              La Bulle
             </label>
           </div>
         </div>
@@ -386,7 +386,7 @@ exports[`<ThemeChoicePanel /> custom theme should render the custom theme sectio
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-dark"
+                value="la-bulle-dark"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -400,7 +400,7 @@ exports[`<ThemeChoicePanel /> custom theme should render the custom theme sectio
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-3"
             >
-              Skolengo Sombre
+              La Bulle Sombre
             </label>
           </div>
         </div>
@@ -632,7 +632,7 @@ exports[`<ThemeChoicePanel /> renders the theme choice UI 1`] = `
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-light"
+                value="la-bulle-light"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -646,7 +646,7 @@ exports[`<ThemeChoicePanel /> renders the theme choice UI 1`] = `
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-2"
             >
-              Skolengo
+              La Bulle
             </label>
           </div>
         </div>
@@ -665,7 +665,7 @@ exports[`<ThemeChoicePanel /> renders the theme choice UI 1`] = `
                 name="themeSelector"
                 title=""
                 type="radio"
-                value="skolengo-dark"
+                value="la-bulle-dark"
               />
               <div
                 class="_ui_1ug7n_19"
@@ -679,7 +679,7 @@ exports[`<ThemeChoicePanel /> renders the theme choice UI 1`] = `
               class="_label_1o4d9_60 mx_ThemeChoicePanel_themeSelector_Label"
               for="radix-react-use-id-3"
             >
-              Skolengo Sombre
+              La Bulle Sombre
             </label>
           </div>
         </div>

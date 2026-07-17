@@ -680,6 +680,37 @@ export default class SettingsStore {
     }
 
     /**
+     * Migrate the "theme" setting from the legacy Skolengo identifiers to the La Bulle
+     * identifiers (SCAT-33 theme rename). Rewrites a stored `skolengo-light`/`skolengo-dark`
+     * value to `la-bulle-light`/`la-bulle-dark` at the DEVICE and ACCOUNT levels so the
+     * Appearance selector keeps highlighting the active theme after the rename.
+     */
+    private static migrateSkolengoThemeToLaBulle(): void {
+        const MIGRATION_DONE_FLAG = "mx_theme_skolengo_to_la_bulle_done";
+        if (localStorage.getItem(MIGRATION_DONE_FLAG)) return;
+
+        const renames: Record<string, string> = {
+            "skolengo-light": "la-bulle-light",
+            "skolengo-dark": "la-bulle-dark",
+        };
+
+        for (const level of [SettingLevel.DEVICE, SettingLevel.ACCOUNT]) {
+            try {
+                const handler = LEVEL_HANDLERS[level];
+                const current = handler?.getValue("theme", null);
+                if (typeof current === "string" && renames[current]) {
+                    logger.info(`Migrating theme setting '${current}' -> '${renames[current]}' at ${level}`);
+                    this.setValue("theme", null, level, renames[current]);
+                }
+            } catch (e) {
+                logger.warn(`Failed to migrate theme setting at ${level}`, e);
+            }
+        }
+
+        localStorage.setItem(MIGRATION_DONE_FLAG, "true");
+    }
+
+    /**
      * Migrate the setting for visible images to a setting.
      *
      * @param isFreshLogin True if the user has just logged in, false if a previous session is being restored.
@@ -717,6 +748,11 @@ export default class SettingsStore {
         // The consequences of missing the migration are that previously shown images
         // will now be hidden again, so this fails safely.
         SettingsStore.migrateShowImagesToSettings();
+
+        // SCAT-33: rename the Skolengo theme to "La Bulle". This can be removed once enough
+        // users have run a version with this migration (fails safe: an unmigrated legacy value
+        // is still mapped to the new stylesheet at runtime by theme.ts#migrateThemeName).
+        SettingsStore.migrateSkolengoThemeToLaBulle();
 
         // This can be removed once enough users have run a version of Element with
         // this migration.

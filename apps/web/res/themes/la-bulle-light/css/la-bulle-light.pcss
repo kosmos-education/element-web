@@ -1,6 +1,6 @@
-/* Thème Skolengo — mode clair
+/* Thème La Bulle — mode clair
  * Fork du thème light d'Element. Réutilise les fonts, les vars de base et les mods
- * du thème light, puis surcharge les variables de marque Skolengo (IndigoEMS).
+ * du thème light, puis surcharge les variables de marque La Bulle (IndigoEMS).
  */
 @layer compound-tokens, compound-web, shared-components, app-web;
 
@@ -8,13 +8,13 @@
 @import "../../light/css/_fonts.pcss" layer(app-web);
 @import "../../light/css/_light.pcss" layer(app-web);
 /* Surcharge des variables PostCSS legacy (doit être après _light.pcss et avant _components.pcss) */
-@import "_skolengo-vars.pcss" layer(app-web);
+@import "_la-bulle-vars.pcss" layer(app-web);
 @import "../../light/css/_mods.pcss" layer(app-web);
 @import "../../../../res/css/_components.pcss" layer(app-web);
 /* Surcharges sélecteurs app : fonds périvenche des panneaux latéraux (nouvelle UI) */
-@import "_skolengo-overrides.pcss" layer(app-web);
+@import "_la-bulle-overrides.pcss" layer(app-web);
 @import "../../../../res/css/_compound.pcss";
-/* Tokens CSS de marque Skolengo (--cpd-color-indigo-* + remappage sémantique) */
-@import "_skolengo-tokens.pcss";
+/* Tokens CSS de marque La Bulle (--cpd-color-indigo-* + remappage sémantique) */
+@import "_la-bulle-tokens.pcss";
 @import url("highlight.js/styles/atom-one-light.min.css") layer(app-web);
 @import url("github-markdown-css/github-markdown-light.css") layer(app-web);
