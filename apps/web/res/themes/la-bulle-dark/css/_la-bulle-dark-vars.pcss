@@ -1,0 +1,32 @@
+/* Thème La Bulle — variables PostCSS du mode sombre
+ *
+ * Le mode sombre repart du dark Element par défaut (cf. en-tête de la-bulle-dark.pcss)
+ * et n'importe donc PAS _la-bulle-vars.pcss. Ce fichier porte les rares variables
+ * PostCSS legacy qu'il faut malgré tout redéfinir en sombre.
+ *
+ * Il doit être importé APRÈS dark/css/_dark.pcss (qui pose les valeurs Element) et
+ * AVANT res/css/_components.pcss (qui les consomme) : postcss-import inline les
+ * fichiers dans l'ordre de déclaration et la dernière définition avant usage gagne.
+ */
+
+/* Bulles de messages */
+/* ******************** */
+/* Bulle de mes propres messages (SCAT-33 — retour de recette accessibilité).
+ *
+ * Element pose $eventbubble-self-bg: var(--cpd-color-green-300) = #002513, soit un
+ * contraste de 1,13:1 seulement avec le fond de timeline --cpd-color-theme-bg #101317 :
+ * la bulle est quasi indiscernable. On reste dans la famille verte d'Element mais on
+ * monte à green-700 #005a43.
+ *
+ * Ratios sur #101317 / sur la bulle :
+ * - bulle vs fond de timeline           : 2,25:1 (contre 1,13:1 avant, ×2)
+ * - texte principal gray-1400 #ebeef2   : 7,10:1 ✓
+ * - texte secondaire gray-1200 #bdc3cc  : 4,66:1 ✓ RGAA AA (cf. _la-bulle-dark-overrides.pcss)
+ *
+ * green-800 #007a62 donnerait 3,51:1 avec le fond (seuil WCAG 1.4.11 non textuel),
+ * mais ferait tomber le texte secondaire à 2,99:1 : il faudrait le repasser en
+ * quasi-blanc et l'on perdrait la hiérarchie visuelle. green-700 est le compromis.
+ *
+ * Consommée par res/css/views/rooms/_EventBubbleTile.pcss (fond de bulle + .mx_MediaBody). */
+$eventbubble-self-bg: var(--cpd-color-green-700);
+/* ******************** */

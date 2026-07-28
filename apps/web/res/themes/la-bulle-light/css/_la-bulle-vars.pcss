@@ -38,10 +38,13 @@ $spacePanel-bg-color: var(--cpd-color-indigo-400);
 
 /* Bulles de messages */
 /* ******************** */
-/* Bulle de mes propres messages. Découplée par mode via une variable de marque
- * définie dans chaque _skolengo-tokens.pcss :
- * - clair : indigo-400 ≈ #dde5ff (périvenche pâle, conforme maquette)
- * - sombre : indigo-200 = #241782 (indigo profond discret, au lieu de l'indigo vif) */
+/* Bulle de mes propres messages : indigo-400 ≈ #dde5ff (périvenche pâle, conforme
+ * maquette).
+ * ATTENTION — ce fichier est chargé UNIQUEMENT par la-bulle-light.pcss ; le mode
+ * sombre repart du dark Element (cf. en-tête de la-bulle-dark.pcss) et définit sa
+ * propre valeur dans la-bulle-dark/css/_la-bulle-dark-vars.pcss. Ne pas documenter
+ * ici le comportement du sombre : une version antérieure annonçait un #241782 qui
+ * n'a jamais été câblé, ce qui a masqué un défaut de contraste (SCAT-33). */
 $eventbubble-self-bg: var(--skolengo-bubble-self-bg);
 /* ******************** */
 
