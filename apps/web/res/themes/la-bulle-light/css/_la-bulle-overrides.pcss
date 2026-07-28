@@ -217,23 +217,30 @@
     font-weight: var(--cpd-font-weight-medium);
 }
 
-/* ── Heure (timestamp) sur les bulles « moi » ────────────────────────────── */
+/* ── Texte secondaire sur les bulles « moi » ─────────────────────────────── */
 
-/* La bulle « moi » est en périvenche pâle en clair (#dde5ff) et en indigo profond
- * en sombre (#241782, cf. --skolengo-bubble-self-bg).
- * Le timestamp consomme --cpd-color-text-secondary (gray-900), qui ne passe pas
- * 4,5:1 sur ce fond dans aucun des deux modes. On repointe la variable dans le
- * scope du timestamp de la bulle « moi » (sélecteur stable + repoint de var →
- * pas de surcharge de `color`, pas de bagarre de spécificité avec la classe
- * module hashée .content). L'exigence s'inverse par mode (bulle claire → texte
- * foncé, bulle sombre → texte clair) d'où les deux règles.
- * Ratios RGAA AA (texte normal 10px, seuil 4,5:1) :
- * - clair : gray-1000 #595e67 sur #dde5ff = 5,19:1 ✓
- * - sombre : gray-1200 #bdc3cc sur #241782 = 7,79:1 ✓
+/* La bulle « moi » est en périvenche pâle (#dde5ff) en clair. Tous les textes
+ * secondaires qu'elle contient consomment --cpd-color-text-secondary (gray-900
+ * #656d77), qui ne donne que 4,17:1 sur ce fond → échec RGAA AA (seuil 4,5:1).
+ *
+ * On repointe la variable sur la bulle ENTIÈRE, et non sur le seul timestamp :
+ * les autres textes secondaires vivent dans packages/shared-components avec des
+ * classes CSS-module hashées, donc sans sélecteur stable à cibler un par un.
+ * Un seul scope couvre (retour de recette SCAT-33) :
+ *   - .mx_MessageTimestamp                       (heure)
+ *   - RedactedBodyView .content                  (« Message supprimé »)
+ *   - TextualBodyView .annotation/.editedMarker  (« (modifié) », 12px)
+ *
+ * Technique : repoint de variable plutôt que surcharge de `color`, pour ne pas
+ * entrer en conflit de spécificité avec les classes modules hashées.
+ *
+ * Ratio RGAA AA (texte normal, seuil 4,5:1) :
+ *   gray-1000 #595e67 sur #dde5ff = 5,19:1 ✓
+ *
+ * Le pendant sombre vit dans la-bulle-dark/css/_la-bulle-dark-overrides.pcss :
+ * ce fichier-ci n'est chargé que par la-bulle-light.pcss, une règle préfixée
+ * .cpd-theme-dark y serait morte (c'était le cas avant SCAT-33).
  * Les bulles des autres (fond gris Compound) restent non affectées. */
-.cpd-theme-light .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
+.mx_EventTile[data-layout="bubble"][data-self="true"] {
     --cpd-color-text-secondary: var(--cpd-color-gray-1000); /* #595e67 → 5,19:1 sur #dde5ff */
-}
-.cpd-theme-dark .mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp {
-    --cpd-color-text-secondary: var(--cpd-color-gray-1200); /* #bdc3cc → 7,79:1 sur #241782 */
 }

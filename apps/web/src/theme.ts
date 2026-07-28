@@ -23,17 +23,18 @@ import "@fontsource/fira-code/latin-700.css";
 
 import { logger } from "matrix-js-sdk/src/logger";
 
-import { _t } from "./languageHandler";
 import SettingsStore from "./settings/SettingsStore";
 import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 import { FontWatcher } from "./settings/watchers/FontWatcher";
 
 export const DEFAULT_THEME = "la-bulle-light";
-const HIGH_CONTRAST_THEMES: Record<string, string> = {
-    // Pas de variante HC pour les thèmes La Bulle pour l'instant.
-    // "light" est conservé ici au cas où le thème natif light serait sélectionné manuellement.
-    light: "light-high-contrast",
-};
+/* Aucune variante « contraste élevé » n'est exposée : seuls les deux thèmes La Bulle
+ * sont sélectionnables (cf. BUILTIN_THEMES). L'entrée `light` a été retirée (SCAT-33) :
+ * elle rendait `findHighContrastTheme("light")` toujours vrai, et ThemeChoicePanel
+ * ré-injecte le thème HC via ce lookup — en aval du filtrage de getOrderedThemes() —
+ * ce qui faisait réapparaître un bouton « Contraste élevé » appliquant un thème
+ * Element natif non marqué. Ne pas repeupler cette table sans variante HC La Bulle. */
+const HIGH_CONTRAST_THEMES: Record<string, string> = {};
 
 /**
  * Anciens identifiants de thème renommés (SCAT-33). Utilisé pour migrer à la volée

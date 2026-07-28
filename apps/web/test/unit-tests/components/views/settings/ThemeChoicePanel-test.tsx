@@ -100,6 +100,22 @@ describe("<ThemeChoicePanel />", () => {
                 });
             });
 
+            // Régression SCAT-33 : getOrderedThemes() filtrait bien les thèmes à contraste
+            // élevé, mais useThemes() les ré-injectait en aval via makeHighContrastTheme(),
+            // qui appelait findHighContrastTheme("light") — toujours vrai tant que
+            // HIGH_CONTRAST_THEMES conservait une entrée. Un bouton « High contrast »
+            // appliquant un thème Element natif non marqué restait donc proposé.
+            it("should only offer the two La Bulle themes", async () => {
+                render(<ThemeChoicePanel />);
+
+                expect(screen.getByRole("radio", { name: "La Bulle" })).toBeInTheDocument();
+                expect(screen.getByRole("radio", { name: "La Bulle Sombre" })).toBeInTheDocument();
+
+                // No high contrast theme, and no Element built-in theme either
+                expect(screen.queryByRole("radio", { name: "High contrast" })).not.toBeInTheDocument();
+                expect(screen.getAllByRole("radio")).toHaveLength(2);
+            });
+
             it("should have light theme selected", async () => {
                 render(<ThemeChoicePanel />);
 

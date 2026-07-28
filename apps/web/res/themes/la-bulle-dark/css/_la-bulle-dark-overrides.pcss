@@ -99,6 +99,24 @@
     border: 3px solid rgba(0,0,0,.25);
 }
 
+/* ── Texte secondaire sur les bulles « moi » ─────────────────────────────── */
+
+/* Pendant sombre de la règle de _la-bulle-light/css/_la-bulle-overrides.pcss.
+ * L'exigence s'inverse par mode : bulle claire → texte foncé, bulle sombre →
+ * texte clair. Le fond de bulle vaut ici green-700 #005a43
+ * (cf. _la-bulle-dark-vars.pcss).
+ *
+ * Historique (SCAT-33) : cette règle vivait dans _la-bulle-overrides.pcss préfixée
+ * en .cpd-theme-dark — fichier chargé uniquement par la-bulle-light.pcss, donc
+ * jamais évaluée. Aucun correctif de contraste ne s'appliquait en sombre. Le
+ * préfixe .cpd-theme-dark est inutile ici : la feuille est déjà spécifique au mode.
+ *
+ * Ratio RGAA AA (texte normal, seuil 4,5:1) :
+ *   gray-1200 #bdc3cc sur #005a43 = 4,66:1 ✓ */
+.mx_EventTile[data-layout="bubble"][data-self="true"] {
+    --cpd-color-text-secondary: var(--cpd-color-gray-1200); /* #bdc3cc → 4,66:1 sur #005a43 */
+}
+
 /* ── Logo Skolengo ──────────────────────────────────────────────────────────── */
 
 /* Logo Skolengo sur fond blanc : l'<img> est posé nu sur le space panel.

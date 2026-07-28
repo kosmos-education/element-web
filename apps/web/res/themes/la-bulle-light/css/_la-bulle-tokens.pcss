@@ -105,31 +105,50 @@
  * _compound.pcss puis _skolengo-tokens.pcss). Dans un même layer, à spécificité
  * ÉGALE la source la plus tardive gagne → cela préserve automatiquement les cas
  * plus spécifiques de Compound :
- *  - secondary normal        : nos règles (0,2,0) battent le style de base Compound
+ *  - secondary normal        : nos règles battent le style de base Compound
  *    (.button[data-kind] = 0,2,0, déclaré avant) → indigo.
- *  - secondary destructive   : Compound (.button[data-kind].destructive = 0,3,0)
- *    reste prioritaire → le rouge critique est conservé (.destructive est une classe
- *    CSS-module hashée, pas de sélecteur stable pour l'exclure autrement).
+ *  - secondary destructive   : exclu explicitement via [class*="destructive"] dans
+ *    le :not() → le rouge critique est conservé. NE PAS se contenter d'une course à
+ *    la spécificité comme avant SCAT-33 : on comptait sur .button[data-kind].destructive
+ *    (0,3,0) pour battre nos (0,2,0), ce qui casse dès qu'un sélecteur est ajouté ici.
+ *    L'exclusion est désormais explicite, donc insensible à la spécificité.
+ *    (Rappel : :not(a, b, c) prend la spécificité de son argument le plus fort, pas
+ *    leur somme → nos règles restent bien à (0,2,0).)
  *  - désactivé               : exclu via :not([aria-disabled="true"]) → gris Compound
  *    conservé → l'actif (indigo) tranche nettement avec l'inactif (gris).
  *
- * Contraste : indigo-900 #5851fb sur blanc = 5,27:1 → RGAA AA (texte) ✓. */
+ * Contraste : indigo-900 #5851fb sur blanc = 5,27:1 → RGAA AA (texte) ✓.
+ *
+ * IMPORTANT — exclusion des IconButton via :not([class*="icon-button"]) (SCAT-33).
+ * <IconButton> pose lui aussi data-kind, donc ces règles l'attrapaient alors
+ * qu'elles ne visent que <Button>. Deux dégâts constatés en recette :
+ *  1. Croix de fermeture des toasts invisible. Toast.module.css force l'icône en
+ *     --cpd-color-icon-on-solid-primary (= theme-bg = #ffffff en clair) avec
+ *     !important tant qu'on ne survole pas, car l'icône est censée être posée sur
+ *     le fond solide du toast. Notre background-color blanc neutralisait le
+ *     noBackground de l'IconButton → blanc sur blanc, 1:1. La croix ne
+ *     réapparaissait qu'au survol, quand le :not(:hover) de Compound cesse.
+ *  2. Les autres IconButton secondary (mx_Toast_closebutton, en-têtes de BaseCard)
+ *     perdaient leur fond --cpd-color-bg-subtle-secondary.
+ * La classe racine de IconButton est .icon-button ; elle est hashée à la
+ * compilation (ex. _icon-button_1215g_8) mais la sous-chaîne reste stable, d'où le
+ * sélecteur en [class*=]. */
 @layer compound-web {
-    [data-kind="secondary"]:not([aria-disabled="true"]) {
+    [data-kind="secondary"]:not([aria-disabled="true"], [class*="icon-button"], [class*="destructive"]) {
         border-color: var(--cpd-color-indigo-900);
         color: var(--cpd-color-indigo-900);
         background-color: var(--cpd-color-bg-canvas-default);
-    }
 
-    [data-kind="secondary"]:not([aria-disabled="true"]) > svg {
-        color: var(--cpd-color-indigo-900);
-    }
+        & > svg {
+            color: var(--cpd-color-indigo-900);
+        }
 
-    /* Survol / activation : indigo plus soutenu + léger fond indigo (feedback). */
-    [data-kind="secondary"]:not([aria-disabled="true"]):hover,
-    [data-kind="secondary"]:not([aria-disabled="true"]):active,
-    [data-kind="secondary"]:not([aria-disabled="true"])[aria-expanded="true"] {
-        border-color: var(--cpd-color-indigo-1000);
-        background-color: var(--cpd-color-indigo-100);
+        /* Survol / activation : indigo plus soutenu + léger fond indigo (feedback). */
+        &:hover,
+        &:active,
+        &[aria-expanded="true"] {
+            border-color: var(--cpd-color-indigo-1000);
+            background-color: var(--cpd-color-indigo-100);
+        }
     }
 }

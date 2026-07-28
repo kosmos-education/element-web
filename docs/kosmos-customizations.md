@@ -173,9 +173,22 @@ apps/web/res/themes/
 │   └── _la-bulle-overrides.pcss # surcharges sélecteurs app (fonds panneaux, partagé clair+sombre)
 └── la-bulle-dark/css/
     ├── la-bulle-dark.pcss       # entrypoint (fork de dark.pcss)
-    ├── _la-bulle-dark-overrides.pcss # identité avatars/logo/contours d'espace (sombre)
+    ├── _la-bulle-dark-vars.pcss # overrides de variables PostCSS legacy ($) du sombre
+    ├── _la-bulle-dark-overrides.pcss # identité avatars/logo/contours d'espace + contrastes (sombre)
     └── _la-bulle-tokens.pcss   # échelle indigo inversée (mode sombre)
 ```
+
+> **Attention — le mode sombre ne charge PAS les fichiers du mode clair.** `la-bulle-dark.pcss`
+> repart du dark Element par défaut et n'importe ni `_la-bulle-vars.pcss` ni
+> `_la-bulle-overrides.pcss`. Toute règle destinée au sombre doit vivre dans un fichier
+> `la-bulle-dark/`. Une règle préfixée `.cpd-theme-dark` placée dans `_la-bulle-overrides.pcss`
+> est **du code mort** : ce fichier n'est chargé que par `la-bulle-light.pcss`, où le body porte
+> `cpd-theme-light`. C'est ce piège qui avait laissé passer deux défauts de contraste en sombre
+> (retour de recette SCAT-33).
+>
+> `_la-bulle-dark-vars.pcss` doit rester importé **entre** `dark/css/_dark.pcss` (qui définit les
+> variables PostCSS) et `res/css/_components.pcss` (qui les consomme) : `postcss-import` inline les
+> fichiers dans l'ordre déclaré et la dernière définition avant usage gagne.
 
 **Palette IndigoEMS — valeurs clés :**
 
@@ -189,9 +202,14 @@ apps/web/res/themes/
 
 1. `apps/web/webpack.config.ts` — `cssThemes` : entrées `theme-la-bulle-light` et `theme-la-bulle-dark`.
 2. `apps/web/src/theme.ts` — `DEFAULT_THEME = "la-bulle-light"` ; `BUILTIN_THEMES` liste uniquement
-   les deux thèmes La Bulle (masque light/dark/high-contrast du sélecteur). `migrateThemeName()`
+   les deux thèmes La Bulle (masque light/dark du sélecteur). `migrateThemeName()`
    traduit les anciens identifiants `skolengo-*` au runtime (filet de sécurité si le réglage n'est
-   pas encore migré).
+   pas encore migré). `HIGH_CONTRAST_THEMES` est **volontairement vide** : ne pas le repeupler
+   sans variante HC La Bulle. Filtrer via `BUILTIN_THEMES` / `getOrderedThemes()` ne suffit pas —
+   `ThemeChoicePanel.makeHighContrastTheme()` ré-injecte le thème en aval via
+   `findHighContrastTheme("light")` (argument codé en dur), ce qui faisait réapparaître un bouton
+   « Contraste élevé » appliquant un thème Element natif non marqué (retour de recette SCAT-33).
+   Couvert par un test dans `ThemeChoicePanel-test.tsx`.
 3. `apps/web/src/settings/Settings.tsx` — `theme.default = "la-bulle-light"`.
 4. `apps/web/src/settings/watchers/ThemeWatcher.ts` — `themeBasedOnSystem()` route vers
    `la-bulle-dark`/`la-bulle-light` au lieu de `dark`/`light` ; `isUserOnDarkTheme()` inclut
@@ -213,7 +231,17 @@ valeur par défaut vient de `Settings.tsx` / `DEFAULT_THEME`.
   et assigne la classe `cpd-theme-light` (Compound tokens mode clair). Même logique pour `la-bulle-dark`
   → `cpd-theme-dark`.
 - Le suivi du thème système OS bascule automatiquement entre `la-bulle-light` et `la-bulle-dark`.
-- Réglages → Apparence ne propose que les deux thèmes Skolengo.
+- Réglages → Apparence ne propose que les deux thèmes La Bulle.
+- **Sur un profil vierge, c'est « S'adapter au thème du système » qui est actif**, pas
+  `la-bulle-light` : le réglage `use_system_theme` conserve le défaut upstream `true`
+  (`Settings.tsx`). `DEFAULT_THEME` ne s'applique donc qu'une fois le suivi système désactivé.
+  Le rendu reste conforme (`themeBasedOnSystem()` route vers `la-bulle-light`/`la-bulle-dark`),
+  mais le panneau Apparence affiche les deux radios `disabled` et non cochés — comportement
+  attendu, régulièrement remonté en recette (SCAT-33).
+  À noter si l'on veut un jour forcer `la-bulle-light` : `use_system_theme` a
+  `supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS` (= `[DEVICE]`), donc le poser dans
+  `setting_defaults` de `config.json` serait **silencieusement ignoré**. Il faut soit changer
+  `default` dans `Settings.tsx`, soit ajouter `SettingLevel.CONFIG` aux `supportedLevels`.
 
 **Fonds périvenche des panneaux latéraux :**
 
@@ -316,7 +344,8 @@ Paires conformes et ratios clés :
 | Nom de salon / titre en-tête | indigo-300 | ≥14:1 ✓ | indigo-300 | ≥9:1 ✓ |
 | Noms d'auteurs (timeline) | canvas blanc `#fff` | ~5,2:1 ✓ | canvas `#101317` | ~7:1 ✓ |
 | Texte secondaire (aperçus, etc.) | indigo-300 | 4,65:1 ✓ | indigo-300 sombre | 5,9:1 ✓ |
-| Heure sur bulle « moi » | indigo-400 `#dde5ff` | 5,19:1 ✓ | indigo-400 `#4135ce` | 4,51:1 ✓ |
+| Texte secondaire sur bulle « moi » (heure, « Message supprimé », « (modifié) ») | indigo-400 `#dde5ff` | 5,19:1 ✓ | green-700 `#005a43` | 4,66:1 ✓ |
+| Bulle « moi » vs fond de timeline | `#dde5ff` vs `#fff` | 1,18:1 ⚠️ | `#005a43` vs `#101317` | 2,25:1 ⚠️ |
 | Bordure chip désélectionné (crit. 3.3) | vs panneau indigo-300 | 3,12:1 ✓ | vs panneau | 4,6:1 ✓ |
 
 Notes implémentation :
@@ -326,13 +355,33 @@ Notes implémentation :
   4,5:1 sur le canvas sombre `#101317`. Les fonds d'avatar restent saturés (initiales blanches OK).
 - **Texte secondaire sombre** : override `--cpd-color-text-secondary` → `gray-1200` (`#bdc3cc`)
   scoped sur `.mx_RoomListPanel`, `.mx_RightPanel`, `.mx_SpacePanel.newUi` dans le fichier sombre.
-- **Heure sur bulle « moi »** : la bulle est indigo-400, ce qui crée un fond pastel en clair
-  (`#dde5ff`) et saturé-foncé en sombre (`#4135ce`). L'exigence s'inverse : fond clair → texte
+- **Texte secondaire sur bulle « moi »** : la bulle est indigo-400 `#dde5ff` en clair et
+  green-700 `#005a43` en sombre (cf. ci-dessous). L'exigence s'inverse : fond clair → texte
   foncé, fond sombre → texte clair. Mécanisme : repointage de `--cpd-color-text-secondary`
-  (lu par `MessageTimestampView.module.css `.content`) dans le scope
-  `.mx_EventTile[data-layout="bubble"][data-self="true"] .mx_MessageTimestamp` ; deux règles
-  qualifiées `.cpd-theme-light` / `.cpd-theme-dark` dans `_la-bulle-overrides.pcss`.
-  `gray-1000` (`#595e67`) → 5,19:1 en clair ; `gray-1200` (`#bdc3cc`) → 4,51:1 en sombre.
+  dans le scope `.mx_EventTile[data-layout="bubble"][data-self="true"]` — la **bulle entière**,
+  et non le seul `.mx_MessageTimestamp` comme avant SCAT-33. Les autres textes secondaires de la
+  bulle vivent dans `packages/shared-components` avec des classes CSS-module hashées, donc sans
+  sélecteur stable à cibler un par un ; un seul scope couvre l'heure
+  (`MessageTimestampView`), « Message supprimé » (`RedactedBodyView`) et « (modifié) »
+  (`TextualBodyView .annotation`, 12px). On repointe une variable au lieu de surcharger `color`
+  pour éviter tout conflit de spécificité avec ces classes hashées.
+  `gray-1000` (`#595e67`) → 5,19:1 en clair (`_la-bulle-overrides.pcss`) ;
+  `gray-1200` (`#bdc3cc`) → 4,66:1 en sombre (`_la-bulle-dark-overrides.pcss`).
+- **Fond de la bulle « moi » en sombre** : Element pose `green-300` `#002513`, soit 1,13:1
+  seulement avec le fond de timeline `#101317` — bulle quasi indiscernable. Relevé à `green-700`
+  `#005a43` (2,25:1) dans `_la-bulle-dark-vars.pcss`. `green-800` `#007a62` atteindrait le seuil
+  3:1 du crit. 3.3 mais ferait tomber le texte secondaire de la bulle à 2,99:1 ; `green-700` est
+  le compromis retenu. À noter que la bulle « autre » d'Element en sombre (`gray-300` `#1d1f24`)
+  est **elle aussi à 1,13:1** : le faible contraste des bulles en sombre est un comportement
+  natif d'Element, pas une spécificité La Bulle.
+- **Icônes des `IconButton` secondary (clair)** : les règles `[data-kind="secondary"]` de
+  `_la-bulle-tokens.pcss` excluent `[class*="icon-button"]` et `[class*="destructive"]`.
+  `<IconButton>` pose lui aussi `data-kind`, si bien que ces règles l'attrapaient et
+  neutralisaient son `noBackground` : sur un `Toast`, Compound force l'icône en
+  `--cpd-color-icon-on-solid-primary` (= `#ffffff` en clair) avec `!important` hors survol, d'où
+  une croix blanche sur pastille blanche, invisible au repos (SCAT-33). L'exclusion de
+  `destructive` est **explicite** et non laissée à une course à la spécificité : elle garantit le
+  rouge critique quels que soient les sélecteurs ajoutés ensuite.
   Les bulles des autres (fond gris Compound) restent non affectées.
 - En mode **clair** le texte secondaire des panneaux (4,65:1) est au seuil WCAG AA — conforme mais
   sans marge. Si une future évolution modifie le fond périvenche, à revalider.
