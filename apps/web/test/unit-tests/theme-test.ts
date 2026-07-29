@@ -196,9 +196,8 @@ describe("theme", () => {
         it("should return a list of themes", () => {
             jest.spyOn(SettingsStore, "getValue").mockReturnValue([{ name: "pink" }]);
             expect(enumerateThemes()).toEqual({
-                "light": "Light",
-                "light-high-contrast": "Light high contrast",
-                "dark": "Dark",
+                "la-bulle-light": "La Bulle",
+                "la-bulle-dark": "La Bulle Sombre",
                 "custom-pink": "pink",
             });
         });
@@ -206,9 +205,8 @@ describe("theme", () => {
         it("should be robust to malformed custom_themes values", () => {
             jest.spyOn(SettingsStore, "getValue").mockReturnValue([23] as any);
             expect(enumerateThemes()).toEqual({
-                "light": "Light",
-                "light-high-contrast": "Light high contrast",
-                "dark": "Dark",
+                "la-bulle-light": "La Bulle",
+                "la-bulle-dark": "La Bulle Sombre",
             });
         });
     });
@@ -217,8 +215,8 @@ describe("theme", () => {
         it("should return a list of themes in the correct order", () => {
             jest.spyOn(SettingsStore, "getValue").mockReturnValue([{ name: "Zebra Striped" }, { name: "Apple Green" }]);
             expect(getOrderedThemes()).toEqual([
-                { id: "light", name: "Light" },
-                { id: "dark", name: "Dark" },
+                { id: "la-bulle-light", name: "La Bulle" },
+                { id: "la-bulle-dark", name: "La Bulle Sombre" },
                 { id: "custom-Apple Green", name: "Apple Green" },
                 { id: "custom-Zebra Striped", name: "Zebra Striped" },
             ]);

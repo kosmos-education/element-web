@@ -6,6 +6,11 @@ exports[`<SpacePanel /> should show all activated MetaSpaces in the correct orde
     aria-label="Spaces"
     class="mx_SpacePanel collapsed newUi"
   >
+    <img
+      alt="Skolengo"
+      class="mx_SpacePanel_logo"
+      src="image-file-stub"
+    />
     <div
       class="_wrapper_bh5eg_8 mx_UserMenu"
     >
