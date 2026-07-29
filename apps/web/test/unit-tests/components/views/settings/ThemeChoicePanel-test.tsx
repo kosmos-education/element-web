@@ -44,7 +44,7 @@ describe("<ThemeChoicePanel />", () => {
         });
 
         await enableSystemTheme(false);
-        await setTheme("light");
+        await setTheme("la-bulle-light");
     });
 
     it("renders the theme choice UI", () => {
@@ -100,15 +100,31 @@ describe("<ThemeChoicePanel />", () => {
                 });
             });
 
+            // Régression SCAT-33 : getOrderedThemes() filtrait bien les thèmes à contraste
+            // élevé, mais useThemes() les ré-injectait en aval via makeHighContrastTheme(),
+            // qui appelait findHighContrastTheme("light") — toujours vrai tant que
+            // HIGH_CONTRAST_THEMES conservait une entrée. Un bouton « High contrast »
+            // appliquant un thème Element natif non marqué restait donc proposé.
+            it("should only offer the two La Bulle themes", async () => {
+                render(<ThemeChoicePanel />);
+
+                expect(screen.getByRole("radio", { name: "La Bulle" })).toBeInTheDocument();
+                expect(screen.getByRole("radio", { name: "La Bulle Sombre" })).toBeInTheDocument();
+
+                // No high contrast theme, and no Element built-in theme either
+                expect(screen.queryByRole("radio", { name: "High contrast" })).not.toBeInTheDocument();
+                expect(screen.getAllByRole("radio")).toHaveLength(2);
+            });
+
             it("should have light theme selected", async () => {
                 render(<ThemeChoicePanel />);
 
-                // We expect the light theme to be selected
-                const lightTheme = screen.getByRole("radio", { name: "Light" });
+                // We expect the La Bulle (light) theme to be selected
+                const lightTheme = screen.getByRole("radio", { name: "La Bulle" });
                 expect(lightTheme).toBeChecked();
 
                 // And the dark theme shouldn't be selected
-                const darkTheme = screen.getByRole("radio", { name: "Dark" });
+                const darkTheme = screen.getByRole("radio", { name: "La Bulle Sombre" });
                 expect(darkTheme).not.toBeChecked();
             });
 
@@ -117,20 +133,20 @@ describe("<ThemeChoicePanel />", () => {
 
                 render(<ThemeChoicePanel />);
 
-                const darkTheme = screen.getByRole("radio", { name: "Dark" });
-                const lightTheme = screen.getByRole("radio", { name: "Light" });
+                const darkTheme = screen.getByRole("radio", { name: "La Bulle Sombre" });
+                const lightTheme = screen.getByRole("radio", { name: "La Bulle" });
                 expect(darkTheme).not.toBeChecked();
 
                 // Switch to the dark theme
                 act(() => darkTheme.click());
-                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "dark");
+                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "la-bulle-dark");
 
                 // Dark theme is now selected
                 await waitFor(() => expect(darkTheme).toBeChecked());
                 // Light theme is not selected anymore
                 expect(lightTheme).not.toBeChecked();
                 // The setting should be updated
-                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "dark");
+                expect(SettingsStore.setValue).toHaveBeenCalledWith("theme", null, "device", "la-bulle-dark");
             });
         });
     });

@@ -85,6 +85,7 @@ import { UserMenuViewModel } from "../../../viewmodels/menus/UserMenuViewModel.t
 import { useMatrixClientContext } from "../../../contexts/MatrixClientContext.tsx";
 import { SDKContext } from "../../../contexts/SDKContext.ts";
 import { QuickHelp } from "./quick-help/";
+import skolengoLogo from "../../../../res/img/donut-skolengo.svg";
 
 const useSpaces = (): [Room[], MetaSpace[], Room[], SpaceKey] => {
     const invites = useEventEmitterState<Room[]>(SpaceStore.instance, UPDATE_INVITED_SPACES, () => {
@@ -463,6 +464,7 @@ const SpacePanel: React.FC = () => {
                         ref={ref}
                         aria-label={_t("common|spaces")}
                     >
+                        <img className="mx_SpacePanel_logo" src={skolengoLogo} alt="Skolengo" />
                         <UserMenu vm={userMenuVm} className="mx_UserMenu" />
                         <AccessibleButton
                             className={classNames("mx_SpacePanel_toggleCollapse", {

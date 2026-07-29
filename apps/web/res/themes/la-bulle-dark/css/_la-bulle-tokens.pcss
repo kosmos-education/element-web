@@ -1,0 +1,32 @@
+/* Tokens CSS de marque Skolengo — mode SOMBRE
+ * Le mode sombre repart du thème dark d'Element par défaut : on NE surcharge plus
+ * l'échelle indigo, ni les tokens sémantiques d'accent, ni les surfaces de panneaux.
+ * On conserve UNIQUEMENT l'identité couleur des avatars et des noms d'auteurs.
+ */
+@layer compound-tokens {
+    :root,
+    [class*="cpd-theme-"] {
+        /* ── Couleurs décoratives — noms d'auteurs (timeline) ── */
+        /* text-decorative DÉCOUPLÉS des bg-decorative en sombre : les teintes EMS-900
+         * saturées ne passent pas 4,5:1 sur le canvas dark d'Element (#101317, ~3,5:1).
+         * Ces versions éclaircies atteignent ≈ 7:1 sur #101317 (RGAA AA, crit. 3.2 ✓). */
+        --cpd-color-text-decorative-1: #b58cf8; /* PurpleEMS clair  */
+        --cpd-color-text-decorative-2: #66b17e; /* GreenEMS clair   */
+        --cpd-color-text-decorative-3: #6aaacd; /* CyanEMS clair    */
+        --cpd-color-text-decorative-4: #dd8787; /* RedEMS clair     */
+        --cpd-color-text-decorative-5: #ab9f59; /* YellowEMS clair  */
+        --cpd-color-text-decorative-6: #ce976a; /* OrangeEMS clair  */
+
+        /* ── Fonds d'avatar (cercle/carré imageless) — identiques au mode clair ── */
+        /* Fonds pleins/saturés EMS + initiales blanches (forcées via --cpd-avatar-color
+         * dans _la-bulle-dark-overrides.pcss). Volontairement différents des
+         * text-decorative ci-dessus (découplage bg/text) pour garder les initiales
+         * blanches lisibles tout en assurant les noms d'auteur. */
+        --cpd-color-bg-decorative-1: #8440f3; /* Purple  */
+        --cpd-color-bg-decorative-2: #007d28; /* Green   */
+        --cpd-color-bg-decorative-3: #0672ac; /* Cyan    */
+        --cpd-color-bg-decorative-4: #c63737; /* Red     */
+        --cpd-color-bg-decorative-5: #7d6b00; /* Yellow/olive */
+        --cpd-color-bg-decorative-6: #ae5206; /* Orange  */
+    }
+}

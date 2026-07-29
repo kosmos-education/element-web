@@ -1,0 +1,154 @@
+/* Tokens CSS de marque Skolengo — mode CLAIR
+ * Définit l'échelle IndigoEMS (100=clair → 1400=foncé) et repointe les tokens
+ * sémantiques d'accent de la palette green (défaut Compound) vers indigo.
+ * Injecté dans la couche compound-tokens pour gagner sur les tokens Compound importés
+ * (même mécanisme que generateCustomCompoundCSS dans theme.ts).
+ */
+@layer compound-tokens {
+    :root,
+    [class*="cpd-theme-"] {
+        /* ── Échelle IndigoEMS — mode clair (100=plus clair, 1400=plus foncé) ── */
+        --cpd-color-indigo-100: #fafbff;
+        --cpd-color-indigo-200: #f6f8ff;
+        --cpd-color-indigo-300: #edf1ff;
+        --cpd-color-indigo-400: #dde5ff;
+        --cpd-color-indigo-500: #c4d0ff;
+        --cpd-color-indigo-600: #b2c0ff;
+        --cpd-color-indigo-700: #98a6ff;
+        --cpd-color-indigo-800: #747aff;
+        --cpd-color-indigo-900: #5851fb;
+        --cpd-color-indigo-1000: #4c41e6;
+        --cpd-color-indigo-1100: #4135ce;
+        --cpd-color-indigo-1200: #3425ac;
+        --cpd-color-indigo-1300: #241782;
+        --cpd-color-indigo-1400: #170c5c;
+
+        /* ── Tokens sémantiques d'accent → indigo (vert conservé pour le succès) ── */
+
+        /* Boutons primaires + pastilles de filtre actives (ChatFilter[aria-selected])
+         * → indigo (par défaut gray-1400/noir dans Compound) */
+        --cpd-color-bg-action-primary-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-action-primary-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-action-primary-pressed: var(--cpd-color-indigo-1100);
+        /* disabled laissé au gris Compound : sémantique "indisponible" */
+
+        /* Salon sélectionné + survol des tuiles de salon → périvenche */
+        --cpd-color-bg-action-tertiary-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-action-tertiary-hovered: var(--cpd-color-indigo-200);
+
+        /* Fonds de boutons/badges d'accent */
+        --cpd-color-bg-accent-rest: var(--cpd-color-indigo-900);
+        --cpd-color-bg-accent-hovered: var(--cpd-color-indigo-1000);
+        --cpd-color-bg-accent-pressed: var(--cpd-color-indigo-1100);
+        --cpd-color-bg-accent-selected: var(--cpd-color-indigo-300);
+        --cpd-color-bg-badge-accent: var(--cpd-color-indigo-400);
+
+        /* Texte d'accent */
+        --cpd-color-text-action-accent: var(--cpd-color-indigo-1100);
+        --cpd-color-text-badge-accent: var(--cpd-color-indigo-1100);
+
+        /* Icônes et bordures d'accent */
+        --cpd-color-icon-accent-primary: var(--cpd-color-indigo-1000);
+        --cpd-color-icon-accent-tertiary: var(--cpd-color-indigo-800);
+        --cpd-color-border-accent-subtle: var(--cpd-color-indigo-700);
+
+        /* Dégradé d'action (avatar gradient, etc.) */
+        --cpd-color-gradient-action-stop1: var(--cpd-color-indigo-800);
+        --cpd-color-gradient-action-stop2: var(--cpd-color-indigo-1000);
+        --cpd-color-gradient-action-stop3: var(--cpd-color-indigo-1100);
+        --cpd-color-gradient-action-stop4: var(--cpd-color-indigo-1300);
+
+        /* ── Surfaces teintées périvenche ── */
+        /* subtle-primary : fonds de panneaux (droite, header…) ≈ #edf1ff */
+        --cpd-color-bg-subtle-primary: var(--cpd-color-indigo-300);
+        /* subtle-secondary : surface encore plus légère */
+        --cpd-color-bg-subtle-secondary: var(--cpd-color-indigo-200);
+
+        /* ── Variables de marque découplées par mode (cf. _skolengo-overrides.pcss
+         * et _skolengo-vars.pcss). En clair, elles reprennent EXACTEMENT les valeurs
+         * historiques → rendu clair inchangé. Le fichier de tokens sombre les abaisse. */
+        --skolengo-bubble-self-bg: var(--cpd-color-indigo-400); /* #dde5ff — bulle « moi » */
+        --skolengo-panel-bg: var(--cpd-color-indigo-300); /* #edf1ff — listes / panneau droit / left */
+        --skolengo-spacepanel-bg: var(--cpd-color-indigo-400); /* #dde5ff — barre d'espaces */
+
+        /* ── Couleurs décoratives (noms d'expéditeurs, avatars) ── */
+        /* Correspondent aux couleurs observées dans les maquettes, issus des EMS-900 */
+        --cpd-color-text-decorative-1: #8440f3; /* PurpleEMS-900  */
+        --cpd-color-text-decorative-2: #007d28; /* GreenEMS-900   */
+        --cpd-color-text-decorative-3: #0672ac; /* CyanEMS-900    */
+        --cpd-color-text-decorative-4: #c63737; /* RedEMS-900     */
+        --cpd-color-text-decorative-5: #7d6b00; /* Rust/Yellow-900 */
+        --cpd-color-text-decorative-6: #ae5206; /* OrangeEMS-900  */
+
+        /* Fonds d'avatar (cercle imageless) — identiques aux text-decorative ci-dessus
+         * (fonds pleins/saturés = initiales blanches, lisibles en light et dark).
+         * Les --cpd-color-text-decorative-* sont conservés pour les noms d'auteurs
+         * dans la timeline, qui doivent rester colorés. Les initiales blanches sont
+         * forcées séparément via --cpd-avatar-color dans _skolengo-overrides.pcss. */
+        --cpd-color-bg-decorative-1: #8440f3; /* Purple  */
+        --cpd-color-bg-decorative-2: #007d28; /* Green   */
+        --cpd-color-bg-decorative-3: #0672ac; /* Cyan    */
+        --cpd-color-bg-decorative-4: #c63737; /* Red     */
+        --cpd-color-bg-decorative-5: #7d6b00; /* Yellow/olive */
+        --cpd-color-bg-decorative-6: #ae5206; /* Orange  */
+    }
+}
+
+/* ── Boutons secondary (Compound) → identité indigo ─────────────────────────────
+ * Objectif : contour, icône et texte indigo sur fond blanc. Compound stylise le
+ * secondary en gris neutre (border-interactive-secondary + text/icon-primary) →
+ * l'état actif se distingue mal de l'état désactivé (ex. « + Inviter » du
+ * memberListPanel).
+ *
+ * On écrit dans le layer compound-web (PAS app-web), depuis ce fichier de tokens
+ * importé APRÈS @vector-im/compound-web (cf. ordre des @import de la-bulle-light.pcss :
+ * _compound.pcss puis _skolengo-tokens.pcss). Dans un même layer, à spécificité
+ * ÉGALE la source la plus tardive gagne → cela préserve automatiquement les cas
+ * plus spécifiques de Compound :
+ *  - secondary normal        : nos règles battent le style de base Compound
+ *    (.button[data-kind] = 0,2,0, déclaré avant) → indigo.
+ *  - secondary destructive   : exclu explicitement via [class*="destructive"] dans
+ *    le :not() → le rouge critique est conservé. NE PAS se contenter d'une course à
+ *    la spécificité comme avant SCAT-33 : on comptait sur .button[data-kind].destructive
+ *    (0,3,0) pour battre nos (0,2,0), ce qui casse dès qu'un sélecteur est ajouté ici.
+ *    L'exclusion est désormais explicite, donc insensible à la spécificité.
+ *    (Rappel : :not(a, b, c) prend la spécificité de son argument le plus fort, pas
+ *    leur somme → nos règles restent bien à (0,2,0).)
+ *  - désactivé               : exclu via :not([aria-disabled="true"]) → gris Compound
+ *    conservé → l'actif (indigo) tranche nettement avec l'inactif (gris).
+ *
+ * Contraste : indigo-900 #5851fb sur blanc = 5,27:1 → RGAA AA (texte) ✓.
+ *
+ * IMPORTANT — exclusion des IconButton via :not([class*="icon-button"]) (SCAT-33).
+ * <IconButton> pose lui aussi data-kind, donc ces règles l'attrapaient alors
+ * qu'elles ne visent que <Button>. Deux dégâts constatés en recette :
+ *  1. Croix de fermeture des toasts invisible. Toast.module.css force l'icône en
+ *     --cpd-color-icon-on-solid-primary (= theme-bg = #ffffff en clair) avec
+ *     !important tant qu'on ne survole pas, car l'icône est censée être posée sur
+ *     le fond solide du toast. Notre background-color blanc neutralisait le
+ *     noBackground de l'IconButton → blanc sur blanc, 1:1. La croix ne
+ *     réapparaissait qu'au survol, quand le :not(:hover) de Compound cesse.
+ *  2. Les autres IconButton secondary (mx_Toast_closebutton, en-têtes de BaseCard)
+ *     perdaient leur fond --cpd-color-bg-subtle-secondary.
+ * La classe racine de IconButton est .icon-button ; elle est hashée à la
+ * compilation (ex. _icon-button_1215g_8) mais la sous-chaîne reste stable, d'où le
+ * sélecteur en [class*=]. */
+@layer compound-web {
+    [data-kind="secondary"]:not([aria-disabled="true"], [class*="icon-button"], [class*="destructive"]) {
+        border-color: var(--cpd-color-indigo-900);
+        color: var(--cpd-color-indigo-900);
+        background-color: var(--cpd-color-bg-canvas-default);
+
+        & > svg {
+            color: var(--cpd-color-indigo-900);
+        }
+
+        /* Survol / activation : indigo plus soutenu + léger fond indigo (feedback). */
+        &:hover,
+        &:active,
+        &[aria-expanded="true"] {
+            border-color: var(--cpd-color-indigo-1000);
+            background-color: var(--cpd-color-indigo-100);
+        }
+    }
+}

@@ -1,0 +1,33 @@
+/* Thème La Bulle — mode sombre
+ * Choix produit : le mode sombre repart du thème dark d'Element PAR DÉFAUT.
+ * Contrairement au thème clair, on ne réimporte donc PAS les surcharges de marque
+ * partagées (_la-bulle-vars.pcss / _la-bulle-overrides.pcss) : accent, fonds de
+ * panneaux périvenche, filtres et noms de salons reviennent aux couleurs
+ * Compound/Element par défaut.
+ * On conserve l'identité visuelle des avatars via trois fichiers dédiés au sombre :
+ * _la-bulle-dark-overrides.pcss (initiales blanches, forme carrée, logo, contours
+ * d'espace, contraste du texte secondaire des bulles), _la-bulle-tokens.pcss
+ * (couleurs bg/text-decorative) et _la-bulle-dark-vars.pcss (variables PostCSS
+ * legacy — fond de la bulle « moi », relevé pour l'accessibilité, SCAT-33).
+ *
+ * La liste d'imports ci-dessous est identique à dark/css/dark.pcss, augmentée des
+ * trois imports La Bulle.
+ */
+@layer compound-tokens, compound-web, shared-components, app-web;
+
+@import "../../../../res/css/_font-sizes.pcss" layer(app-web);
+@import "../../light/css/_fonts.pcss" layer(app-web);
+@import "../../light/css/_light.pcss" layer(app-web);
+@import "../../dark/css/_dark.pcss" layer(app-web);
+/* Variables PostCSS redéfinies pour le sombre (bulle « moi »).
+ * Doit rester entre _dark.pcss (définit) et _components.pcss (consomme). */
+@import "_la-bulle-dark-vars.pcss";
+@import "../../light/css/_mods.pcss" layer(app-web);
+@import "../../../../res/css/_components.pcss" layer(app-web);
+/* Surcharges sélecteurs app : uniquement identité avatars (couleurs, forme), logo, contours d'espace */
+@import "_la-bulle-dark-overrides.pcss" layer(app-web);
+@import "../../../../res/css/_compound.pcss";
+/* Tokens CSS de marque La Bulle — uniquement couleurs décoratives (avatars, noms d'auteurs) */
+@import "_la-bulle-tokens.pcss";
+@import url("highlight.js/styles/atom-one-dark.min.css") layer(app-web);
+@import url("github-markdown-css/github-markdown-dark.css") layer(app-web);

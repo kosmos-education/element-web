@@ -143,3 +143,263 @@ reste inoffensive (double build) mais peut être retirée.
 ### Neutral placeholder text in the message composer
 
 Since upstream v1.12.21, the default composer placeholder keys (`composer|placeholder`, `composer|placeholder_reply`, `composer|placeholder_thread`) now explicitly mention "unencrypted" in their text (e.g. "Send an unencrypted message…"). To stay consistent with our goal of hiding encryption mentions, `MessageComposer.tsx` now always uses the `_encrypted` variants of those keys (`composer|placeholder_encrypted`, etc.), which carry neutral wording regardless of the room's actual encryption status. The corresponding `fr.json` overrides and the Jest unit tests (`MessageComposer-test.tsx`, `test-utils/composer.ts`) were updated accordingly.
+
+### Thème natif La Bulle (IndigoEMS)
+
+> **Renommage (SCAT-33)** : ce thème s'appelait initialement « Skolengo ». Il a été renommé en
+> **« La Bulle »** — identifiants, dossiers, fichiers `.pcss`, feuilles CSS émises et réglage
+> par défaut. Les anciens identifiants `skolengo-light` / `skolengo-dark` encore stockés côté
+> utilisateur sont migrés automatiquement (voir « Migration » plus bas). En revanche, le **logo
+> reste le donut Skolengo** (`donut-skolengo.svg`, `alt="Skolengo"`) et les variables CSS internes
+> `--skolengo-*` (invisibles) sont conservées telles quelles : « Skolengo » reste la marque ombrelle.
+
+Deux thèmes PCSS natifs ont été créés pour habiller Element aux couleurs de la marque Skolengo
+(thème « La Bulle »), sur la base de la palette **IndigoEMS** (confirmée par échantillonnage des
+maquettes de l'UI) :
+
+| Identifiant | Sélecteur affiché | Feuille CSS émise |
+|---|---|---|
+| `la-bulle-light` | La Bulle | `theme-la-bulle-light.css` |
+| `la-bulle-dark` | La Bulle Sombre | `theme-la-bulle-dark.css` |
+
+**Structure des fichiers :**
+
+```
+apps/web/res/themes/
+├── la-bulle-light/css/
+│   ├── la-bulle-light.pcss      # entrypoint (fork de light.pcss)
+│   ├── _la-bulle-vars.pcss      # overrides de variables PostCSS legacy ($)
+│   ├── _la-bulle-tokens.pcss   # échelle indigo clair + tokens --cpd-color-*
+│   └── _la-bulle-overrides.pcss # surcharges sélecteurs app (fonds panneaux, partagé clair+sombre)
+└── la-bulle-dark/css/
+    ├── la-bulle-dark.pcss       # entrypoint (fork de dark.pcss)
+    ├── _la-bulle-dark-vars.pcss # overrides de variables PostCSS legacy ($) du sombre
+    ├── _la-bulle-dark-overrides.pcss # identité avatars/logo/contours d'espace + contrastes (sombre)
+    └── _la-bulle-tokens.pcss   # échelle indigo inversée (mode sombre)
+```
+
+> **Attention — le mode sombre ne charge PAS les fichiers du mode clair.** `la-bulle-dark.pcss`
+> repart du dark Element par défaut et n'importe ni `_la-bulle-vars.pcss` ni
+> `_la-bulle-overrides.pcss`. Toute règle destinée au sombre doit vivre dans un fichier
+> `la-bulle-dark/`. Une règle préfixée `.cpd-theme-dark` placée dans `_la-bulle-overrides.pcss`
+> est **du code mort** : ce fichier n'est chargé que par `la-bulle-light.pcss`, où le body porte
+> `cpd-theme-light`. C'est ce piège qui avait laissé passer deux défauts de contraste en sombre
+> (retour de recette SCAT-33).
+>
+> `_la-bulle-dark-vars.pcss` doit rester importé **entre** `dark/css/_dark.pcss` (qui définit les
+> variables PostCSS) et `res/css/_components.pcss` (qui les consomme) : `postcss-import` inline les
+> fichiers dans l'ordre déclaré et la dernière définition avant usage gagne.
+
+**Palette IndigoEMS — valeurs clés :**
+
+- Accent vif (boutons, pastilles) : `#5851fb` (indigo-900 en mode clair)
+- Surfaces périvenche (room list, space panel, panneau droit) : `#edf1ff`/`#f6f8ff` (indigo-300/200)
+- Bulle de message propre : `#dde5ff` (indigo-400)
+- Texte d'accent (liens, texte action) : `#4135ce` (indigo-1100)
+- Barre de titre / fond d'accent foncé : `#170c5c` (indigo-1400)
+
+**Points d'enregistrement (à vérifier à chaque rebase upstream) :**
+
+1. `apps/web/webpack.config.ts` — `cssThemes` : entrées `theme-la-bulle-light` et `theme-la-bulle-dark`.
+2. `apps/web/src/theme.ts` — `DEFAULT_THEME = "la-bulle-light"` ; `BUILTIN_THEMES` liste uniquement
+   les deux thèmes La Bulle (masque light/dark du sélecteur). `migrateThemeName()`
+   traduit les anciens identifiants `skolengo-*` au runtime (filet de sécurité si le réglage n'est
+   pas encore migré). `HIGH_CONTRAST_THEMES` est **volontairement vide** : ne pas le repeupler
+   sans variante HC La Bulle. Filtrer via `BUILTIN_THEMES` / `getOrderedThemes()` ne suffit pas —
+   `ThemeChoicePanel.makeHighContrastTheme()` ré-injecte le thème en aval via
+   `findHighContrastTheme("light")` (argument codé en dur), ce qui faisait réapparaître un bouton
+   « Contraste élevé » appliquant un thème Element natif non marqué (retour de recette SCAT-33).
+   Couvert par un test dans `ThemeChoicePanel-test.tsx`.
+3. `apps/web/src/settings/Settings.tsx` — `theme.default = "la-bulle-light"`.
+4. `apps/web/src/settings/watchers/ThemeWatcher.ts` — `themeBasedOnSystem()` route vers
+   `la-bulle-dark`/`la-bulle-light` au lieu de `dark`/`light` ; `isUserOnDarkTheme()` inclut
+   `la-bulle-dark`.
+5. `apps/web/src/settings/SettingsStore.ts` — `migrateSkolengoThemeToLaBulle()` (appelée dans
+   `runMigrations`) réécrit une fois pour toutes le réglage `theme` stocké `skolengo-*` → `la-bulle-*`
+   (flag localStorage `mx_theme_skolengo_to_la_bulle_done`).
+
+**Migration :** un utilisateur ayant déjà sélectionné l'ancien thème a `theme: "skolengo-light"`
+(ou `-dark`) stocké dans ses réglages. Deux mécanismes complémentaires assurent la continuité :
+`theme.ts#migrateThemeName` (runtime, pour trouver la bonne feuille de style) et
+`SettingsStore#migrateSkolengoThemeToLaBulle` (persistante, pour que le sélecteur Apparence mette
+bien en surbrillance le thème actif). Le `config.json` déployé ne fixe pas de `default_theme` ; la
+valeur par défaut vient de `Settings.tsx` / `DEFAULT_THEME`.
+
+**Comportement :**
+
+- `setTheme` dans `theme.ts` détecte `"light"` dans le nom du thème (`la-bulle-light.includes("light")`)
+  et assigne la classe `cpd-theme-light` (Compound tokens mode clair). Même logique pour `la-bulle-dark`
+  → `cpd-theme-dark`.
+- Le suivi du thème système OS bascule automatiquement entre `la-bulle-light` et `la-bulle-dark`.
+- Réglages → Apparence ne propose que les deux thèmes La Bulle.
+- **Sur un profil vierge, c'est « S'adapter au thème du système » qui est actif**, pas
+  `la-bulle-light` : le réglage `use_system_theme` conserve le défaut upstream `true`
+  (`Settings.tsx`). `DEFAULT_THEME` ne s'applique donc qu'une fois le suivi système désactivé.
+  Le rendu reste conforme (`themeBasedOnSystem()` route vers `la-bulle-light`/`la-bulle-dark`),
+  mais le panneau Apparence affiche les deux radios `disabled` et non cochés — comportement
+  attendu, régulièrement remonté en recette (SCAT-33).
+  À noter si l'on veut un jour forcer `la-bulle-light` : `use_system_theme` a
+  `supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS` (= `[DEVICE]`), donc le poser dans
+  `setting_defaults` de `config.json` serait **silencieusement ignoré**. Il faut soit changer
+  `default` dans `Settings.tsx`, soit ajouter `SettingLevel.CONFIG` aux `supportedLevels`.
+
+**Fonds périvenche des panneaux latéraux :**
+
+Depuis la v1.12.21, la nouvelle UI (`feature_new_room_list`) code en dur
+`--cpd-color-bg-canvas-default` (blanc) sur les conteneurs latéraux via les sélecteurs
+`.mx_LeftPanel_newRoomList`, `.mx_SpacePanel.newUi`, `.mx_RoomListPanel`, `.mx_RightPanel`.
+Les variables legacy `$roomlist-bg-color` / `$spacePanel-bg-color` de `_la-bulle-vars.pcss`
+ne pilotent plus que l'ancienne UI (jamais rendue) et n'ont **aucun effet**.
+
+La correction est dans `_la-bulle-overrides.pcss` (importé depuis les deux entrypoints après
+`_components.pcss`) : on applique directement `background-color: var(--cpd-color-indigo-300)`
+sur ces sélecteurs. On ne redéfinit PAS le token global pour préserver la timeline blanche,
+la barre de recherche distincte et les en-têtes de section sticky.
+
+⚠️ **Au prochain rebase upstream** : vérifier que les sélecteurs `.mx_LeftPanel_newRoomList` /
+`.mx_SpacePanel.newUi` / `.mx_RoomListPanel` / `.mx_RightPanel` n'ont pas été renommés en amont,
+et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `background-color`
+(`apps/web/res/css/structures/_LeftPanel.pcss`).
+
+**Avatars — forme et couleurs :**
+
+Les avatars de **salons** (liste + en-tête) sont rendus en **carré arrondi** (border-radius 25 %).
+Les avatars d'auteurs dans les messages de la timeline restent **ronds**.
+La surcharge est dans `_la-bulle-overrides.pcss` via `--cpd-avatar-radius: 25% !important` sur
+les sélecteurs `.mx_RoomListItemView .mx_BaseAvatar`, `.mx_RoomHeader > *:first-child.mx_BaseAvatar`
+(avatar enfant direct — cas fréquent sans présence) et `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
+(avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée).
+
+Point technique en-tête : `WithPresenceIndicator` renvoie un **Fragment** (aucun nœud DOM) quand
+il n'y a pas de présence → l'avatar devient l'**enfant direct** de `.mx_RoomHeader`, pas un
+descendant ; d'où la nécessité des deux variantes du sélecteur.
+
+Les fonds d'avatars (`--cpd-color-bg-decorative-1..6`) utilisent les couleurs **saturées EMS-900**
+(identiques aux `text-decorative`), avec des **initiales blanches** (`--cpd-avatar-color: #fff !important`
+dans `_la-bulle-overrides.pcss`). Les `--cpd-color-text-decorative-*` sont conservés inchangés
+car ils servent à colorer les **noms d'auteurs** dans la timeline (ils ne passent pas par
+`--cpd-avatar-color`).
+
+L'avatar de l'**utilisateur courant** (haut du space panel, `UserMenu`) est rendu par Compound
+`<Avatar>` directement — sans classe `.mx_BaseAvatar`. On le cible via `.mx_UserMenu [data-color]`
+(attribut stable, survit au hash CSS module). Sans effet sur une photo uploadée.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `.mx_RoomListItemView` n'a pas été renommé,
+que `RoomAvatar` passe toujours `type="round"` pour les salons non-space, et que
+`WithPresenceIndicator` renvoie toujours un Fragment quand `presence` est null/undefined.
+
+**Noms de salons et titre d'en-tête :**
+
+- Les noms des salons dans la liste sont **plus foncés et légèrement plus gras** (`text-primary` +
+  `font-weight-medium`) via `.mx_RoomListItemView [data-testid="room-name"]` dans `_la-bulle-overrides.pcss`.
+  `data-testid="room-name"` est le seul sélecteur stable sur cet élément (la classe CSS module est hashée).
+- Le **titre du salon dans l'en-tête** (`.mx_RoomHeader_heading`) est rendu en `font-weight-bold`.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `RoomListItemContent.tsx` porte toujours
+`data-testid="room-name"` sur le div du nom du salon.
+
+**Espaces (space panel) — liseré et alignement :**
+
+Le `selectionWrapper` en mode narrow (barre repliée) reçoit `padding:1px; border:3px solid transparent`
+dans `_la-bulle-overrides.pcss`. Cela reproduit l'équilibre 4px constant (inactif : 1px pad + 3px bord
+transparent = 4px ; actif : la règle native `.mx_SpaceButton_active.mx_SpaceButton_narrow` (0,4,0) pose
+`border:3px solid $primary-content` + `padding:1px` = 4px) sans `!important`, de sorte que l'icône ne
+« danse » pas lors d'un switch d'espace.
+
+⚠️ **Au prochain rebase upstream** : vérifier que la règle native active `_SpacePanel.pcss:145-148`
+conserve `padding: var(--activeBorder-transparent-gap)` (= 1px) + `border: 3px solid`. Si la valeur
+change, l'équilibre est à recalibrer.
+
+**Filtres de la liste et pastilles de non-lus :**
+
+- Pastilles de filtre **désélectionnées** (Non-lus, Salons, Favoris, Mentions) : fond indigo-300 +
+  liseré **indigo-800** via `[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"])`.
+  La bordure indigo-800 passe 3:1 contre le panneau indigo-300 dans les deux modes (crit. 3.3 RGAA AA) :
+  clair `#747aff` vs `#edf1ff` = 3,12:1 ; sombre `#98a6ff` vs `#3425ac` = 4,6:1.
+  La pastille **sélectionnée** est déjà conforme (indigo-900 + texte blanc) via
+  `--cpd-color-bg-action-primary-rest`.
+- Pastilles de **messages non lus** : fond **indigo-900** (`--cpd-color-icon-success-primary` repointé
+  dans `[data-testid="notification-decoration"]`), texte blanc (déjà fourni par Compound via
+  `--cpd-color-text-on-solid-primary` = `theme-bg`). Ratios RGAA AA : clair = blanc sur `#5851fb` = 5,27:1 ✓ ;
+  sombre = `#101317` sur `#b2c0ff` (indigo-900 sombre) = 10,5:1 ✓. indigo-600 clair (`#b2c0ff`)
+  était insuffisant (1,77:1 — non conforme).
+
+⚠️ **Au prochain rebase upstream** : vérifier que `RoomListPrimaryFilters.tsx` porte toujours
+`data-testid="primary-filters"` et `role="option"`, et que `NotificationDecoration.tsx` porte
+toujours `data-testid="notification-decoration"`.
+
+**Accessibilité — contrastes RGAA AA (WCAG 2.1, niveau AA) :**
+
+Tous les couples texte/fond du thème Skolengo ont été audités. Seuils : texte normal ≥ 4,5:1,
+texte large/gras ≥ 3:1 (crit. 3.2), composants d'interface ≥ 3:1 (crit. 3.3).
+
+Paires conformes et ratios clés :
+
+| Élément | Fond (clair) | Ratio clair | Fond (sombre) | Ratio sombre |
+|---|---|---|---|---|
+| Initiales d'avatar | bg-decorative saturé | ~5,2:1 ✓ | bg-decorative saturé | ~5,2:1 ✓ |
+| Chip filtre sélectionné | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
+| Chip filtre désélectionné (label) | indigo-300 `#edf1ff` | 14,9:1 ✓ | indigo-300 `#3425ac` | 9,0:1 ✓ |
+| Pastille non-lus | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
+| Nom de salon / titre en-tête | indigo-300 | ≥14:1 ✓ | indigo-300 | ≥9:1 ✓ |
+| Noms d'auteurs (timeline) | canvas blanc `#fff` | ~5,2:1 ✓ | canvas `#101317` | ~7:1 ✓ |
+| Texte secondaire (aperçus, etc.) | indigo-300 | 4,65:1 ✓ | indigo-300 sombre | 5,9:1 ✓ |
+| Texte secondaire sur bulle « moi » (heure, « Message supprimé », « (modifié) ») | indigo-400 `#dde5ff` | 5,19:1 ✓ | green-700 `#005a43` | 4,66:1 ✓ |
+| Bulle « moi » vs fond de timeline | `#dde5ff` vs `#fff` | 1,18:1 ⚠️ | `#005a43` vs `#101317` | 2,25:1 ⚠️ |
+| Bordure chip désélectionné (crit. 3.3) | vs panneau indigo-300 | 3,12:1 ✓ | vs panneau | 4,6:1 ✓ |
+
+Notes implémentation :
+
+- **Noms d'auteurs en mode sombre** : `--cpd-color-text-decorative-1..6` dans
+  `la-bulle-dark/_la-bulle-tokens.pcss` sont éclaircis (découplés de `bg-decorative`) pour passer
+  4,5:1 sur le canvas sombre `#101317`. Les fonds d'avatar restent saturés (initiales blanches OK).
+- **Texte secondaire sombre** : override `--cpd-color-text-secondary` → `gray-1200` (`#bdc3cc`)
+  scoped sur `.mx_RoomListPanel`, `.mx_RightPanel`, `.mx_SpacePanel.newUi` dans le fichier sombre.
+- **Texte secondaire sur bulle « moi »** : la bulle est indigo-400 `#dde5ff` en clair et
+  green-700 `#005a43` en sombre (cf. ci-dessous). L'exigence s'inverse : fond clair → texte
+  foncé, fond sombre → texte clair. Mécanisme : repointage de `--cpd-color-text-secondary`
+  dans le scope `.mx_EventTile[data-layout="bubble"][data-self="true"]` — la **bulle entière**,
+  et non le seul `.mx_MessageTimestamp` comme avant SCAT-33. Les autres textes secondaires de la
+  bulle vivent dans `packages/shared-components` avec des classes CSS-module hashées, donc sans
+  sélecteur stable à cibler un par un ; un seul scope couvre l'heure
+  (`MessageTimestampView`), « Message supprimé » (`RedactedBodyView`) et « (modifié) »
+  (`TextualBodyView .annotation`, 12px). On repointe une variable au lieu de surcharger `color`
+  pour éviter tout conflit de spécificité avec ces classes hashées.
+  `gray-1000` (`#595e67`) → 5,19:1 en clair (`_la-bulle-overrides.pcss`) ;
+  `gray-1200` (`#bdc3cc`) → 4,66:1 en sombre (`_la-bulle-dark-overrides.pcss`).
+- **Fond de la bulle « moi » en sombre** : Element pose `green-300` `#002513`, soit 1,13:1
+  seulement avec le fond de timeline `#101317` — bulle quasi indiscernable. Relevé à `green-700`
+  `#005a43` (2,25:1) dans `_la-bulle-dark-vars.pcss`. `green-800` `#007a62` atteindrait le seuil
+  3:1 du crit. 3.3 mais ferait tomber le texte secondaire de la bulle à 2,99:1 ; `green-700` est
+  le compromis retenu. À noter que la bulle « autre » d'Element en sombre (`gray-300` `#1d1f24`)
+  est **elle aussi à 1,13:1** : le faible contraste des bulles en sombre est un comportement
+  natif d'Element, pas une spécificité La Bulle.
+- **Icônes des `IconButton` secondary (clair)** : les règles `[data-kind="secondary"]` de
+  `_la-bulle-tokens.pcss` excluent `[class*="icon-button"]` et `[class*="destructive"]`.
+  `<IconButton>` pose lui aussi `data-kind`, si bien que ces règles l'attrapaient et
+  neutralisaient son `noBackground` : sur un `Toast`, Compound force l'icône en
+  `--cpd-color-icon-on-solid-primary` (= `#ffffff` en clair) avec `!important` hors survol, d'où
+  une croix blanche sur pastille blanche, invisible au repos (SCAT-33). L'exclusion de
+  `destructive` est **explicite** et non laissée à une course à la spécificité : elle garantit le
+  rouge critique quels que soient les sélecteurs ajoutés ensuite.
+  Les bulles des autres (fond gris Compound) restent non affectées.
+- En mode **clair** le texte secondaire des panneaux (4,65:1) est au seuil WCAG AA — conforme mais
+  sans marge. Si une future évolution modifie le fond périvenche, à revalider.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `MessageTimestampView.module.css` consomme
+toujours `var(--cpd-color-text-secondary)` et que le timestamp porte la classe stable
+`.mx_MessageTimestamp` ; que la bulle « moi » reste `[data-layout="bubble"][data-self="true"]`
+(`_EventBubbleTile.pcss`).
+
+**Logo Skolengo :**
+
+Le logo (`.mx_SpacePanel_logo`, `<img>` nu 36×36) est rendu sur fond blanc circulaire via
+`.mx_SpacePanel .mx_SpacePanel_logo` avec `background-color:#fff; border-radius:50%; padding:4px;
+box-sizing:border-box`.
+
+**Itérations possibles :**
+
+- Ajouter une variante HC `la-bulle-light-hc` et l'enregistrer dans `HIGH_CONTRAST_THEMES`.
+- Remap optionnel des échelles EMS pour les états succès/erreur/info (comme dans l'ancien plan
+  `config.json`), si l'on veut aligner aussi ces palettes sur les teintes EMS exactes.
+- Les translucides `--cpd-color-alpha-*` ne sont pas teintés (impact visuel mineur).

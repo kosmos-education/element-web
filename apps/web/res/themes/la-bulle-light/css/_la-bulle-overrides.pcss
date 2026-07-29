@@ -1,0 +1,246 @@
+/* Surcharges de sélecteurs app — fonds périvenche des panneaux latéraux
+ * Partagé par la-bulle-light et la-bulle-dark.
+ *
+ * Depuis la v1.12.21, la nouvelle UI (feature_new_room_list) code en dur
+ * --cpd-color-bg-canvas-default sur ces conteneurs ; les variables legacy
+ * $roomlist-bg-color / $spacePanel-bg-color n'ont plus d'effet. On repeint
+ * directement le background-color sur les sélecteurs de conteneur.
+ *
+ * IMPORTANT : on ne redéfinit PAS --cpd-color-bg-canvas-default globalement car
+ * il est aussi utilisé par la timeline (doit rester blanche), par la barre de
+ * recherche (Button secondary, doit ressortir en blanc sur le périvenche) et par
+ * les en-têtes de section sticky.
+ *
+ * Les var(--cpd-color-indigo-*) s'adaptent automatiquement au mode clair/sombre
+ * via l'échelle inversée définie dans _skolengo-tokens.pcss de chaque thème.
+ */
+
+/* Fonds des panneaux découplés par mode via des variables de marque définies dans
+ * chaque _skolengo-tokens.pcss (clair = valeurs actuelles inchangées ; sombre = teintes
+ * indigo abaissées pour un rendu sobre) :
+ * - --skolengo-panel-bg      : clair indigo-300 #edf1ff / sombre indigo-200 #241782
+ * - --skolengo-spacepanel-bg : clair indigo-400 #dde5ff / sombre indigo-300 #3425ac */
+
+/* Left panel (conteneur global nouvelle UI) — possède un !important d'origine */
+.mx_LeftPanel_newRoomList {
+    background-color: var(--skolengo-panel-bg) !important;
+}
+
+/* Space panel (barre d'espaces latérale) — légèrement plus saturé que les listes */
+.mx_SpacePanel.newUi {
+    background-color: var(--skolengo-spacepanel-bg);
+}
+
+/* Room list panel (liste des salons + header + filtres) — teinte périvenche */
+.mx_RoomListPanel {
+    background-color: var(--skolengo-panel-bg);
+}
+
+/* Panneau de droite (infos salon / liste des membres) — teinte périvenche */
+.mx_RightPanel {
+    background-color: var(--skolengo-panel-bg);
+}
+
+/* ── Avatars ──────────────────────────────────────────────────────────────── */
+
+/* Initiales en blanc sur fonds décoratifs saturés — avatars avec classe mx_BaseAvatar.
+ * Ne touche PAS --cpd-color-text-decorative-* : les noms d'auteurs dans la
+ * timeline restent colorés (ils n'utilisent pas --cpd-avatar-color).
+ * !important nécessaire : .avatar[data-color] (0,2,0) bat .mx_BaseAvatar (0,1,0). */
+.mx_BaseAvatar {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatar de l'utilisateur courant (UserMenu, haut du space panel).
+ * Ce composant utilise Compound <Avatar> directement (sans mx_BaseAvatar).
+ * On cible [data-color] qui est stable (survit au hash CSS module).
+ * Sans effet sur une photo uploadée (pas d'initiale dans ce cas).
+ * Seul l'avatar déclencheur (36px, resté dans .mx_UserMenu) est couvert ici. */
+.mx_UserMenu [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatar dans le portail d'un menu Compound (ex. modale UserMenu au clic sur l'avatar).
+ * Le contenu du <Menu> Compound est rendu hors de .mx_UserMenu via un portail Radix
+ * (<div role="menu"> attaché à document.body) → la règle ci-dessus ne l'atteint pas.
+ * On force ici l'initiale en blanc sur le fond décoratif saturé (Skolengo).
+ * Sans effet sur une photo uploadée. */
+[role="menu"] [data-color] {
+    --cpd-avatar-color: #fff !important;
+}
+
+/* Avatars de SALONS en carré arrondi — liste, avatar de l'en-tête et room summary panel.
+ * On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
+ * .mx_RoomAvatarView QUE si l'avatar a une décoration ; sinon <RoomAvatar> nu.
+ * En-tête : WithPresenceIndicator renvoie un Fragment (sans nœud DOM) quand
+ * il n'y a pas de présence → l'avatar est l'enfant DIRECT de .mx_RoomHeader.
+ * On couvre les deux cas : enfant direct ET descendant du wrapper de présence.
+ * Room summary panel : <RoomAvatar size="80px"> nu dans .mx_RoomSummaryCard_container ;
+ * RoomAvatar n'envoie "square" que pour les Espaces → sans cette règle le salon
+ * resterait rond.
+ * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
+ * descendants sans !important. */
+.mx_RoomListItemView .mx_BaseAvatar,
+.mx_RoomHeader > *:first-child.mx_BaseAvatar,
+.mx_RoomHeader > *:first-child .mx_BaseAvatar,
+.mx_RoomSummaryCard_container .mx_BaseAvatar {
+    --cpd-avatar-radius: 25% !important;
+}
+
+/* Espaces (barre de gauche) : contour intégré à la couleur de chaque espace.
+ * Logique native : inactif = padding 4px, actif = padding 1px + border 3px = 4px.
+ * On pose padding:1px + border 3px pour conserver le total (4px) inactif/actif.
+ * Bordure : rgba(0,0,0,.25) — semi-transparent noir ; comme background-clip vaut
+ * border-box, le fond coloré du selectionWrapper transparaît sous la bordure →
+ * résultat : couleur de l'espace assombrie de ~25 %, sans saut d'alignement.
+ * Les 6 règles :has() posent le fond selon data-color de l'avatar (Compound Avatar
+ * pose toujours data-color="N" sur .mx_BaseAvatar, N ∈ 1..6).
+ * La règle native active (spécificité 0,4,0, sans !important) continue de prendre
+ * le dessus pour border-color → le liseré de sélection reste visible.
+ * On N'utilise PAS !important afin de ne pas bloquer la règle active native. */
+.mx_SpacePanel .mx_SpaceButton_narrow .mx_SpaceButton_selectionWrapper {
+    padding: 1px;
+    border: 3px solid transparent;
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="1"]) {
+    background-color: var(--cpd-color-bg-decorative-1);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="2"]) {
+    background-color: var(--cpd-color-bg-decorative-2);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="3"]) {
+    background-color: var(--cpd-color-bg-decorative-3);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="4"]) {
+    background-color: var(--cpd-color-bg-decorative-4);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="5"]) {
+    background-color: var(--cpd-color-bg-decorative-5);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+.mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="6"]) {
+    background-color: var(--cpd-color-bg-decorative-6);
+    border: 3px solid rgba(0,0,0,.25);
+}
+
+/* ── Recherche du room summary panel ──────────────────────────────────────── */
+
+/* Champ de recherche du room summary panel homogénéisé en blanc, comme celui de
+ * la liste des salons (RoomListSearchView = Button secondary → fond
+ * --cpd-color-bg-canvas-default).
+ * Le Compound <Search> ne pose aucun background → il laisse voir le périvenche du
+ * .mx_RightPanel (--skolengo-panel-bg). On repeint le fond blanc sur la pastille
+ * elle-même (le <label>.search, porteur de la classe stable .mx_no_textinput passée
+ * en className) pour respecter son border-radius ; l'<input> interne a
+ * background:inherit → il devient blanc lui aussi.
+ * Light uniquement : --cpd-color-bg-canvas-default = blanc en clair et n'est jamais
+ * redéfini globalement (cf. entête de fichier) → même source de blanc que la room list. */
+.mx_RoomSummaryCard_search .mx_no_textinput {
+    background-color: var(--cpd-color-bg-canvas-default);
+}
+
+/* ── Menubar du room summary panel : fond des items transparent ─────────────── */
+
+/* Les MenuItem/ToggleMenuItem Compound ont un fond BLANC au repos
+ * (--cpd-color-bg-action-secondary-rest = theme-bg = #fff), qui ressort en blanc
+ * sur le panneau périvenche. On repointe, dans le seul scope du menubar :
+ *
+ *  1. le fond de repos → transparent : les items se fondent dans le panneau ;
+ *  2. le fond de hover → indigo-400 (#dde5ff) : le hover Compound par défaut
+ *     (alpha-gray à 4 % d'opacité) est quasi imperceptible sur le périvenche ; une
+ *     teinte indigo douce le rend visible et reste dans l'identité de marque ;
+ *  3. le texte secondaire → gray-1000 (#595e67) : les compteurs / nav-hints
+ *     (text-secondary = gray-900) tombaient à ~4,4:1 sur le hover indigo ; gray-1000
+ *     les remonte à ≥ 5:1.
+ *
+ * L'état critique (report/leave) garde son hover rouge (--cpd-color-bg-critical-subtle,
+ * token distinct) ; l'état pressé garde le token pressed Compound.
+ *
+ * Contrastes RGAA AA (mode clair) :
+ *  - labels (text-primary #1b1d22)  : ~15:1 (repos) / ~13:1 (hover indigo-400) ✓
+ *  - secondaire (gray-1000 #595e67) : ~5,8:1 (repos) / ~5,2:1 (hover indigo-400) ✓ */
+.mx_RoomSummaryCard [role="menubar"] {
+    --cpd-color-bg-action-secondary-rest: transparent;
+    --cpd-color-bg-action-secondary-hovered: var(--cpd-color-indigo-400);
+    --cpd-color-text-secondary: var(--cpd-color-gray-1000);
+}
+
+/* Pastilles de filtre désélectionnées (Non-lus, Salons, Favoris, Mentions).
+ * Compound ChatFilter : désélectionné = fond transparent, bord gris, texte sombre.
+ * La classe CSS module est hashée → sélecteurs stables data-testid + role/aria.
+ * Sélectionné : déjà indigo-900 + texte blanc via --cpd-color-bg-action-primary-rest.
+ * Bordure indigo-800 : ≥ 3:1 contre panneau indigo-300 dans les 2 modes (RGAA crit. 3.3).
+ * clair #747aff vs #edf1ff = 3,12:1 ✓ ; sombre #98a6ff vs #3425ac = 4,6:1 ✓. */
+[data-testid="primary-filters"] [role="option"]:not([aria-selected="true"]) {
+    background-color: var(--cpd-color-indigo-300);
+    border-color: var(--cpd-color-indigo-800);
+}
+
+/* ── Pastilles de messages non lus ────────────────────────────────────────── */
+
+/* UnreadCounter Compound : fond --cpd-color-icon-success-primary (vert) → indigo-900.
+ * Texte --cpd-color-text-on-solid-primary = blanc en clair (theme-bg = #fff → 5,27:1 ✓),
+ * sombre = #101317 sur #b2c0ff (indigo-900 dark) → 10,5:1 ✓. RGAA AA conforme.
+ * indigo-600 clair (#b2c0ff) était insuffisant (1,77:1 — non conforme RGAA AA). */
+[data-testid="notification-decoration"] {
+    --cpd-color-icon-success-primary: var(--cpd-color-indigo-900);
+}
+
+/* ── Logo Skolengo ────────────────────────────────────────────────────────── */
+
+/* Logo Skolengo sur fond blanc : l'<img> est posé nu sur le space panel indigo-400.
+ * box-sizing:border-box préserve l'emprise 36×36 existante malgré le padding. */
+.mx_SpacePanel .mx_SpacePanel_logo {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* ── Liste des salons ─────────────────────────────────────────────────────── */
+
+/* Nom du salon : plus foncé et légèrement plus gras (maquette).
+ * data-testid="room-name" est le seul sélecteur stable sur cet élément
+ * (la classe CSS module est hashée à la compilation). */
+.mx_RoomListItemView [data-testid="room-name"] {
+    color: var(--cpd-color-text-primary);
+    font-weight: var(--cpd-font-weight-medium);
+}
+
+/* ── Texte secondaire sur les bulles « moi » ─────────────────────────────── */
+
+/* La bulle « moi » est en périvenche pâle (#dde5ff) en clair. Tous les textes
+ * secondaires qu'elle contient consomment --cpd-color-text-secondary (gray-900
+ * #656d77), qui ne donne que 4,17:1 sur ce fond → échec RGAA AA (seuil 4,5:1).
+ *
+ * On repointe la variable sur la bulle ENTIÈRE, et non sur le seul timestamp :
+ * les autres textes secondaires vivent dans packages/shared-components avec des
+ * classes CSS-module hashées, donc sans sélecteur stable à cibler un par un.
+ * Un seul scope couvre (retour de recette SCAT-33) :
+ *   - .mx_MessageTimestamp                       (heure)
+ *   - RedactedBodyView .content                  (« Message supprimé »)
+ *   - TextualBodyView .annotation/.editedMarker  (« (modifié) », 12px)
+ *
+ * Technique : repoint de variable plutôt que surcharge de `color`, pour ne pas
+ * entrer en conflit de spécificité avec les classes modules hashées.
+ *
+ * Ratio RGAA AA (texte normal, seuil 4,5:1) :
+ *   gray-1000 #595e67 sur #dde5ff = 5,19:1 ✓
+ *
+ * Le pendant sombre vit dans la-bulle-dark/css/_la-bulle-dark-overrides.pcss :
+ * ce fichier-ci n'est chargé que par la-bulle-light.pcss, une règle préfixée
+ * .cpd-theme-dark y serait morte (c'était le cas avant SCAT-33).
+ * Les bulles des autres (fond gris Compound) restent non affectées. */
+.mx_EventTile[data-layout="bubble"][data-self="true"] {
+    --cpd-color-text-secondary: var(--cpd-color-gray-1000); /* #595e67 → 5,19:1 sur #dde5ff */
+}

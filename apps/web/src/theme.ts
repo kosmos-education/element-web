@@ -23,15 +23,37 @@ import "@fontsource/fira-code/latin-700.css";
 
 import { logger } from "matrix-js-sdk/src/logger";
 
-import { _t } from "./languageHandler";
 import SettingsStore from "./settings/SettingsStore";
 import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 import { FontWatcher } from "./settings/watchers/FontWatcher";
 
-export const DEFAULT_THEME = "light";
-const HIGH_CONTRAST_THEMES: Record<string, string> = {
-    light: "light-high-contrast",
+export const DEFAULT_THEME = "la-bulle-light";
+/* Aucune variante « contraste élevé » n'est exposée : seuls les deux thèmes La Bulle
+ * sont sélectionnables (cf. BUILTIN_THEMES). L'entrée `light` a été retirée (SCAT-33) :
+ * elle rendait `findHighContrastTheme("light")` toujours vrai, et ThemeChoicePanel
+ * ré-injecte le thème HC via ce lookup — en aval du filtrage de getOrderedThemes() —
+ * ce qui faisait réapparaître un bouton « Contraste élevé » appliquant un thème
+ * Element natif non marqué. Ne pas repeupler cette table sans variante HC La Bulle. */
+const HIGH_CONTRAST_THEMES: Record<string, string> = {};
+
+/**
+ * Anciens identifiants de thème renommés (SCAT-33). Utilisé pour migrer à la volée
+ * une valeur héritée « skolengo-* » vers « la-bulle-* » afin que la feuille de style
+ * correspondante soit trouvée. La migration persistante du réglage utilisateur est
+ * faite une fois pour toutes dans SettingsStore.runMigrations.
+ */
+const LEGACY_THEME_RENAMES: Record<string, string> = {
+    "skolengo-light": "la-bulle-light",
+    "skolengo-dark": "la-bulle-dark",
 };
+
+/**
+ * Traduit un ancien identifiant de thème vers son nouvel identifiant, ou renvoie
+ * la valeur inchangée si ce n'est pas un identifiant hérité.
+ */
+export function migrateThemeName(theme: string): string {
+    return LEGACY_THEME_RENAMES[theme] ?? theme;
+}
 
 interface IFontFaces extends Omit<Record<(typeof allowedFontFaceProps)[number], string>, "src"> {
     src: {
@@ -87,10 +109,12 @@ export function isHighContrastTheme(theme: string): boolean {
 }
 
 export function enumerateThemes(): { [key: string]: string } {
+    // Seuls les thèmes La Bulle sont proposés dans le sélecteur d'apparence.
+    // Les thèmes natifs light/dark/high-contrast restent dans le build (pour light-custom/dark-custom)
+    // mais ne sont pas listés ici afin de ne pas apparaître dans les réglages utilisateur.
     const BUILTIN_THEMES = {
-        "light": _t("common|light"),
-        "light-high-contrast": _t("theme|light_high_contrast"),
-        "dark": _t("common|dark"),
+        "la-bulle-light": "La Bulle",
+        "la-bulle-dark": "La Bulle Sombre",
     };
     const customThemes = SettingsStore.getValue("custom_themes") || [];
     const customThemeNames: Record<string, string> = {};
@@ -323,6 +347,9 @@ export async function setTheme(theme?: string): Promise<void> {
         const themeWatcher = new ThemeWatcher();
         theme = themeWatcher.getEffectiveTheme();
     }
+    // Migre un éventuel identifiant hérité (skolengo-*) vers le nouvel identifiant (la-bulle-*)
+    // afin que la feuille de style correspondante soit trouvée pour les réglages non encore migrés.
+    theme = migrateThemeName(theme);
     clearCustomTheme();
     let stylesheetName = theme;
     if (theme.startsWith("custom-")) {
