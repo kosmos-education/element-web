@@ -38,8 +38,9 @@ describe("ThemeController", () => {
     it("returns null when value is a valid theme", () => {
         const controller = new ThemeController();
 
-        expect(controller.getValueOverride(SettingLevel.ACCOUNT, "$room:server", "dark", SettingLevel.ACCOUNT)).toEqual(
-            null,
-        );
+        // SCAT-33 : seuls les thèmes La Bulle sont énumérés, « dark » n'est plus un thème valide
+        expect(
+            controller.getValueOverride(SettingLevel.ACCOUNT, "$room:server", "la-bulle-dark", SettingLevel.ACCOUNT),
+        ).toEqual(null);
     });
 });

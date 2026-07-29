@@ -61,13 +61,13 @@ function makeGetValueAt(values: any) {
 }
 
 describe("ThemeWatcher", function () {
-    it("should choose a light theme by default", () => {
+    it("should choose the La Bulle light theme by default", () => {
         // Given no system settings
         global.matchMedia = makeMatchMedia({});
 
-        // Then getEffectiveTheme returns light
+        // Then getEffectiveTheme returns the default theme (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("light");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-light");
     });
 
     it("should choose default theme if system settings are inconclusive", () => {
@@ -119,53 +119,53 @@ describe("ThemeWatcher", function () {
         expect(themeWatcher.getEffectiveTheme()).toBe("light-high-contrast");
     });
 
-    it("should choose a light theme if system prefers it (via default)", () => {
+    it("should choose the La Bulle light theme if system prefers it (via default)", () => {
         // Given system prefers lightness, even though we did not
         // click "Use system theme" or choose a theme explicitly
         global.matchMedia = makeMatchMedia({ "(prefers-color-scheme: light)": true });
         SettingsStore.getValueAt = makeGetValueAt({});
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns light
+        // Then getEffectiveTheme returns the La Bulle light variant (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("light");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-light");
     });
 
-    it("should choose a dark theme if system prefers it (via default)", () => {
+    it("should choose the La Bulle dark theme if system prefers it (via default)", () => {
         // Given system prefers darkness, even though we did not
         // click "Use system theme" or choose a theme explicitly
         global.matchMedia = makeMatchMedia({ "(prefers-color-scheme: dark)": true });
         SettingsStore.getValueAt = makeGetValueAt({});
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns dark
+        // Then getEffectiveTheme returns the La Bulle dark variant (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("dark");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-dark");
     });
 
-    it("should choose a light theme if system prefers it (explicit)", () => {
+    it("should choose the La Bulle light theme if system prefers it (explicit)", () => {
         // Given system prefers lightness
         global.matchMedia = makeMatchMedia({ "(prefers-color-scheme: light)": true });
         SettingsStore.getValueAt = makeGetValueAt({ use_system_theme: true });
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns light
+        // Then getEffectiveTheme returns the La Bulle light variant (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("light");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-light");
     });
 
-    it("should choose a dark theme if system prefers it (explicit)", () => {
+    it("should choose the La Bulle dark theme if system prefers it (explicit)", () => {
         // Given system prefers darkness
         global.matchMedia = makeMatchMedia({ "(prefers-color-scheme: dark)": true });
         SettingsStore.getValueAt = makeGetValueAt({ use_system_theme: true });
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns dark
+        // Then getEffectiveTheme returns the La Bulle dark variant (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("dark");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-dark");
     });
 
-    it("should choose a high-contrast theme if system prefers it", () => {
+    it("should not choose a high-contrast theme even if system prefers it (light)", () => {
         // Given system prefers high contrast and light
         global.matchMedia = makeMatchMedia({
             "(prefers-contrast: more)": true,
@@ -174,12 +174,13 @@ describe("ThemeWatcher", function () {
         SettingsStore.getValueAt = makeGetValueAt({ use_system_theme: true });
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns light-high-contrast
+        // Then getEffectiveTheme returns the plain La Bulle light variant: SCAT-33 exposes
+        // no high-contrast variant, so HIGH_CONTRAST_THEMES is empty
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("light-high-contrast");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-light");
     });
 
-    it("should not choose a high-contrast theme if not available", () => {
+    it("should not choose a high-contrast theme if not available (dark)", () => {
         // Given system prefers high contrast and dark, but we don't (yet)
         // have a high-contrast dark theme
         global.matchMedia = makeMatchMedia({
@@ -189,9 +190,9 @@ describe("ThemeWatcher", function () {
         SettingsStore.getValueAt = makeGetValueAt({ use_system_theme: true });
         SettingsStore.getValue = makeGetValue({ use_system_theme: true });
 
-        // Then getEffectiveTheme returns dark
+        // Then getEffectiveTheme returns the La Bulle dark variant (SCAT-33)
         const themeWatcher = new ThemeWatcher();
-        expect(themeWatcher.getEffectiveTheme()).toBe("dark");
+        expect(themeWatcher.getEffectiveTheme()).toBe("la-bulle-dark");
     });
 
     it("should identify custom dark themes as dark", () => {
