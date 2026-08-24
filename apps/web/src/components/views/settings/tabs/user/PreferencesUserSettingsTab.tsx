@@ -157,8 +157,6 @@ export default class PreferencesUserSettingsTab extends React.Component<EmptyObj
         "useOnlyCurrentProfiles",
     ];
 
-    private static ROOM_DIRECTORY_SETTINGS: BooleanSettingKey[] = ["SpotlightSearch.showNsfwPublicRooms"];
-
     private static GENERAL_SETTINGS: BooleanSettingKey[] = [
         "promptBeforeInviteUnknownUsers",
         // Start automatically after startup (electron-only)
@@ -359,10 +357,6 @@ export default class PreferencesUserSettingsTab extends React.Component<EmptyObj
                     <SettingsSubsection heading={_t("common|moderation_and_safety")} legacy={false}>
                         <MediaPreviewAccountSettings />
                         <InviteRulesAccountSetting />
-                    </SettingsSubsection>
-
-                    <SettingsSubsection heading={_t("settings|preferences|room_directory_heading")} formWrap>
-                        {this.renderGroup(PreferencesUserSettingsTab.ROOM_DIRECTORY_SETTINGS)}
                     </SettingsSubsection>
 
                     <SettingsSubsection heading={_t("common|general")} stretchContent formWrap>
