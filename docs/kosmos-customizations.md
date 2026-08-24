@@ -38,20 +38,41 @@ people results) and removed the "start group chat" section, but the "People" ent
 search and the people results were still present.
 
 People search is now fully removed in
-`apps/web/src/components/views/dialogs/spotlight/SpotlightDialog.tsx`:
+`apps/web/src/components/views/dialogs/spotlight/SpotlightDialog.tsx`. `SCAT-14` first neutralized it
+by short-circuiting the relevant code paths; `SCAT-43` then deleted the code left behind, so the
+removal is now structural rather than guarded at runtime:
 
-- the "People" entry (`mx_SpotlightDialog_button_startChat`) is no longer rendered in the
-  "other searches" list — there is no UI path left to activate the `Filter.People` filter;
-- an initial `Filter.People` (`initialFilter` prop) is coerced to `null` so no programmatic open can
-  re-enable it (no caller currently uses it, this is a safety net);
-- the user directory / profile lookups (`useUserDirectory` / `useProfileInfo`, fed by
-  `searchPeople` / `searchProfileInfo`) are disabled — their `useDebouncedCallback` is passed `false`;
-- the `peopleSection` (existing DMs) and `suggestionsSection` (directory matches) are no longer
-  rendered.
+- `Filter.People` no longer exists in `apps/web/src/components/views/dialogs/spotlight/Filter.ts`.
+  The type system now makes a people filter unrepresentable, which replaces the previous runtime
+  safety net (an initial `Filter.People` used to be coerced to `null`);
+- the `People` and `Suggestions` members of the `Section` enum are gone, along with the member result
+  type (`IMemberResult`, `isMemberResult`, `toMemberResult`), the member result rendering and
+  `findVisibleRoomMembers`;
+- the user directory / profile lookups are no longer wired at all — the `useUserDirectory` and
+  `useProfileInfo` imports and their `useDebouncedCallback(false, …)` calls are removed. Both hooks
+  are left in the tree: they are upstream code, still covered by their own unit tests, and
+  `IProfileInfo` is referenced elsewhere;
+- the "result may be hidden" block specific to the people filter is removed, together with the
+  "copy your invite link" button (`ownInviteLink`, `copyPlaintext`, `makeUserPermalink`);
+- member sorting (`buildActivityScores` / `buildMemberScores` / `compareMembers`) and the
+  directory/profile loading spinner conditions are removed.
+
+One behavioural fix comes with this cleanup: `toRoomResult()` used to route DM rooms to
+`Section.People`, a section that `SCAT-14` had stopped rendering — a legacy DM room was therefore
+indexed but never displayed. DM rooms are now routed to `Section.Rooms`, and remain searchable by the
+other member's display name or user ID. Creating new DMs is blocked upstream, so this only concerns
+rooms that predate the block.
 
 The unit tests in `apps/web/test/unit-tests/components/views/dialogs/SpotlightDialog-test.tsx` were
-updated accordingly (people-search expectations replaced by assertions that no person is searched,
-listed or DM-ed).
+updated accordingly. The `SCAT-14` guard test asserting that an initial people filter is ignored was
+dropped (unrepresentable now that `Filter.People` is gone); the test asserting that the user directory
+is never queried is kept, without the filter prop. The three snapshots are unchanged, which confirms
+the deleted code was genuinely dead.
+
+Not covered here: the Playwright e2e specs in `apps/web/playwright/e2e/spotlight/spotlight.spec.ts`
+still exercise people search (`startDM` helper and ~8 tests) and have been stale since `SCAT-14`.
+They use their own string-based `Filter` enum from `apps/web/playwright/pages/Spotlight.ts`, so they
+are unaffected at type level by this cleanup, but they cannot pass against the customized build.
 
 ### Removing visible mentions of encryption
 
@@ -157,10 +178,10 @@ Deux thèmes PCSS natifs ont été créés pour habiller Element aux couleurs de
 (thème « La Bulle »), sur la base de la palette **IndigoEMS** (confirmée par échantillonnage des
 maquettes de l'UI) :
 
-| Identifiant | Sélecteur affiché | Feuille CSS émise |
-|---|---|---|
-| `la-bulle-light` | La Bulle | `theme-la-bulle-light.css` |
-| `la-bulle-dark` | La Bulle Sombre | `theme-la-bulle-dark.css` |
+| Identifiant      | Sélecteur affiché | Feuille CSS émise          |
+| ---------------- | ----------------- | -------------------------- |
+| `la-bulle-light` | La Bulle          | `theme-la-bulle-light.css` |
+| `la-bulle-dark`  | La Bulle Sombre   | `theme-la-bulle-dark.css`  |
 
 **Structure des fichiers :**
 

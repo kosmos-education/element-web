@@ -205,28 +205,6 @@ describe("Spotlight Dialog", () => {
                 expect(options[0].innerHTML).toContain(testPublicRoom.name);
             });
         });
-
-        // kosmos: people search is disabled — an initial People filter is ignored and yields no people
-        it("ignores an initial people filter and shows no people", async () => {
-            render(
-                <SpotlightDialog
-                    initialFilter={Filter.People}
-                    initialText={testPerson.display_name}
-                    onFinished={() => null}
-                />,
-            );
-            // search is debounced
-            jest.advanceTimersByTime(200);
-            await flushPromisesWithFakeTimers();
-
-            // the People filter chip must not be applied
-            const filterChip = document.querySelector("div.mx_SpotlightDialog_filter");
-            expect(filterChip).not.toBeInTheDocument();
-
-            // the user directory must never be queried and no person result must be listed
-            expect(mockedClient.searchUserDirectory).not.toHaveBeenCalled();
-            expect(document.querySelector("[id^='mx_SpotlightDialog_button_result_']")).not.toBeInTheDocument();
-        });
     });
 
     describe("when MSC3946 dynamic room predecessors is enabled", () => {
@@ -338,7 +316,7 @@ describe("Spotlight Dialog", () => {
             limited: false,
         });
 
-        render(<SpotlightDialog initialFilter={Filter.People} initialText="User" onFinished={() => null} />);
+        render(<SpotlightDialog initialText="User" onFinished={() => null} />);
         // search is debounced
         jest.advanceTimersByTime(200);
         await flushPromisesWithFakeTimers();

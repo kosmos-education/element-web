@@ -14,7 +14,6 @@ import {
     JoinRule,
     type MatrixClient,
     type Room,
-    RoomMember,
     RoomType,
 } from "matrix-js-sdk/src/matrix";
 import { KnownMembership } from "matrix-js-sdk/src/types";
@@ -37,7 +36,6 @@ import {
     UserProfileIcon,
     HomeIcon,
     CloseIcon,
-    LinkIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { KeyBindingAction } from "../../../../accessibility/KeyboardShortcuts";
@@ -53,10 +51,8 @@ import defaultDispatcher from "../../../../dispatcher/dispatcher";
 import { type ViewRoomPayload } from "../../../../dispatcher/payloads/ViewRoomPayload";
 import { useDebouncedCallback } from "../../../../hooks/spotlight/useDebouncedCallback";
 import { useRecentSearches } from "../../../../hooks/spotlight/useRecentSearches";
-import { useProfileInfo } from "../../../../hooks/useProfileInfo";
 import { usePublicRoomDirectory } from "../../../../hooks/usePublicRoomDirectory";
 import { useSpaceResults } from "../../../../hooks/useSpaceResults";
-import { useUserDirectory } from "../../../../hooks/useUserDirectory";
 import { getKeyBindingsManager } from "../../../../KeyBindingsManager";
 import { _t } from "../../../../languageHandler";
 import { MatrixClientPeg } from "../../../../MatrixClientPeg";
@@ -70,14 +66,9 @@ import { RoomNotificationStateStore } from "../../../../stores/notifications/Roo
 import { compareRoomsByRecency } from "../../../../utils/room/sortRoomsByRecency";
 import { SDKContextClass } from "../../../../contexts/SDKContextClass";
 import { getMetaSpaceName, MetaSpace } from "../../../../stores/spaces";
-import { DirectoryMember, type Member } from "../../../../utils/direct-messages";
 import DMRoomMap from "../../../../utils/DMRoomMap";
-import { makeUserPermalink } from "../../../../utils/permalinks/Permalinks";
-import { buildActivityScores, buildMemberScores, compareMembers } from "../../../../utils/SortMembers";
-import { copyPlaintext } from "../../../../utils/strings";
 import BaseAvatar from "../../avatars/BaseAvatar";
 import DecoratedRoomAvatar from "../../avatars/DecoratedRoomAvatar";
-import { SearchResultAvatar } from "../../avatars/SearchResultAvatar";
 import { NetworkDropdown } from "../../directory/NetworkDropdown";
 import AccessibleButton, { type ButtonEvent } from "../../elements/AccessibleButton";
 import Spinner from "../../elements/Spinner";
@@ -119,17 +110,13 @@ function getRoomTypes(filter: Filter | null): Set<RoomType | null> {
 }
 
 enum Section {
-    People,
     Rooms,
     Spaces,
-    Suggestions,
     PublicRoomsAndSpaces,
 }
 
 function filterToLabel(filter: Filter): string {
     switch (filter) {
-        case Filter.People:
-            return _t("common|people");
         case Filter.PublicRooms:
             return _t("spotlight_dialog|public_rooms_label");
         case Filter.PublicSpaces:
@@ -139,8 +126,6 @@ function filterToLabel(filter: Filter): string {
 
 function filterToIcon(filter: Filter): JSX.Element {
     switch (filter) {
-        case Filter.People:
-            return <UserProfileIcon />;
         case Filter.PublicRooms:
             return <RoomIcon />;
         case Filter.PublicSpaces:
@@ -171,14 +156,6 @@ interface IRoomResult extends IBaseResult {
     room: Room;
 }
 
-interface IMemberResult extends IBaseResult {
-    member: Member | RoomMember;
-    /**
-     * If the result is from a filtered server API then we set true here to avoid locally culling it in our own filters
-     */
-    alreadyFiltered: boolean;
-}
-
 interface IResult extends IBaseResult {
     avatar: JSX.Element;
     name: string;
@@ -186,11 +163,10 @@ interface IResult extends IBaseResult {
     onClick?(this: void): void;
 }
 
-type Result = IRoomResult | IPublicRoomResult | IMemberResult | IResult;
+type Result = IRoomResult | IPublicRoomResult | IResult;
 
 const isRoomResult = (result: any): result is IRoomResult => !!result?.room;
 const isPublicRoomResult = (result: any): result is IPublicRoomResult => !!result?.publicRoom;
-const isMemberResult = (result: any): result is IMemberResult => !!result?.member;
 
 const toPublicRoomResult = (publicRoom: IPublicRoomsChunkRoom): IPublicRoomResult => ({
     publicRoom,
@@ -210,6 +186,8 @@ const toRoomResult = (room: Room): IRoomResult => {
     const otherUserId = DMRoomMap.shared().getUserIdForRoomId(room.roomId);
 
     if (otherUserId) {
+        // kosmos: la création de DM est bloquée, mais un DM hérité doit rester trouvable :
+        // il est listé avec les salons, et cherchable par le nom de l'autre membre.
         const otherMembers = room.getMembers().filter((it) => it.userId !== myUserId);
         const query = [
             ...otherMembers.map((it) => it.name.toLowerCase()),
@@ -217,8 +195,8 @@ const toRoomResult = (room: Room): IRoomResult => {
         ].filter(Boolean);
         return {
             room,
-            section: Section.People,
-            filter: [Filter.People],
+            section: Section.Rooms,
+            filter: [],
             query,
         };
     } else if (room.isSpaceRoom()) {
@@ -236,13 +214,6 @@ const toRoomResult = (room: Room): IRoomResult => {
     }
 };
 
-const toMemberResult = (member: Member | RoomMember, alreadyFiltered: boolean): IMemberResult => ({
-    alreadyFiltered,
-    member,
-    section: Section.Suggestions,
-    filter: [Filter.People],
-    query: [member.userId.toLowerCase(), member.name.toLowerCase()].filter(Boolean),
-});
 
 export const useWebSearchMetrics = (numResults: number, queryLength: number, viaSpotlight: boolean): void => {
     useEffect(() => {
@@ -272,22 +243,6 @@ const findVisibleRooms = (cli: MatrixClient, msc3946ProcessDynamicPredecessor: b
         // TODO we may want to put invites in their own list
         return room.getMyMembership() === KnownMembership.Join || room.getMyMembership() == KnownMembership.Invite;
     });
-};
-
-const findVisibleRoomMembers = (visibleRooms: Room[], cli: MatrixClient, filterDMs = true): RoomMember[] => {
-    return Object.values(
-        visibleRooms
-            .filter((room) => !filterDMs || !DMRoomMap.shared().getUserIdForRoomId(room.roomId))
-            .reduce(
-                (members, room) => {
-                    for (const member of room.getJoinedMembers()) {
-                        members[member.userId] = member;
-                    }
-                    return members;
-                },
-                {} as Record<string, RoomMember>,
-            ),
-    ).filter((it) => it.userId !== cli.getUserId());
 };
 
 const roomAriaUnreadLabel = (room: Room, notification: RoomNotificationState): string | undefined => {
@@ -322,24 +277,14 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
     const rovingContext = useContext(RovingTabIndexContext);
     const [query, _setQuery] = useState(initialText);
     const [recentSearches, clearRecentSearches] = useRecentSearches();
-    // kosmos: people search is disabled — never honour an initial People filter
-    const [filter, setFilterInternal] = useState<Filter | null>(
-        initialFilter === Filter.People ? null : initialFilter,
-    );
+    const [filter, setFilterInternal] = useState<Filter | null>(initialFilter);
     const setFilter = useCallback((filter: Filter | null) => {
         setFilterInternal(filter);
         inputRef.current?.focus();
         scrollContainerRef.current?.scrollTo?.({ top: 0 });
     }, []);
-    const memberComparator = useMemo(() => {
-        const activityScores = buildActivityScores(cli);
-        const memberScores = buildMemberScores(cli);
-        return compareMembers(activityScores, memberScores);
-    }, [cli]);
     const msc3946ProcessDynamicPredecessor = useFeatureEnabled("feature_dynamic_room_predecessors");
 
-    const ownInviteLink = makeUserPermalink(cli.getUserId()!);
-    const [inviteLinkCopied, setInviteLinkCopied] = useState<boolean>(false);
     const trimmedQuery = useMemo(() => query.trim(), [query]);
 
     const [supportsSpaceFiltering, setSupportsSpaceFiltering] = useState(true); // assume it does until we find out it doesn't
@@ -362,8 +307,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
         search: searchPublicRooms,
         error: publicRoomsError,
     } = usePublicRoomDirectory();
-    const { loading: peopleLoading, users: userDirectorySearchResults, search: searchPeople } = useUserDirectory();
-    const { loading: profileLoading, profile, search: searchProfileInfo } = useProfileInfo();
     const searchParams: [IDirectoryOpts] = useMemo(
         () => [
             {
@@ -379,46 +322,10 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
         searchPublicRooms,
         searchParams,
     );
-    // kosmos: people search is disabled — never query the user directory or profiles
-    useDebouncedCallback(false, searchPeople, searchParams);
-    useDebouncedCallback(false, searchProfileInfo, searchParams);
 
     const possibleResults = useMemo<Result[]>(() => {
         const visibleRooms = findVisibleRooms(cli, msc3946ProcessDynamicPredecessor);
         const roomResults = visibleRooms.map(toRoomResult);
-        const userResults: IMemberResult[] = [];
-
-        // If we already have a DM with the user we're looking for, we will show that DM instead of the user themselves
-        const alreadyAddedUserIds = roomResults.reduce((userIds, result) => {
-            const userId = DMRoomMap.shared().getUserIdForRoomId(result.room.roomId);
-            if (!userId) return userIds;
-            if (result.room.getJoinedMemberCount() > 2) return userIds;
-            userIds.set(userId, result);
-            return userIds;
-        }, new Map<string, IMemberResult | IRoomResult>());
-
-        function addUserResults(users: Array<Member | RoomMember>, alreadyFiltered: boolean): void {
-            for (const user of users) {
-                // Make sure we don't have any user more than once
-                if (alreadyAddedUserIds.has(user.userId)) {
-                    const result = alreadyAddedUserIds.get(user.userId)!;
-                    if (alreadyFiltered && isMemberResult(result) && !result.alreadyFiltered) {
-                        // But if they were added as not yet filtered then mark them as already filtered to avoid
-                        // culling this result based on local filtering.
-                        result.alreadyFiltered = true;
-                    }
-                    continue;
-                }
-                const result = toMemberResult(user, alreadyFiltered);
-                alreadyAddedUserIds.set(user.userId, result);
-                userResults.push(result);
-            }
-        }
-        addUserResults(findVisibleRoomMembers(visibleRooms, cli), false);
-        addUserResults(userDirectorySearchResults, true);
-        if (profile) {
-            addUserResults([new DirectoryMember(profile)], true);
-        }
 
         return [
             ...SDKContextClass.instance.spaceStore.enabledMetaSpaces.map((spaceKey) => ({
@@ -431,17 +338,14 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                 },
             })),
             ...roomResults,
-            ...userResults,
             ...publicRooms.map(toPublicRoomResult),
         ].filter((result) => filter === null || result.filter.includes(filter));
-    }, [cli, userDirectorySearchResults, profile, publicRooms, filter, msc3946ProcessDynamicPredecessor]);
+    }, [cli, publicRooms, filter, msc3946ProcessDynamicPredecessor]);
 
     const results = useMemo<Record<Section, Result[]>>(() => {
         const results: Record<Section, Result[]> = {
-            [Section.People]: [],
             [Section.Rooms]: [],
             [Section.Spaces]: [],
-            [Section.Suggestions]: [],
             [Section.PublicRoomsAndSpaces]: [],
         };
 
@@ -452,20 +356,13 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
 
             possibleResults.forEach((entry) => {
                 if (isRoomResult(entry)) {
-                    // If the room is a DM with a user that is part of the user directory search results,
-                    // we can assume the user is a relevant result, so include the DM with them too.
-                    const userId = DMRoomMap.shared().getUserIdForRoomId(entry.room.roomId);
-                    if (!userDirectorySearchResults.some((user) => user.userId === userId)) {
-                        if (
-                            !entry.room.normalizedName?.includes(normalizedQuery) &&
-                            !entry.room.getCanonicalAlias()?.toLowerCase().includes(lcQuery) &&
-                            !entry.query?.some((q) => q.includes(lcQuery))
-                        ) {
-                            return; // bail, does not match query
-                        }
+                    if (
+                        !entry.room.normalizedName?.includes(normalizedQuery) &&
+                        !entry.room.getCanonicalAlias()?.toLowerCase().includes(lcQuery) &&
+                        !entry.query?.some((q) => q.includes(lcQuery))
+                    ) {
+                        return; // bail, does not match query
                     }
-                } else if (isMemberResult(entry)) {
-                    if (!entry.alreadyFiltered && !entry.query?.some((q) => q.includes(lcQuery))) return; // bail, does not match query
                 } else if (isPublicRoomResult(entry)) {
                     if (!entry.query?.some((q) => q.includes(lcQuery))) return; // bail, does not match query
                 } else {
@@ -482,13 +379,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                     results[entry.section].push(entry);
                 }
             });
-        } else if (filter === Filter.People) {
-            // return all results for people if no query is given
-            possibleResults.forEach((entry) => {
-                if (isMemberResult(entry)) {
-                    results[entry.section].push(entry);
-                }
-            });
         }
 
         // Sort results by most recent activity
@@ -501,19 +391,13 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                     if (!isRoomResult(a)) return -1;
 
                     return compareRoomsByRecency(a.room, b.room, myUserId);
-                } else if (isMemberResult(a) || isMemberResult(b)) {
-                    // Member results should appear just after room results
-                    if (!isMemberResult(b)) return -1;
-                    if (!isMemberResult(a)) return -1;
-
-                    return memberComparator(a.member, b.member);
                 }
                 return 0;
             });
         }
 
         return results;
-    }, [cli, trimmedQuery, filter, possibleResults, userDirectorySearchResults, memberComparator]);
+    }, [trimmedQuery, filter, cli, possibleResults]);
 
     const numResults = sum(Object.values(results).map((it) => it.length));
     useWebSearchMetrics(numResults, query.length, true);
@@ -619,7 +503,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                             {filterToLabel(Filter.PublicRooms)}
                         </Option>
                     )}
-                    {/* kosmos: people search is disabled — the People filter entry is removed */}
                     {filter === null && (
                         <Option
                             id="mx_SpotlightDialog_button_searchMessages"
@@ -673,38 +556,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                             className="mx_SpotlightDialog_result_details"
                             room={result.room}
                         />
-                    </Option>
-                );
-            }
-            if (isMemberResult(result)) {
-                return (
-                    <Option
-                        id={`mx_SpotlightDialog_button_result_${result.member.userId}`}
-                        key={`${Section[result.section]}-${result.member.userId}`}
-                        onClick={() => {
-                            onFinished();
-                        }}
-                        aria-label={
-                            result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name
-                        }
-                        aria-describedby={`mx_SpotlightDialog_button_result_${result.member.userId}_details`}
-                        disabled
-                    >
-                        <SearchResultAvatar user={result.member} size={AVATAR_SIZE} />
-                        <span
-                            className="mx_SpotlightDialog_result_name"
-                            title={
-                                result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name
-                            }
-                        >
-                            {result.member instanceof RoomMember ? result.member.rawDisplayName : result.member.name}
-                        </span>
-                        <div
-                            id={`mx_SpotlightDialog_button_result_${result.member.userId}_details`}
-                            className="mx_SpotlightDialog_result_details"
-                        >
-                            {result.member.userId}
-                        </div>
                     </Option>
                 );
             }
@@ -797,8 +648,6 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                 </Option>
             );
         };
-
-        // kosmos: people search is disabled — the People and Suggestions sections are not built
 
         let roomsSection: JSX.Element | undefined;
         if (results[Section.Rooms].length) {
@@ -939,33 +788,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
         }
 
         let hiddenResultsSection: JSX.Element | undefined;
-        if (filter === Filter.People) {
-            hiddenResultsSection = (
-                <div className="mx_SpotlightDialog_section mx_SpotlightDialog_hiddenResults" role="group">
-                    <h4>{_t("spotlight_dialog|result_may_be_hidden_privacy_warning")}</h4>
-                    <div className="mx_SpotlightDialog_otherSearches_messageSearchText">
-                        {_t("spotlight_dialog|cant_find_person_helpful_hint")}
-                    </div>
-                    <TooltipOption
-                        id="mx_SpotlightDialog_button_inviteLink"
-                        className="mx_SpotlightDialog_inviteLink"
-                        onClick={() => {
-                            setInviteLinkCopied(true);
-                            copyPlaintext(ownInviteLink);
-                        }}
-                        onTooltipOpenChange={(open) => {
-                            if (!open) setInviteLinkCopied(false);
-                        }}
-                        title={inviteLinkCopied ? _t("common|copied") : _t("action|copy")}
-                    >
-                        <span className="mx_AccessibleButton mx_AccessibleButton_hasKind mx_AccessibleButton_kind_primary_outline">
-                            <LinkIcon />
-                            {_t("spotlight_dialog|copy_link_text")}
-                        </span>
-                    </TooltipOption>
-                </div>
-            );
-        } else if (trimmedQuery && (filter === Filter.PublicRooms || filter === Filter.PublicSpaces)) {
+        if (trimmedQuery && (filter === Filter.PublicRooms || filter === Filter.PublicSpaces)) {
             hiddenResultsSection = (
                 <div className="mx_SpotlightDialog_section mx_SpotlightDialog_hiddenResults" role="group">
                     <h4>{_t("spotlight_dialog|result_may_be_hidden_warning")}</h4>
@@ -992,10 +815,8 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
             );
         }
 
-
         content = (
             <>
-                {/* kosmos: people search is disabled — people & suggestions sections are not rendered */}
                 {roomsSection}
                 {spacesSection}
                 {spaceRoomsSection}
@@ -1261,7 +1082,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                         aria-label={_t("action|search")}
                         aria-describedby="mx_SpotlightDialog_keyboardPrompt"
                     />
-                    {(publicRoomsLoading || peopleLoading || profileLoading) && <Spinner size={24} />}
+                    {publicRoomsLoading && <Spinner size={24} />}
                 </div>
 
                 <div
