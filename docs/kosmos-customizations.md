@@ -30,6 +30,76 @@ the `description` prop and the `<Button>` children were removed from the default
 The "people" filter chip is hidden via `apps/web/src/viewmodels/room-list/RoomListViewModel.ts`
 (filtered from `filterIds` alongside favourite/low-priority).
 
+### Restricting the Spotlight to the user's own rooms
+
+`SCAT-43`. The unified search used to be a general discovery tool: it could browse the public room
+directory, browse public spaces, switch the homeserver being queried (and add arbitrary ones), join a
+room by its address, and create a public room. All of that is removed — the search now only returns
+rooms the user can already reach.
+
+What it returns now:
+
+- rooms the user is a member of, invites included (`findVisibleRooms`, which additionally skips space
+  rooms so that only rooms are ever returned);
+- rooms of the active space that the user has not joined yet, via the unchanged `useSpaceResults`
+  hook ("Other rooms in <space>").
+
+Plus the unchanged conveniences: recently viewed, recent searches, and the "Messages" entry that
+hands over to message search — deliberately kept, it is not a technical feature.
+
+What was removed from `SpotlightDialog.tsx`:
+
+- the whole filter mechanism. `Filter.ts` is deleted: with both `PublicRooms` and `PublicSpaces` gone
+  the enum had no members left, so the `initialFilter` prop, the filter chip, the Backspace handler
+  that cleared it and `getRoomTypes()` all went with it. `Section` and `IBaseResult.filter`
+  disappeared too — a result is now just a room;
+- the public directory: `usePublicRoomDirectory` (deleted), the "Suggestions" section, the public
+  room result rendering with its View / Join / Ask to join button, and `PublicRoomResultDetails`
+  (deleted). `canAskToJoin()` and the `feature_ask_to_join` handling in `viewRoom()` went with them;
+- the server picker `NetworkDropdown` (deleted), and with it the only consumer of
+  `utils/DirectoryUtils.ts` (deleted);
+- the "Join <address>" section triggered by typing `#room:server`;
+- the "result may be hidden" section and its "Create a new public room" button;
+- the "Spaces" section: neither joined spaces nor the meta-spaces (Home, Favourites, People, Orphans)
+  are results any more.
+
+Outside the dialog:
+
+- `shouldShowComponent()` in `apps/web/src/customisations/helpers/UIComponents.ts` now returns `false`
+  for `UIComponent.ExploreRooms`. This is the single choke point for the "Explore rooms" button, so
+  one edit covers all four of its render sites (`RoomListSearchViewModel`, `LeftPanel`,
+  `LegacyRoomListHeader`, `LegacyRoomList`). Note that `UIComponent.*` are **not** settings — they are
+  only reachable through the Module API or this function, so putting `UIComponent.exploreRooms` in
+  `config.json` under `setting_defaults` would have had no effect;
+- `HomePage` also has an "Explore rooms" button that is not gated by that flag, but it sits in the
+  branch that is skipped whenever `embedded_pages.home_url` is configured, which is the case for our
+  deployments. It was therefore left untouched;
+- `Action.ViewRoomDirectory` is kept, but `MatrixChat` no longer forces a filter on it, so it just
+  opens the simplified search. It stays reachable from the `#/directory` route and from
+  `RoomView`'s 3pid-invite rejection path, neither of which can reach a directory any more;
+- `SpaceCreateMenu` loses its "search public spaces" button, and `OpenSpotlightPayload` is deleted:
+  with `initialFilter` gone nothing dispatched a payload any more, every caller uses
+  `dis.fire(Action.OpenSpotlight)`.
+
+Upstream i18n keys left in the catalogue although now unused: `spotlight_dialog|public_rooms_label`,
+`public_spaces_label`, `failed_querying_public_rooms`, `failed_querying_public_spaces`,
+`result_may_be_hidden_warning`, `cant_find_room_helpful_hint`, `create_new_room_button`,
+`join_button_text`, `remove_filter` and `spaces_title`. `linkifyAndSanitizeHtml` in `Linkify.ts` lost
+its only caller with `PublicRoomResultDetails`; it is tagged `@knipignore` rather than deleted, being
+a generic upstream utility.
+
+Tests: the `SpotlightDialog` suite dropped the blocks covering removed features (filters supplied or
+selected, clearing a filter, the `via` server passed when joining from the directory, the nsfw
+filter, the `/publicRooms` error state, knock rooms, and the meta-space snapshots) and gained a single
+`offers no filter entry at all` guard asserting that none of the three filter entries — people,
+public rooms, public spaces — can reappear. The three meta-space snapshots were obsolete and were
+pruned. Deleting `usePublicRoomDirectory` and `PublicRoomResultDetails` took their own suites with
+them.
+
+Not covered: the Playwright specs in `apps/web/playwright/e2e/spotlight/spotlight.spec.ts` also
+exercise the public room directory and were already stale before this change (see the note at the end
+of the previous section).
+
 ### Removing people search from the Spotlight
 
 The unified search (Spotlight) used to let users search for people in the user directory and start

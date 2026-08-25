@@ -374,7 +374,7 @@ export enum Action {
     CancelAskToJoin = "cancel_ask_to_join",
 
     /**
-     * Fired when we want to open spotlight search. Use with a OpenSpotlightPayload.
+     * Fired when we want to open spotlight search. Takes no payload.
      */
     OpenSpotlight = "open_spotlight",
 

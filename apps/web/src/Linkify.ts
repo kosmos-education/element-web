@@ -404,6 +404,10 @@ export function linkifyHtml(
  * @param dirtyString The string to linkify, and then sanitize.
  * @param [options] Options for linkifyString. Default: linkifyMatrixOptions
  * @returns HTML string
+ *
+ * kosmos: sans appelant depuis que SCAT-43 a retiré l'affichage du sujet des salons
+ * publics (PublicRoomResultDetails). Utilitaire upstream conservé tel quel.
+ * @knipignore
  */
 export function linkifyAndSanitizeHtml(
     dirtyHtml: string,

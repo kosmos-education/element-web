@@ -16,7 +16,6 @@ import React, {
     useState,
     type ChangeEvent,
     type ReactNode,
-    useEffect,
 } from "react";
 import {
     RoomType,
@@ -41,10 +40,6 @@ import withValidation from "../elements/Validation";
 import RoomAliasField from "../elements/RoomAliasField";
 import { getKeyBindingsManager } from "../../../KeyBindingsManager";
 import { KeyBindingAction } from "../../../accessibility/KeyboardShortcuts";
-import defaultDispatcher from "../../../dispatcher/dispatcher";
-import { Action } from "../../../dispatcher/actions";
-import { Filter } from "../dialogs/spotlight/Filter";
-import { type OpenSpotlightPayload } from "../../../dispatcher/payloads/OpenSpotlightPayload.ts";
 import { useSettingValue } from "../../../hooks/useSettings.ts";
 import { UIFeature } from "../../../settings/UIFeature.ts";
 import SpacePillButton from "../../structures/SpacePillButton.tsx";
@@ -214,17 +209,6 @@ const SpaceCreateMenu: React.FC<{
     const [avatar, setAvatar] = useState<File | undefined>(undefined);
     const [topic, setTopic] = useState<string>("");
 
-    const [supportsSpaceFiltering, setSupportsSpaceFiltering] = useState(true); // assume it does until we find out it doesn't
-    useEffect(() => {
-        cli.isVersionSupported("v1.4")
-            .then((supported) => {
-                return supported || cli.doesServerSupportUnstableFeature("org.matrix.msc3827.stable");
-            })
-            .then((supported) => {
-                setSupportsSpaceFiltering(supported);
-            });
-    }, [cli]);
-
     const onSpaceCreateClick = async (e: ButtonEvent): Promise<void> => {
         e.preventDefault();
         if (busy) return;
@@ -258,13 +242,6 @@ const SpaceCreateMenu: React.FC<{
         }
     };
 
-    const onSearchClick = (): void => {
-        defaultDispatcher.dispatch<OpenSpotlightPayload>({
-            action: Action.OpenSpotlight,
-            initialFilter: Filter.PublicSpaces,
-        });
-    };
-
     let body;
     if (visibility === null) {
         body = (
@@ -284,12 +261,6 @@ const SpaceCreateMenu: React.FC<{
                     description={_t("create_space|private_description")}
                     onClick={() => setVisibility(Visibility.Private)}
                 />
-
-                {supportsSpaceFiltering && (
-                    <AccessibleButton kind="primary_outline" onClick={onSearchClick}>
-                        {_t("create_space|search_public_button")}
-                    </AccessibleButton>
-                )}
             </React.Fragment>
         );
     } else {
