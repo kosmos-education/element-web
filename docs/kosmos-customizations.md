@@ -121,7 +121,9 @@ only type-checked and linted.
 The unified search (Spotlight) used to let users search for people in the user directory and start
 DMs with them. The original `SCAT-14` customization only disabled the click (`disabled` attribute on
 people results) and removed the "start group chat" section, but the "People" entry, the directory
-search and the people results were still present.
+search and the people results were still present. Ce `disabled` est devenu du code mort une fois
+les résultats « personne » supprimés ; le prop correspondant a été retiré d'`Option.tsx` en
+SCAT-44.
 
 People search is now fully removed in
 `apps/web/src/components/views/dialogs/spotlight/SpotlightDialog.tsx`. `SCAT-14` first neutralized it
@@ -173,6 +175,13 @@ Both are not configured in the server but the buttons were still there doing not
 
 The server doesn't allow this call so the loader was infinite in the right panel.
 
+En pratique, `UserInfoHeaderView.tsx` ne rend plus du tout `UserInfoHeaderVerificationView` —
+la section de vérification est retirée, pas seulement son indicateur de chargement. Les props
+`devices` et `hideVerificationSection` restent déclarées et transmises par `UserInfo.tsx` :
+elles ne servent plus à rien, mais les supprimer entraînerait la suppression en cascade du
+hook `useDevices` et de ses aides dans du code amont. On les conserve volontairement pour
+limiter l'écart avec l'amont et faciliter les rebases (choix acté en SCAT-44).
+
 ### Adding an entry directing to the FAQ
 
 In the Space Panel, we added a button directing to the FAQ set in the help_url configuration parameter.
@@ -184,6 +193,78 @@ Changing the favicon logos to ours.
 ### Adding a specific error message when uploading files
 
 When a users tries to upload a file exceeding their quota (size per week for example), the error messages now mentions it.
+
+### Masquer le toast « Vérifiez cet appareil » (SCAT-32)
+
+Le serveur n'autorise pas la vérification d'appareil : le toast invitant à vérifier la session
+est donc sans issue. `apps/web/src/device-listener/DeviceListenerCurrentDevice.ts` traite l'état
+`verify_this_session` comme « pas de toast ». À distinguer de la pill de vérification du panneau
+droit (section précédente), qui est un autre point d'affichage.
+
+⚠️ **Au prochain rebase upstream** : l'amont fait régulièrement évoluer cette campagne de
+vérification. Le test associé a été co-localisé et migré vers Vitest en v1.12.26
+(`apps/web/src/DeviceListener.test.ts`).
+
+### Relancer le SSO immédiat en soft-logout (SCAT-37)
+
+Une session soft-logout conserve son jeton (devenu inutilisable) dans le stockage local, ce qui
+laissait `hasPossibleToken = true` et neutralisait l'auto-redirection SSO
+(`sso_redirect_options.immediate`) : l'utilisateur arrivant sur `#/start_sso` depuis Skolengo
+restait bloqué sur l'écran de soft-logout. `apps/web/src/vector/app.tsx` traite désormais une
+session soft-logout comme « pas de jeton ». Tests dans `apps/web/src/vector/app.test.ts`
+(Vitest depuis la v1.12.26).
+
+### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
+
+`EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG
+(`EMBEDDED_SVG_TAGS` / `EMBEDDED_SVG_ATTRS`) et autorise `<style>`, la page embarquée étant
+fournie par l'exploitant (même niveau de confiance que `config.json`). La casse des attributs
+est préservée, sans quoi `viewBox` devient `viewbox` et le SVG ne s'affiche plus.
+
+⚠️ En v1.12.26, `sanitize-html` type `allowedTags` / `allowedAttributes` en `false | …`
+(`false` = tout autoriser) : ces options sont renormalisées avant d'être étendues.
+
+### Éviter le dialogue d'erreur au retour dans un salon
+
+Au retour dans un salon, la position de scroll sauvegardée peut cibler un événement que le
+serveur ne renvoie plus (purge, redaction), ce qui affichait un dialogue d'erreur bloquant.
+Deux garde-fous complémentaires :
+
+- `RoomView.tsx` ne restaure la position sauvegardée que si l'événement est encore connu
+  localement ;
+- `TimelinePanel.tsx` retombe silencieusement sur la live timeline lorsqu'un chargement **non
+  explicite** (non surligné) échoue. Ce repli est volontairement restreint à l'événement
+  réellement introuvable (`M_NOT_FOUND` / 404) : toute autre erreur (permission, réseau, 5xx)
+  doit rester visible. Intercepter toutes les erreurs laissait par ailleurs le panneau droit
+  monté au retour dans un salon ayant affiché un appel (constaté en v1.12.26).
+
+### Désactiver les source maps en production sans Sentry
+
+`apps/web/webpack.config.ts` ne génère de source maps en production que si `SENTRY_DSN` est
+défini, pour ne pas exposer les sources sur les déploiements Kosmos.
+
+### Restriction des langues et des écrans de paramétrage (lot 2)
+
+Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention contraire :
+
+- **SCAT-40 — masquage de l'identifiant Matrix** : un module Kosmos
+  (`modules/kosmos-customisations`, chargé au runtime via la clé `modules` de `config.json`)
+  surcharge le point d'extension `UserIdentifier` (`getDisplayUserIdentifier` → `null`).
+  Le menu utilisateur affiche un `userIdentifier` routé par cette surcharge, le `userId` réel
+  restant utilisé pour la couleur d'avatar. Le module est buildé par `docker-package.sh` et
+  copié dans `webapp/` par webpack.
+- **SCAT-41** : masquage des entrées « Associer un nouvel appareil » et « Sécurité et
+  confidentialité » du menu utilisateur.
+- **SCAT-42** : masquage d'onglets de la modale de paramétrage (`disable_settings_tabs`),
+  restriction des langues proposées (`available_languages`, filtre posé dans
+  `apps/web/src/i18n/utils.ts`), onglet Notifications limité aux 5 premières options,
+  masquage de l'URL du homeserver et du jeton d'accès, retrait du bouton « Rechercher une
+  mise à jour » et de l'option « Afficher le contenu sensible (NSFW) ».
+- **SCAT-43** : recherche restreinte aux salons accessibles (voir la section Spotlight).
+
+⚠️ **Au prochain rebase upstream** : `disable_settings_tabs` et `available_languages` sont
+déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma
+généré `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 
 ### Restoring the "Sign out" button in the user menu
 
@@ -215,6 +296,15 @@ Stories (`UserMenu.stories.tsx`) and unit tests (`UserMenu.test.tsx` snapshots,
 `apps/web/test/viewmodels/menus/UserMenuViewModel-test.ts`) were updated accordingly. Guests do not
 see the entry (`signOut` is gated on authentication).
 
+### Overrides pnpm
+
+Le fork ne porte plus aucun override pnpm propre. L'override `restore-cursor: 3.1.0`, ajouté en
+SCAT-31 pour contourner un conflit ESM/CJS qui bloquait le build nx, a été **revalidé puis retiré
+en SCAT-44** : le build des packages partagés et de l'app passe sans lui en v1.12.26
+(`NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build`, puis build de `apps/web`).
+`pnpm-workspace.yaml` est donc identique à celui de l'amont — à revérifier si un build nx
+échoue à nouveau sur un `require()` d'un module ESM.
+
 ### Build pipeline : rebuild des packages partagés
 
 Les packages sous `packages/**` (`shared-components`, `module-api`) sont consommés par
@@ -242,10 +332,14 @@ VERSION=$DIST_VERSION pnpm --dir apps/web build
 cache nx). Ce script est la **seule voie de build pour les déploiements Kosmos** (image
 Docker → Nexus pour l'intégration k8s, `.tgz` pour la prod VM).
 
+À noter : le fork ajoute bien un `^build` dans `apps/web/project.json`, mais sur le target
+**`start`** (dev-server), pas sur `build` — ce qui ne change rien au raisonnement ci-dessus.
+
 ⚠️ **Au prochain rebase upstream** : vérifier que `apps/web/project.json` n'a toujours
 pas acquis de `dependsOn: ["^build"]` sur son target `build`. Si c'est le cas, la ligne
 `NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build` dans `docker-package.sh`
 reste inoffensive (double build) mais peut être retirée.
+_Vérifié en v1.12.26 : toujours absent._
 
 ### Neutral placeholder text in the message composer
 
@@ -352,9 +446,7 @@ valeur par défaut vient de `Settings.tsx` / `DEFAULT_THEME`.
 
 **Fonds périvenche des panneaux latéraux :**
 
-Depuis la v1.12.21, la nouvelle UI (`feature_new_room_list`) code en dur
-`--cpd-color-bg-canvas-default` (blanc) sur les conteneurs latéraux via les sélecteurs
-`.mx_LeftPanel_newRoomList`, `.mx_SpacePanel.newUi`, `.mx_RoomListPanel`, `.mx_RightPanel`.
+L'UI code en dur `--cpd-color-bg-canvas-default` (blanc) sur les conteneurs latéraux.
 Les variables legacy `$roomlist-bg-color` / `$spacePanel-bg-color` de `_la-bulle-vars.pcss`
 ne pilotent plus que l'ancienne UI (jamais rendue) et n'ont **aucun effet**.
 
@@ -363,10 +455,21 @@ La correction est dans `_la-bulle-overrides.pcss` (importé depuis les deux entr
 sur ces sélecteurs. On ne redéfinit PAS le token global pour préserver la timeline blanche,
 la barre de recherche distincte et les en-têtes de section sticky.
 
-⚠️ **Au prochain rebase upstream** : vérifier que les sélecteurs `.mx_LeftPanel_newRoomList` /
-`.mx_SpacePanel.newUi` / `.mx_RoomListPanel` / `.mx_RightPanel` n'ont pas été renommés en amont,
-et que `.mx_LeftPanel_newRoomList` porte toujours un `!important` sur son `background-color`
-(`apps/web/res/css/structures/_LeftPanel.pcss`).
+**v1.12.26 — sélecteurs réancrés (SCAT-44)** : `.mx_LeftPanel_newRoomList` et
+`.mx_SpacePanel.newUi` ont disparu en amont. Les surcharges visent désormais
+`.mx_LeftPanel_roomListContainer` et `.mx_SpacePanel` (l'amont a déplacé son fond blanc
+sur `.mx_SpacePanel` lui-même et ne pose plus de fond `!important` sur le conteneur de
+la liste — d'où le retrait de notre `!important`). `.mx_RoomListPanel` et `.mx_RightPanel`
+sont inchangés.
+
+⚠️ **Au prochain rebase upstream** : vérifier que les sélecteurs
+`.mx_LeftPanel_roomListContainer` / `.mx_SpacePanel` / `.mx_RoomListPanel` /
+`.mx_RightPanel` n'ont pas été renommés, et sur quel sélecteur l'amont pose son fond
+blanc (`apps/web/res/css/structures/_LeftPanel.pcss`, `_SpacePanel.pcss`). **Ce type de
+règle ne produit jamais de conflit git : elle devient silencieusement inopérante.**
+Le contrôle rapide consiste à extraire les classes `mx_` des deux fichiers
+`*-overrides.pcss` et à vérifier que chacune existe encore dans `apps/web/src`,
+`apps/web/res/css` et `packages/shared-components/src`.
 
 **Avatars — forme et couleurs :**
 
