@@ -13,21 +13,21 @@
  * Although this feature is way simpler than the ThreadsActivityCentre,
  * inlining the button didn't feel right.
  */
-import React, {type JSX, useState} from 'react';
-import {Menu} from "@vector-im/compound-web";
+import React, { type JSX, useState } from "react";
+import { Menu } from "@vector-im/compound-web";
 
-import {_t} from "../../../../languageHandler.tsx";
+import { _t } from "../../../../languageHandler.ts";
 import ExternalLink from "../../elements/ExternalLink.tsx";
 import SdkConfig from "../../../../SdkConfig.ts";
-import {getKeyBindingsManager} from "../../../../KeyBindingsManager.ts";
-import {KeyBindingAction} from "../../../../accessibility/KeyboardShortcuts.ts";
-import {QuickHelpButton} from "./QuickHelpButton.tsx";
+import { getKeyBindingsManager } from "../../../../KeyBindingsManager.ts";
+import { KeyBindingAction } from "../../../../accessibility/KeyboardShortcuts.ts";
+import { QuickHelpButton } from "./QuickHelpButton.tsx";
 
 interface QuickHelpProps {
-    displayButtonLabel: boolean
+    displayButtonLabel: boolean;
 }
 
-export function QuickHelp({displayButtonLabel}: QuickHelpProps): JSX.Element {
+export function QuickHelp({ displayButtonLabel }: QuickHelpProps): JSX.Element {
     const [open, setOpen] = useState(false);
     const brand = SdkConfig.get().brand;
     const faqText = _t(
@@ -36,23 +36,30 @@ export function QuickHelp({displayButtonLabel}: QuickHelpProps): JSX.Element {
             brand,
         },
         {
-            a: (sub: string) => <ExternalLink href={SdkConfig.get("help_url")}>{sub}</ExternalLink>,
+            a: (sub: string) => (
+                // Fermer le menu à l'activation du lien : porté par l'ancre (donc aussi au
+                // clavier) plutôt que par le conteneur, qui n'est pas un élément interactif.
+                <ExternalLink href={SdkConfig.get("help_url")} onClick={() => setOpen(false)}>
+                    {sub}
+                </ExternalLink>
+            ),
         },
     );
 
     return (
-        <div className="mx_QuickHelp_container"
-             onKeyDown={(evt) => {
-                 // Do nothing if the Menu is closed
-                 if (!open) return;
+        <div
+            className="mx_QuickHelp_container"
+            onKeyDown={(evt) => {
+                // Do nothing if the Menu is closed
+                if (!open) return;
 
-                 const action = getKeyBindingsManager().getNavigationAction(evt);
+                const action = getKeyBindingsManager().getNavigationAction(evt);
 
-                 // Block spotlight opening
-                 if (action === KeyBindingAction.FilterRooms) {
-                     evt.stopPropagation();
-                 }
-             }}
+                // Block spotlight opening
+                if (action === KeyBindingAction.FilterRooms) {
+                    evt.stopPropagation();
+                }
+            }}
         >
             <Menu
                 align="start"
@@ -62,14 +69,12 @@ export function QuickHelp({displayButtonLabel}: QuickHelpProps): JSX.Element {
                     setOpen(newOpen);
                 }}
                 title={_t("common|help")}
-                trigger={
-                    <QuickHelpButton displayButtonLabel={displayButtonLabel} />
-                }
+                trigger={<QuickHelpButton displayButtonLabel={displayButtonLabel} />}
             >
-                <div className="mx_QuickHelp_dialog" onClick={() => setOpen(false)}>
+                <div className="mx_QuickHelp_dialog">
                     <p>{faqText}</p>
                 </div>
             </Menu>
         </div>
-    )
+    );
 }

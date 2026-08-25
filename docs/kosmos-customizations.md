@@ -442,18 +442,18 @@ texte large/gras ≥ 3:1 (crit. 3.2), composants d'interface ≥ 3:1 (crit. 3.3)
 
 Paires conformes et ratios clés :
 
-| Élément | Fond (clair) | Ratio clair | Fond (sombre) | Ratio sombre |
-|---|---|---|---|---|
-| Initiales d'avatar | bg-decorative saturé | ~5,2:1 ✓ | bg-decorative saturé | ~5,2:1 ✓ |
-| Chip filtre sélectionné | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
-| Chip filtre désélectionné (label) | indigo-300 `#edf1ff` | 14,9:1 ✓ | indigo-300 `#3425ac` | 9,0:1 ✓ |
-| Pastille non-lus | indigo-900 `#5851fb` | 5,27:1 ✓ | indigo-900 `#b2c0ff` | 10,5:1 ✓ |
-| Nom de salon / titre en-tête | indigo-300 | ≥14:1 ✓ | indigo-300 | ≥9:1 ✓ |
-| Noms d'auteurs (timeline) | canvas blanc `#fff` | ~5,2:1 ✓ | canvas `#101317` | ~7:1 ✓ |
-| Texte secondaire (aperçus, etc.) | indigo-300 | 4,65:1 ✓ | indigo-300 sombre | 5,9:1 ✓ |
-| Texte secondaire sur bulle « moi » (heure, « Message supprimé », « (modifié) ») | indigo-400 `#dde5ff` | 5,19:1 ✓ | green-700 `#005a43` | 4,66:1 ✓ |
-| Bulle « moi » vs fond de timeline | `#dde5ff` vs `#fff` | 1,18:1 ⚠️ | `#005a43` vs `#101317` | 2,25:1 ⚠️ |
-| Bordure chip désélectionné (crit. 3.3) | vs panneau indigo-300 | 3,12:1 ✓ | vs panneau | 4,6:1 ✓ |
+| Élément                                                                         | Fond (clair)          | Ratio clair | Fond (sombre)          | Ratio sombre |
+| ------------------------------------------------------------------------------- | --------------------- | ----------- | ---------------------- | ------------ |
+| Initiales d'avatar                                                              | bg-decorative saturé  | ~5,2:1 ✓    | bg-decorative saturé   | ~5,2:1 ✓     |
+| Chip filtre sélectionné                                                         | indigo-900 `#5851fb`  | 5,27:1 ✓    | indigo-900 `#b2c0ff`   | 10,5:1 ✓     |
+| Chip filtre désélectionné (label)                                               | indigo-300 `#edf1ff`  | 14,9:1 ✓    | indigo-300 `#3425ac`   | 9,0:1 ✓      |
+| Pastille non-lus                                                                | indigo-900 `#5851fb`  | 5,27:1 ✓    | indigo-900 `#b2c0ff`   | 10,5:1 ✓     |
+| Nom de salon / titre en-tête                                                    | indigo-300            | ≥14:1 ✓     | indigo-300             | ≥9:1 ✓       |
+| Noms d'auteurs (timeline)                                                       | canvas blanc `#fff`   | ~5,2:1 ✓    | canvas `#101317`       | ~7:1 ✓       |
+| Texte secondaire (aperçus, etc.)                                                | indigo-300            | 4,65:1 ✓    | indigo-300 sombre      | 5,9:1 ✓      |
+| Texte secondaire sur bulle « moi » (heure, « Message supprimé », « (modifié) ») | indigo-400 `#dde5ff`  | 5,19:1 ✓    | green-700 `#005a43`    | 4,66:1 ✓     |
+| Bulle « moi » vs fond de timeline                                               | `#dde5ff` vs `#fff`   | 1,18:1 ⚠️   | `#005a43` vs `#101317` | 2,25:1 ⚠️    |
+| Bordure chip désélectionné (crit. 3.3)                                          | vs panneau indigo-300 | 3,12:1 ✓    | vs panneau             | 4,6:1 ✓      |
 
 Notes implémentation :
 

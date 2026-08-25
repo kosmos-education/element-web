@@ -258,12 +258,7 @@ const NewRoomIntro: React.FC = () => {
         );
     }
 
-
-    return (
-        <li className="mx_NewRoomIntro">
-            {body}
-        </li>
-    );
+    return <li className="mx_NewRoomIntro">{body}</li>;
 };
 
 export default NewRoomIntro;

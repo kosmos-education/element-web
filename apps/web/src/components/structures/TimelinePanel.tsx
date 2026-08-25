@@ -1512,7 +1512,10 @@ class TimelinePanel extends React.Component<IProps, IState> {
             // pas une navigation demandée par l'utilisateur (elle n'est pas surlignée) : on
             // retombe silencieusement sur la live timeline au lieu d'un dialog bloquant.
             const wasExplicitNavigation = !!eventId && eventId === this.props.highlightedEventId;
-            if (eventId && this.props.timelineSet.room && !wasExplicitNavigation) {
+            // Ne concerne que l'événement réellement introuvable côté serveur ; toute autre
+            // erreur (permission, réseau, 5xx) doit rester visible pour l'utilisateur.
+            const eventIsGone = error.errcode === "M_NOT_FOUND" || error.httpStatus === 404;
+            if (eventId && this.props.timelineSet.room && !wasExplicitNavigation && eventIsGone) {
                 logger.warn(`Impossible de charger la position ${eventId}, retour à la live timeline`, error);
                 this.loadTimeline(); // eventId undefined → live timeline, pas d'appel /context
                 return;

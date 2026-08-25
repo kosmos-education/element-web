@@ -21,13 +21,17 @@
  * - --skolengo-panel-bg      : clair indigo-300 #edf1ff / sombre indigo-200 #241782
  * - --skolengo-spacepanel-bg : clair indigo-400 #dde5ff / sombre indigo-300 #3425ac */
 
-/* Left panel (conteneur global nouvelle UI) — possède un !important d'origine */
-.mx_LeftPanel_newRoomList {
-    background-color: var(--skolengo-panel-bg) !important;
+/* Left panel (conteneur de la liste de salons).
+ * v1.12.26 : `.mx_LeftPanel_newRoomList` a disparu au profit de
+ * `.mx_LeftPanel_roomListContainer`, et l'amont n'y pose plus de fond blanc
+ * `!important` — la surcharge n'a donc plus besoin d'`!important`. */
+.mx_LeftPanel_roomListContainer {
+    background-color: var(--skolengo-panel-bg);
 }
 
-/* Space panel (barre d'espaces latérale) — légèrement plus saturé que les listes */
-.mx_SpacePanel.newUi {
+/* Space panel (barre d'espaces latérale) — légèrement plus saturé que les listes.
+ * v1.12.26 : le fond blanc est passé de `.mx_SpacePanel.newUi` à `.mx_SpacePanel`. */
+.mx_SpacePanel {
     background-color: var(--skolengo-spacepanel-bg);
 }
 
@@ -105,32 +109,32 @@
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="1"]) {
     background-color: var(--cpd-color-bg-decorative-1);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="2"]) {
     background-color: var(--cpd-color-bg-decorative-2);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="3"]) {
     background-color: var(--cpd-color-bg-decorative-3);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="4"]) {
     background-color: var(--cpd-color-bg-decorative-4);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="5"]) {
     background-color: var(--cpd-color-bg-decorative-5);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 .mx_SpacePanel .mx_SpaceButton_active .mx_SpaceButton_selectionWrapper:has(span[data-color="6"]) {
     background-color: var(--cpd-color-bg-decorative-6);
-    border: 3px solid rgba(0,0,0,.25);
+    border: 3px solid rgba(0, 0, 0, 0.25);
 }
 
 /* ── Recherche du room summary panel ──────────────────────────────────────── */

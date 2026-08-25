@@ -539,7 +539,6 @@ export class MessageComposer extends React.Component<IProps, IState> {
     };
 
     public render(): React.ReactNode {
-
         const controls: ReactNode[] = [];
         const menuPosition = this.getMenuPosition();
 

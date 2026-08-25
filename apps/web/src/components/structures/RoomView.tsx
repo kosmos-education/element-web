@@ -46,10 +46,7 @@ import { debounce, throttle } from "lodash";
 import { CryptoEvent } from "matrix-js-sdk/src/crypto-api";
 import { type ViewRoomOpts } from "@matrix-org/react-sdk-module-api/lib/lifecycles/RoomViewLifecycle";
 import { type RoomViewProps } from "@element-hq/element-web-module-api";
-import {
-    RoomStatusBarView,
-    useCreateAutoDisposedViewModel,
-} from "@element-hq/web-shared-components";
+import { RoomStatusBarView, useCreateAutoDisposedViewModel } from "@element-hq/web-shared-components";
 
 import shouldHideEvent from "../../shouldHideEvent";
 import { _t } from "../../languageHandler";

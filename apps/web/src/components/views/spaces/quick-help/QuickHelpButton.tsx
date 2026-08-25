@@ -11,48 +11,41 @@
  *
  * Mostly copied from ThreadsActivityCentreButton.tsx
  */
-import React, {type ComponentProps, type JSX, type Ref} from "react";
-import {IconButton, Text, Tooltip} from "@vector-im/compound-web";
-import {InfoSolidIcon} from "@vector-im/compound-design-tokens/assets/web/icons";
+import React, { type ComponentProps, type JSX, type Ref } from "react";
+import { IconButton, Text, Tooltip } from "@vector-im/compound-web";
+import { InfoSolidIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 import classNames from "classnames";
 
-
-import {_t} from "../../../../languageHandler";
+import { _t } from "../../../../languageHandler";
 
 interface QuickHelpButtonProps extends ComponentProps<typeof IconButton> {
-    displayButtonLabel?: boolean,
+    displayButtonLabel?: boolean;
     ref?: Ref<HTMLButtonElement>;
 }
 
 export const QuickHelpButton = function QuickHelpButton({
-                                    displayButtonLabel,
-                                    ref,
-                                    ...props
-                                }: QuickHelpButtonProps): JSX.Element {
+    displayButtonLabel,
+    ref,
+    ...props
+}: QuickHelpButtonProps): JSX.Element {
     // Disable tooltip when the label is displayed
     const openTooltip = displayButtonLabel ? false : undefined;
 
     return (
         <Tooltip label={_t("common|help")} placement="right" open={openTooltip}>
-
             <IconButton
                 aria-label={_t("common|help")}
-                className={classNames("mx_QuickHelpButton", {expanded: displayButtonLabel})}
+                className={classNames("mx_QuickHelpButton", { expanded: displayButtonLabel })}
                 {...props}
                 ref={ref}
             >
                 <>
                     <InfoSolidIcon className="mx_QuickHelpButton_Icon" />
                     {displayButtonLabel && (
-                        <Text
-                            className="mx_QuickHelpButton_Text"
-                            as="span"
-                            size="md"
-                            title={_t("common|help")}
-                        >
+                        <Text className="mx_QuickHelpButton_Text" as="span" size="md" title={_t("common|help")}>
                             {_t("common|help")}
-                        </Text>)
-                    }
+                        </Text>
+                    )}
                 </>
             </IconButton>
         </Tooltip>

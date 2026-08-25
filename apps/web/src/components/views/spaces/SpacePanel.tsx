@@ -407,7 +407,7 @@ const SpacePanel: React.FC = () => {
                             )}
                         </Droppable>
 
-                            <QuickHelp displayButtonLabel={!isPanelCollapsed} />
+                        <QuickHelp displayButtonLabel={!isPanelCollapsed} />
 
                         <ThreadsActivityCentre displayButtonLabel={!isPanelCollapsed} />
 

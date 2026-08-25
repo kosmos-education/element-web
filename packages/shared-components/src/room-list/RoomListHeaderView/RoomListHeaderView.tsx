@@ -186,7 +186,6 @@ export function RoomListHeaderView({ vm }: Readonly<RoomListHeaderViewProps>): J
                             )}
                         </IconButton>
                     )}
-
                 </Flex>
             </Flex>
         </Flex>

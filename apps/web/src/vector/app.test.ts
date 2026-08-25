@@ -8,7 +8,7 @@ Please see LICENSE files in the repository root for full details.
 // @vitest-environment happy-dom
 // @vitest-environment-options {"url": "https://app.element.io/#/room/#room:server"}
 
-import { vi, describe, it, expect, afterAll, beforeEach } from "vitest";
+import { vi, describe, it, expect, afterAll, afterEach, beforeEach } from "vitest";
 import fetchMock from "@fetch-mock/vitest";
 import { MatrixClient } from "matrix-js-sdk/src/matrix";
 import { mockPlatformPeg, unmockPlatformPeg } from "test-utils";
@@ -57,6 +57,11 @@ describe("sso_redirect_options", () => {
             // Signal we support v1.1 to pass the minimum js-sdk compatibility bar
             // Signal we support v1.15 to use stable Native OAuth2 support
             fetchMock.get("https://synapse/_matrix/client/versions", { versions: ["v1.1", "v1.15"] });
+        });
+
+        afterEach(() => {
+            // SCAT-37 : les espions posés sur Lifecycle ne doivent pas fuir sur les tests suivants.
+            vi.restoreAllMocks();
         });
 
         it("should redirect for legacy SSO", async () => {

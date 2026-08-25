@@ -168,9 +168,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", onFinished }) => 
 
         // Sort results by most recent activity
         const myUserId = cli.getSafeUserId();
-        return matches.sort(
-            (a, b) => compareRoomsByRecency(a.room, b.room, myUserId),
-        );
+        return matches.sort((a, b) => compareRoomsByRecency(a.room, b.room, myUserId));
     }, [trimmedQuery, cli, possibleResults]);
 
     useWebSearchMetrics(results.length, query.length, true);

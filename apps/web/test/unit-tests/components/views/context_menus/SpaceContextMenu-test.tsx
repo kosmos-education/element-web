@@ -198,6 +198,5 @@ describe("<SpaceContextMenu />", () => {
             expect(showCreateNewRoom).toHaveBeenCalledWith(space);
             expect(onFinished).toHaveBeenCalled();
         });
-
     });
 });

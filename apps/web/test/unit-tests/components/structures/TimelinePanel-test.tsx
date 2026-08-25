@@ -55,6 +55,7 @@ import { Action } from "../../../../src/dispatcher/actions";
 import { SettingLevel } from "../../../../src/settings/SettingLevel";
 import MatrixClientBackedController from "../../../../src/settings/controllers/MatrixClientBackedController";
 import { SDKContextClass } from "../../../../src/contexts/SDKContextClass";
+import DMRoomMap from "../../../../src/utils/DMRoomMap";
 import type Timer from "../../../../src/utils/Timer";
 
 // ScrollPanel calls this, but jsdom doesn't mock it for us
@@ -687,6 +688,9 @@ describe("TimelinePanel", () => {
 
         it("shows the error dialog for an explicit navigation to a highlighted event", async () => {
             const [client, room, events] = setupTestData();
+            // La fermeture du dialogue redispatche Action.ViewRoom, et RoomViewStore.viewRoom
+            // consulte DMRoomMap.shared() : sans instance partagée, le dispatch lève.
+            DMRoomMap.makeShared(client);
             const props = getErroringProps(room, events, {
                 eventId: missingEventId,
                 highlightedEventId: missingEventId,

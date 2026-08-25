@@ -671,7 +671,10 @@ export default class ContentMessages {
                     desc = _t("upload_failed_size", {
                         fileName: upload.fileName,
                     });
-                } else if (unwrappedError instanceof MatrixError && "M_RESOURCE_LIMIT_EXCEEDED" === unwrappedError.errcode ) {
+                } else if (
+                    unwrappedError instanceof MatrixError &&
+                    "M_RESOURCE_LIMIT_EXCEEDED" === unwrappedError.errcode
+                ) {
                     desc = _t("upload_failed_quota");
                 }
                 Modal.createDialog(ErrorDialog, {

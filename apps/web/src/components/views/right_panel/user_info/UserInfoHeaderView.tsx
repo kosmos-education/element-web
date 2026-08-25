@@ -24,10 +24,7 @@ export interface UserInfoHeaderViewProps {
     hideVerificationSection: boolean;
 }
 
-export const UserInfoHeaderView: React.FC<UserInfoHeaderViewProps> = ({
-    member,
-    roomId,
-}) => {
+export const UserInfoHeaderView: React.FC<UserInfoHeaderViewProps> = ({ member, roomId }) => {
     const vm = useUserfoHeaderViewModel({ member, roomId });
     const avatarUrl = (member as User).avatarUrl;
     const displayName = (member as RoomMember).rawDisplayName;

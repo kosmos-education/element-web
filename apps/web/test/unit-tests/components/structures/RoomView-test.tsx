@@ -589,15 +589,16 @@ describe("RoomView", () => {
         );
 
         const { container } = await renderRoomView();
-        // We no longer show the grey shield for encrypted rooms, so it should not be there.
+        // SCAT-14 (customisation kosmos) : toute mention du chiffrement est retirée du
+        // composer, y compris le bouclier E2E. Il ne doit apparaître dans aucun état de
+        // vérification — ni au repos, ni une fois tous les membres vérifiés.
         await waitFor(() => expect(container.querySelector(".mx_E2EIcon")).not.toBeInTheDocument());
 
         const verificationStatus = new UserVerificationStatus(true, true, false);
         jest.spyOn(cli.getCrypto()!, "getUserVerificationStatus").mockResolvedValue(verificationStatus);
         cli.emit(CryptoEvent.UserTrustStatusChanged, cli.getSafeUserId(), verificationStatus);
-        await waitFor(() =>
-            expect(container.querySelector(".mx_E2EIcon")).toHaveAccessibleName("Everyone in this room is verified"),
-        );
+        await flushPromises();
+        expect(container.querySelector(".mx_E2EIcon")).not.toBeInTheDocument();
     });
 
     describe("video rooms", () => {
