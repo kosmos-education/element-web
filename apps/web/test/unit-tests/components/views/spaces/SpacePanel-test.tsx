@@ -15,7 +15,6 @@ import { type MatrixClient, type Room } from "matrix-js-sdk/src/matrix";
 import { MatrixClientPeg } from "../../../../../src/MatrixClientPeg";
 import { MetaSpace, type SpaceKey } from "../../../../../src/stores/spaces";
 import { shouldShowComponent } from "../../../../../src/customisations/helpers/UIComponents";
-import { UIComponent } from "../../../../../src/settings/UIFeature";
 import { mkStubRoom, wrapInMatrixClientContext, wrapInSdkContext } from "../../../../test-utils";
 import { TestSDKContext } from "../../../TestSDKContext.ts";
 import DMRoomMap from "../../../../../src/utils/DMRoomMap";

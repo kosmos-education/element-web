@@ -37,7 +37,6 @@ import { getLocalNotificationAccountDataEventType } from "../../../utils/notific
 import { SettingsSubsection } from "./shared/SettingsSubsection";
 import SettingsFlag from "../elements/SettingsFlag";
 import { onSubmitPreventDefault } from "../../../utils/form.ts";
-import { keywordRuleId } from "../../../models/notificationsettings/keywordRuleId.ts";
 
 // TODO: this "view" component still has far too much application logic in it,
 // which should be factored out to other files.

@@ -47,7 +47,6 @@ import { CryptoEvent } from "matrix-js-sdk/src/crypto-api";
 import { type ViewRoomOpts } from "@matrix-org/react-sdk-module-api/lib/lifecycles/RoomViewLifecycle";
 import { type RoomViewProps } from "@element-hq/element-web-module-api";
 import {
-    EncryptionEventView,
     RoomStatusBarView,
     useCreateAutoDisposedViewModel,
 } from "@element-hq/web-shared-components";
@@ -73,7 +72,6 @@ import { TimelineRenderingType, MainSplitContentType } from "../../contexts/Room
 import { E2EStatus, shieldStatusForRoom } from "../../utils/ShieldUtils";
 import { Action } from "../../dispatcher/actions";
 import { type IMatrixClientCreds } from "../../utils/createMatrixClient";
-import { useMatrixClientContext } from "../../contexts/MatrixClientContext";
 import ScrollPanel from "./ScrollPanel";
 import TimelinePanel from "./TimelinePanel";
 import ErrorBoundary from "../views/elements/ErrorBoundary";
@@ -138,7 +136,6 @@ import { type FocusMessageSearchPayload } from "../../dispatcher/payloads/FocusM
 import { isRoomEncrypted } from "../../hooks/useIsEncrypted";
 import { type RoomViewStore } from "../../stores/RoomViewStore.tsx";
 import { RoomStatusBarViewModel } from "../../viewmodels/room/RoomStatusBar.ts";
-import { EncryptionEventViewModel } from "../../viewmodels/room/timeline/event-tile/EncryptionEventViewModel.ts";
 import { ModuleApi } from "../../modules/Api.ts";
 import { RoomUploadContextProvider } from "../../viewmodels/room/RoomUploadViewModel.tsx";
 import { EventPresentationContextProvider } from "../../utils/EventPresentationContextProvider";
@@ -399,16 +396,6 @@ function RoomStatusBarWrappedView(props: ConstructorParameters<typeof RoomStatus
     }, [vm, props]);
 
     return <RoomStatusBarView vm={vm} />;
-}
-
-/**
- * Wrap an EncryptionEventView and ViewModel into one component, for usage with legacy React components.
- */
-function EncryptionEventWrappedView({ mxEvent }: { mxEvent: MatrixEvent }): ReactElement | null {
-    const cli = useMatrixClientContext();
-    const vm = useCreateAutoDisposedViewModel(() => new EncryptionEventViewModel({ mxEvent, cli }));
-
-    return <EncryptionEventView vm={vm} className="mx_EventTileBubble mx_cryptoEvent" />;
 }
 
 export class RoomView extends React.Component<IRoomProps, IRoomState> {

@@ -181,7 +181,7 @@ describe("UserMenuViewModel", () => {
 
     it("asks for confirmation before signing out", async () => {
         jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([false]) } as any);
-        const vm = new UserMenuViewModel(dispatcher, client, true);
+        const vm = new UserMenuViewModel({ ownProfileStore: mockOwnProfileStore }, dispatcher, client, true);
         vm.setOpen(true);
         await vm.signOut();
         expect(Modal.createDialog).toHaveBeenCalledWith(QuestionDialog, expect.objectContaining({ danger: true }));
@@ -192,7 +192,7 @@ describe("UserMenuViewModel", () => {
         jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([true]) } as any);
         const dispatcherSpy = jest.fn();
         dispatcher.register(dispatcherSpy);
-        const vm = new UserMenuViewModel(dispatcher, client, true);
+        const vm = new UserMenuViewModel({ ownProfileStore: mockOwnProfileStore }, dispatcher, client, true);
         vm.setOpen(true);
         await vm.signOut();
         await waitFor(() =>
@@ -206,7 +206,7 @@ describe("UserMenuViewModel", () => {
         jest.spyOn(Modal, "createDialog").mockReturnValue({ finished: Promise.resolve([false]) } as any);
         const dispatcherSpy = jest.fn();
         dispatcher.register(dispatcherSpy);
-        const vm = new UserMenuViewModel(dispatcher, client, true);
+        const vm = new UserMenuViewModel({ ownProfileStore: mockOwnProfileStore }, dispatcher, client, true);
         vm.setOpen(true);
         await vm.signOut();
         expect(dispatcherSpy).not.toHaveBeenCalledWith({ action: "logout" });

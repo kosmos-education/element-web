@@ -28,14 +28,11 @@ import {
     HomeSolidIcon,
     RoomIcon,
     VideoCallSolidIcon,
-    PlusIcon,
     ChevronRightIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
 import { useCreateAutoDisposedViewModel, UserMenu } from "@element-hq/web-shared-components";
 
 import { _t } from "../../../languageHandler";
-import { useContextMenu } from "../../structures/ContextMenu";
-import SpaceCreateMenu from "./SpaceCreateMenu";
 import { SpaceButton, SpaceItem } from "./SpaceTreeLevel";
 import { useEventEmitter, useEventEmitterState } from "../../../hooks/useEventEmitter";
 import {
@@ -67,8 +64,6 @@ import { Action } from "../../../dispatcher/actions";
 import { type NotificationState } from "../../../stores/notifications/NotificationState";
 import { KeyBindingAction } from "../../../accessibility/KeyboardShortcuts";
 import { getKeyBindingsManager } from "../../../KeyBindingsManager";
-import { shouldShowComponent } from "../../../customisations/helpers/UIComponents";
-import { UIComponent } from "../../../settings/UIFeature";
 import { ThreadsActivityCentre } from "./threads-activity-centre/";
 import AccessibleButton from "../elements/AccessibleButton";
 import { Landmark, LandmarkNavigation } from "../../../accessibility/LandmarkNavigation";
@@ -204,56 +199,6 @@ const VideoRoomsButton: React.FC<MetaSpaceButtonProps> = ({ selected, isPanelCol
             size="32px"
             icon={<VideoCallSolidIcon />}
         />
-    );
-};
-
-const CreateSpaceButton: React.FC<Pick<IInnerSpacePanelProps, "isPanelCollapsed" | "setPanelCollapsed">> = ({
-    isPanelCollapsed,
-    setPanelCollapsed,
-}) => {
-    const [menuDisplayed, handle, openMenu, closeMenu] = useContextMenu<HTMLDivElement>();
-
-    useEffect(() => {
-        if (!isPanelCollapsed && menuDisplayed) {
-            closeMenu();
-        }
-    }, [isPanelCollapsed]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    let contextMenu: JSX.Element | undefined;
-    if (menuDisplayed) {
-        contextMenu = <SpaceCreateMenu onFinished={closeMenu} />;
-    }
-
-    const onNewClick = menuDisplayed
-        ? closeMenu
-        : () => {
-              if (!isPanelCollapsed) setPanelCollapsed(true);
-              openMenu();
-          };
-
-    return (
-        <li
-            className={classNames("mx_SpaceItem mx_SpaceItem_new", {
-                collapsed: isPanelCollapsed,
-            })}
-            role="treeitem"
-            aria-selected={false}
-        >
-            <SpaceButton
-                data-testid="create-space-button"
-                className={classNames("mx_SpaceButton_new", {
-                    mx_SpaceButton_newCancel: menuDisplayed,
-                })}
-                label={menuDisplayed ? _t("action|cancel") : _t("create_space|label")}
-                onClick={onNewClick}
-                isNarrow={isPanelCollapsed}
-                innerRef={handle}
-                size="32px"
-                icon={<PlusIcon />}
-            />
-
-            {contextMenu}
-        </li>
     );
 };
 

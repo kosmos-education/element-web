@@ -13,7 +13,7 @@ import { UserAddIcon } from "@vector-im/compound-design-tokens/assets/web/icons"
 import { LinkedText } from "@element-hq/web-shared-components";
 
 import DMRoomMap from "../../../utils/DMRoomMap";
-import { _t, _td, type TranslationKey } from "../../../languageHandler";
+import { _t, _td } from "../../../languageHandler";
 import AccessibleButton from "../elements/AccessibleButton";
 import MiniAvatarUploader, { AVATAR_SIZE } from "../elements/MiniAvatarUploader";
 import RoomAvatar from "../avatars/RoomAvatar";

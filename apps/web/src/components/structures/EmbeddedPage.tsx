@@ -196,17 +196,25 @@ export default class EmbeddedPage extends React.PureComponent<IProps, IState> {
             [`${className}_loggedIn`]: !!client,
         });
 
+        // sanitize-html type ses options `allowedTags`/`allowedAttributes` en `false | …`
+        // (false = « tout autoriser ») : on renormalise avant de les étendre.
+        const baseAllowedTags = Array.isArray(sanitizeHtmlParams.allowedTags) ? sanitizeHtmlParams.allowedTags : [];
+        const baseAllowedAttributes =
+            typeof sanitizeHtmlParams.allowedAttributes === "object" && sanitizeHtmlParams.allowedAttributes !== null
+                ? sanitizeHtmlParams.allowedAttributes
+                : {};
+
         const content = sanitizedHtmlNode(this.state.page, `${className}_body`, {
             ...sanitizeHtmlParams,
             // On autorise aussi la balise <style> : la page embarquée (de confiance) porte
             // toute sa mise en forme — layout, couleurs des icônes SVG, classes — dans un bloc CSS.
-            allowedTags: [...sanitizeHtmlParams.allowedTags!, ...EMBEDDED_SVG_TAGS, "style"],
+            allowedTags: [...baseAllowedTags, ...EMBEDDED_SVG_TAGS, "style"],
             // <style> est marqué "vulnérable" par sanitize-html (XSS via CSS). Contenu de confiance
             // ici (fourni par l'exploitant, même niveau que config.json), donc explicitement accepté.
             allowVulnerableTags: true,
             allowedAttributes: {
-                ...sanitizeHtmlParams.allowedAttributes,
-                "*": [...(sanitizeHtmlParams.allowedAttributes?.["*"] ?? []), ...EMBEDDED_SVG_ATTRS],
+                ...baseAllowedAttributes,
+                "*": [...(baseAllowedAttributes["*"] ?? []), ...EMBEDDED_SVG_ATTRS],
             },
             // Préserver la casse : sinon sanitize-html renomme viewBox -> viewbox et casse le rendu SVG.
             parser: { ...sanitizeHtmlParams.parser, lowerCaseTags: false, lowerCaseAttributeNames: false },
