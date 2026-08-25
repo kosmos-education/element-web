@@ -10,7 +10,6 @@ import { rejectToast } from "@element-hq/element-web-playwright-common";
 
 import { test, expect } from "../../element-web-test";
 import { waitForRoom } from "../utils";
-import { Filter } from "../../pages/Spotlight";
 import { isDendrite } from "../../plugins/homeserver/dendrite";
 
 test.describe("Create Knock Room", () => {
@@ -83,10 +82,8 @@ test.describe("Create Knock Room", () => {
             const events = room.getLiveTimeline().getEvents();
             return events.some((e) => e.getType() === "m.room.join_rules" && e.getContent().join_rule === "knock");
         });
-
-        const spotlightDialog = await app.openSpotlight();
-        await spotlightDialog.filter(Filter.PublicRooms);
-        await spotlightDialog.search("Cyber");
-        await expect(spotlightDialog.results.nth(0)).toContainText("Cybersecurity");
+        // kosmos (SCAT-43) : la recherche n'expose plus l'annuaire public, on ne peut donc
+        // plus vérifier ici que le salon y apparaît. La règle d'adhésion « knock » posée sur
+        // le salon est déjà vérifiée juste au-dessus.
     });
 });

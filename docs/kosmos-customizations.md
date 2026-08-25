@@ -96,9 +96,25 @@ public rooms, public spaces — can reappear. The three meta-space snapshots wer
 pruned. Deleting `usePublicRoomDirectory` and `PublicRoomResultDetails` took their own suites with
 them.
 
-Not covered: the Playwright specs in `apps/web/playwright/e2e/spotlight/spotlight.spec.ts` also
-exercise the public room directory and were already stale before this change (see the note at the end
-of the previous section).
+The Playwright specs were brought in line too. `apps/web/playwright/e2e/spotlight/spotlight.spec.ts`
+lost the public directory tests (known / unknown / world readable rooms, other homeservers) and the
+people tests (`startDM` helper, finding users, group DMs, opening the group chat dialog), together
+with the bot and public-room fixtures they needed. It keeps "should find joined rooms" and keyboard
+navigation — the latter now relies on a second joined room fixture sharing a name prefix, so one query
+still yields two results — and gains two guards: "should offer no filter to select" and "should not
+offer to join a room by its address".
+
+`apps/web/playwright/pages/Spotlight.ts` loses its own `Filter` enum and its `filter()` method, which
+had no caller left. That enum was independent from the app's own `Filter`, which is why deleting the
+latter had not broken the specs at type level.
+
+Two knock specs discovered their room through the public directory and were adjusted: the tail of
+`create-knock-room.spec.ts` no longer asserts the room shows up in a directory search (the knock join
+rule itself is still asserted), and `knock-into-room.spec.ts` drops "should knock into the public
+knock room via spotlight" entirely. The other knock journeys are untouched.
+
+These specs run in the Docker CI, not locally, so they have not been executed against this change —
+only type-checked and linted.
 
 ### Removing people search from the Spotlight
 

@@ -9,11 +9,6 @@ Please see LICENSE files in the repository root for full details.
 import type { Locator, Page } from "@playwright/test";
 import { CommandOrControl } from "../e2e/utils";
 
-export enum Filter {
-    People = "people",
-    PublicRooms = "public_rooms",
-}
-
 export class Spotlight {
     private root!: Locator;
 
@@ -27,22 +22,6 @@ export class Spotlight {
             await this.page.keyboard.press(`${CommandOrControl}+KeyK`);
         }
         await this.page.keyboard.press(`${CommandOrControl}+KeyK`);
-    }
-
-    public async filter(filter: Filter) {
-        let selector: string;
-        switch (filter) {
-            case Filter.People:
-                selector = "#mx_SpotlightDialog_button_startChat";
-                break;
-            case Filter.PublicRooms:
-                selector = "#mx_SpotlightDialog_button_explorePublicRooms";
-                break;
-            default:
-                selector = ".mx_SpotlightDialog_filter";
-                break;
-        }
-        await this.root.locator(selector).click();
     }
 
     public async search(query: string) {

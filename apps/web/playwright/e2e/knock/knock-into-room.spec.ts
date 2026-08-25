@@ -8,11 +8,8 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import { type Visibility } from "matrix-js-sdk/src/matrix";
-
 import { test, expect } from "../../element-web-test";
 import { waitForRoom } from "../utils";
-import { Filter } from "../../pages/Spotlight";
 import { isDendrite } from "../../plugins/homeserver/dendrite";
 
 test.describe("Knock Into Room", () => {
@@ -276,19 +273,7 @@ test.describe("Knock Into Room", () => {
         // await expect(page.getByRole("treeitem", { name: /Cybersecurity/ })).not.toBeVisible();
     });
 
-    test("should knock into the public knock room via spotlight", async ({ page, app, bot, room }) => {
-        await bot.setRoomDirectoryVisibility(room.roomId, "public" as Visibility);
-
-        const spotlightDialog = await app.openSpotlight();
-        await spotlightDialog.filter(Filter.PublicRooms);
-        await spotlightDialog.search("Cyber");
-        await expect(spotlightDialog.results.nth(0)).toContainText("Cybersecurity");
-        await spotlightDialog.results.nth(0).click();
-
-        const roomPreviewBar = page.locator(".mx_RoomPreviewBar");
-        await expect(roomPreviewBar.getByRole("heading", { name: "Ask to join?" })).toBeVisible();
-        await expect(roomPreviewBar.getByRole("textbox")).toBeVisible();
-        await roomPreviewBar.getByRole("button", { name: "Request access" }).click();
-        await expect(roomPreviewBar.getByRole("heading", { name: "Request to join sent" })).toBeVisible();
-    });
+    // kosmos (SCAT-43) : le test « should knock into the public knock room via spotlight » a
+    // été retiré — il découvrait le salon via l'annuaire public de la recherche, qui n'existe
+    // plus. Les autres parcours de knock (via un lien, via une invitation) restent couverts.
 });
