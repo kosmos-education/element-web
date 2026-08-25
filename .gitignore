@@ -43,3 +43,7 @@ storybook-static
 # vitepress
 /docs/.vitepress/dist
 /docs/.vitepress/cache
+
+# Artefacts de diagnostic et de build locaux (Kosmos)
+/diag-upgrade
+/apps/web/dist
