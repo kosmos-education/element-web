@@ -23,6 +23,7 @@ import { inviteToRoom } from "../../../../../src/utils/room/inviteToRoom";
 import DMRoomMap from "../../../../../src/utils/DMRoomMap";
 import * as hooks from "../../../../../src/hooks/useAccountData";
 import * as getTagsForRoomUtils from "../../../../../src/utils/room/getTagsForRoom";
+import SdkConfig from "../../../../../src/SdkConfig";
 
 jest.mock("../../../../../src/utils/room/inviteToRoom", () => ({
     inviteToRoom: jest.fn(),
@@ -260,6 +261,33 @@ describe("useRoomSummaryCardViewModel", () => {
 
             expect(onSearchCancel).toHaveBeenCalled();
             expect(mockInputElement?.value).toBe("");
+        });
+    });
+
+    // Kosmos (SCAT-45) : masquage de l'identifiant technique du salon dans le panneau d'information.
+    describe("hide_room_alias config", () => {
+        beforeEach(() => {
+            // Le spy posé par les tests précédents survit à jest.resetAllMocks() et renverrait
+            // undefined : on le repose ici pour que le hook interne useIsDirectMessage tienne.
+            jest.spyOn(hooks, "useAccountData").mockReturnValue({});
+            jest.spyOn(room, "getCanonicalAlias").mockReturnValue("#roomAlias:example.org");
+        });
+
+        afterEach(() => {
+            SdkConfig.reset();
+        });
+
+        it("should expose the room alias by default", () => {
+            const { result } = render();
+
+            expect(result.current.alias).toBe("#roomAlias:example.org");
+        });
+
+        it("should hide the room alias when hide_room_alias is enabled", () => {
+            SdkConfig.add({ hide_room_alias: true });
+            const { result } = render();
+
+            expect(result.current.alias).toBe("");
         });
     });
 });

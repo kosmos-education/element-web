@@ -261,10 +261,19 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   masquage de l'URL du homeserver et du jeton d'accès, retrait du bouton « Rechercher une
   mise à jour » et de l'option « Afficher le contenu sensible (NSFW) ».
 - **SCAT-43** : recherche restreinte aux salons accessibles (voir la section Spotlight).
+- **SCAT-45 — masquage de l'identifiant du salon** : `hide_room_alias` (booléen). Lorsqu'il vaut
+  `true`, `useRoomSummaryCardViewModel` renvoie `alias: ""`, ce qui vide la ligne
+  `.mx_RoomSummaryCard_alias` affichée sous le nom du salon dans le panneau latéral
+  d'information. Aucune modification de la vue : `RoomSummaryCardView` rend déjà ce bloc vide
+  pour les salons sans alias (élément de hauteur nulle, donc pas d'espace résiduel), et les
+  snapshots amont restent inchangés. Le point d'extension `AliasCustomisations` du Module API a
+  été écarté volontairement : `RoomSummaryCardViewModel` lit `room.getCanonicalAlias()` en
+  direct, et neutraliser `getDisplayAliasForAliasSet` aurait aussi affecté le routage d'URL de
+  salon (`MatrixChat.tsx`) et `SpaceHierarchy`, hors périmètre.
 
-⚠️ **Au prochain rebase upstream** : `disable_settings_tabs` et `available_languages` sont
-déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma
-généré `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
+⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages` et
+`hide_room_alias` sont déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un
+type dérivé du schéma généré `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 
 ### Restoring the "Sign out" button in the user menu
 

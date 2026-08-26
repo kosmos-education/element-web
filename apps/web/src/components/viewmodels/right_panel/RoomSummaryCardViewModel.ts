@@ -44,6 +44,7 @@ import { inviteToRoom } from "../../../utils/room/inviteToRoom";
 import { getTagsForRoom } from "../../../utils/room/getTagsForRoom";
 import { useDmMember } from "../../views/avatars/WithPresenceIndicator";
 import { useUserStatus } from "../../../hooks/useUserStatus";
+import SdkConfig from "../../../SdkConfig";
 
 export interface RoomSummaryCardState {
     isDirectMessage: boolean;
@@ -181,7 +182,9 @@ export function useRoomSummaryCardViewModel(
         roomJoinRule: state.getJoinRule(),
         historyVisibility: state.getHistoryVisibility(),
     }));
-    const alias = room.getCanonicalAlias() || room.getAltAliases()[0] || "";
+    // Kosmos (SCAT-45) : masque l'identifiant technique du salon dans le panneau
+    // d'information lorsque `hide_room_alias` est activé dans config.json.
+    const alias = SdkConfig.get("hide_room_alias") ? "" : room.getCanonicalAlias() || room.getAltAliases()[0] || "";
     const pinCount = usePinnedEvents(room).length;
     // value to check if the user can invite to the room
     const canInviteToState = useEventEmitterState(room, RoomStateEvent.Update, () => canInviteTo(room));

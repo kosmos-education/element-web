@@ -34,6 +34,12 @@ export interface ConfigOptions extends WebConfigJson {
      * (paramètres utilisateur et écran de connexion). Absent/vide ⇒ toutes les langues restent proposées.
      */
     available_languages?: string[];
+    /**
+     * Kosmos: masque l'identifiant technique du salon (alias Matrix, ex. `#salon:homeserver`)
+     * affiché sous le nom du salon dans le panneau latéral d'information.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_room_alias?: boolean;
 }
 
 /**
