@@ -225,7 +225,10 @@ class RoomSettingsDialog extends React.Component<IProps, IState> {
             );
         }
 
-        return tabs as NonEmptyArray<Tab<RoomSettingsTab>>;
+        // Kosmos : masque les onglets listés dans la configuration
+        // (config.json `disable_room_settings_tabs`).
+        const hiddenTabs = SdkConfig.get("disable_room_settings_tabs") ?? [];
+        return tabs.filter((tab) => !hiddenTabs.includes(tab.id)) as NonEmptyArray<Tab<RoomSettingsTab>>;
     }
 
     public render(): React.ReactNode {

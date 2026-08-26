@@ -18,6 +18,7 @@ import MatrixClientContext from "../../../../../../../src/contexts/MatrixClientC
 import SettingsStore from "../../../../../../../src/settings/SettingsStore";
 import { clearAllModals, flushPromises, stubClient } from "../../../../../../test-utils";
 import { filterBoolean } from "../../../../../../../src/utils/arrays";
+import SdkConfig from "../../../../../../../src/SdkConfig";
 
 describe("<SecurityRoomSettingsTab />", () => {
     const userId = "@alice:server.org";
@@ -450,6 +451,26 @@ describe("<SecurityRoomSettingsTab />", () => {
     });
 
     describe("encryption", () => {
+        // Kosmos (SCAT-46) : section masquée via config.json `hide_room_encryption_section`.
+        it("hides the encryption section when hide_room_encryption_section is set", async () => {
+            const room = new Room(roomId, client, userId);
+            jest.spyOn(client.getCrypto()!, "isEncryptionEnabledInRoom").mockResolvedValue(true);
+            setRoomStateEvents(room);
+            SdkConfig.add({ hide_room_encryption_section: true });
+
+            try {
+                getComponent(room);
+                await flushPromises();
+
+                expect(screen.queryByText("Encryption")).not.toBeInTheDocument();
+                expect(screen.queryByLabelText("Encrypted")).not.toBeInTheDocument();
+                // le reste de l'onglet est intact
+                expect(screen.getByDisplayValue(JoinRule.Invite)).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
+
         it("displays encryption as enabled", async () => {
             const room = new Room(roomId, client, userId);
             jest.spyOn(client.getCrypto()!, "isEncryptionEnabledInRoom").mockResolvedValue(true);

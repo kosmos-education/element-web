@@ -20,6 +20,7 @@ import { SettingsSubsection } from "../../shared/SettingsSubsection";
 import SettingsTab from "../SettingsTab";
 import { SettingsSection } from "../../shared/SettingsSection";
 import { MediaPreviewAccountSettings } from "../user/MediaPreviewAccountSettings";
+import SdkConfig from "../../../../../SdkConfig";
 
 interface IProps {
     room: Room;
@@ -69,12 +70,11 @@ export default class GeneralRoomSettingsTab extends React.Component<IProps, ISta
             );
         }
 
-        return (
-            <SettingsTab data-testid="General">
-                <SettingsSection heading={_t("common|general")}>
-                    <RoomProfileSettings roomId={room.roomId} />
-                </SettingsSection>
-
+        // Kosmos : masque la section « Adresses du salon » (adresses publiées et locales)
+        // lorsque `hide_room_addresses` est activé dans config.json.
+        let aliasSection;
+        if (!SdkConfig.get("hide_room_addresses")) {
+            aliasSection = (
                 <SettingsSection heading={_t("room_settings|general|aliases_section")}>
                     <AliasSettings
                         roomId={room.roomId}
@@ -83,6 +83,16 @@ export default class GeneralRoomSettingsTab extends React.Component<IProps, ISta
                         canonicalAliasEvent={canonicalAliasEv}
                     />
                 </SettingsSection>
+            );
+        }
+
+        return (
+            <SettingsTab data-testid="General">
+                <SettingsSection heading={_t("common|general")}>
+                    <RoomProfileSettings roomId={room.roomId} />
+                </SettingsSection>
+
+                {aliasSection}
 
                 <SettingsSection heading={_t("room_settings|general|other_section")}>
                     <SettingsSubsection heading={_t("common|moderation_and_safety")} legacy={false}>

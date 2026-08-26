@@ -539,6 +539,49 @@ export default class SecurityRoomSettingsTab extends React.Component<IProps, ISt
 
         const historySection = this.renderHistory();
 
+        // Kosmos : masque la section « Chiffrement » lorsque `hide_room_encryption_section`
+        // est activé dans config.json. Le déploiement n'utilise pas le chiffrement de bout en
+        // bout, cette section n'a donc rien d'actionnable pour l'utilisateur.
+        let encryptionSection: JSX.Element | undefined;
+        if (!SdkConfig.get("hide_room_encryption_section")) {
+            encryptionSection = (
+                <SettingsFieldset
+                    legend={_t("settings|security|encryption_section")}
+                    description={
+                        isEncryptionForceDisabled && !isEncrypted
+                            ? undefined
+                            : _t("room_settings|security|encryption_permanent")
+                    }
+                >
+                    {isEncryptionLoading ? (
+                        <InlineSpinner />
+                    ) : (
+                        <>
+                            <SettingsToggleInput
+                                name="enable-encryption"
+                                checked={isEncrypted}
+                                onChange={this.onEncryptionChange}
+                                label={_t("common|encrypted")}
+                                disabled={!canEnableEncryption}
+                            />
+                            {isEncryptionForceDisabled && !isEncrypted && (
+                                <Caption>{_t("room_settings|security|encryption_forced")}</Caption>
+                            )}
+                            {isStateEncrypted && (
+                                <SettingsToggleInput
+                                    name="enable-state-encryption"
+                                    checked={isStateEncrypted}
+                                    label={_t("common|state_encryption_enabled")}
+                                    disabled={true}
+                                />
+                            )}
+                            {encryptionSettings}
+                        </>
+                    )}
+                </SettingsFieldset>
+            );
+        }
+
         return (
             <SettingsTab>
                 <Form.Root
@@ -548,40 +591,7 @@ export default class SecurityRoomSettingsTab extends React.Component<IProps, ISt
                     }}
                 >
                     <SettingsSection heading={_t("room_settings|security|title")}>
-                        <SettingsFieldset
-                            legend={_t("settings|security|encryption_section")}
-                            description={
-                                isEncryptionForceDisabled && !isEncrypted
-                                    ? undefined
-                                    : _t("room_settings|security|encryption_permanent")
-                            }
-                        >
-                            {isEncryptionLoading ? (
-                                <InlineSpinner />
-                            ) : (
-                                <>
-                                    <SettingsToggleInput
-                                        name="enable-encryption"
-                                        checked={isEncrypted}
-                                        onChange={this.onEncryptionChange}
-                                        label={_t("common|encrypted")}
-                                        disabled={!canEnableEncryption}
-                                    />
-                                    {isEncryptionForceDisabled && !isEncrypted && (
-                                        <Caption>{_t("room_settings|security|encryption_forced")}</Caption>
-                                    )}
-                                    {isStateEncrypted && (
-                                        <SettingsToggleInput
-                                            name="enable-state-encryption"
-                                            checked={isStateEncrypted}
-                                            label={_t("common|state_encryption_enabled")}
-                                            disabled={true}
-                                        />
-                                    )}
-                                    {encryptionSettings}
-                                </>
-                            )}
-                        </SettingsFieldset>
+                        {encryptionSection}
                         {this.renderJoinRule()}
                         {historySection}
                     </SettingsSection>

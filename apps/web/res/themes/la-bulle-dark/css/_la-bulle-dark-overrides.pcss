@@ -33,7 +33,8 @@
     --cpd-avatar-color: #fff !important;
 }
 
-/* ── Avatars de SALONS en carré arrondi — liste, en-tête et room summary panel ── */
+/* ── Avatars de SALONS en carré arrondi — liste, en-tête, room summary panel et ──────
+ * ── modale de paramétrage du salon ─────────────────────────────────────────────── */
 
 /* On cible .mx_BaseAvatar directement : RoomAvatarView ne rend le wrapper
  * .mx_RoomAvatarView QUE si l'avatar a une décoration ; sinon <RoomAvatar> nu.
@@ -43,12 +44,19 @@
  * Room summary panel : <RoomAvatar size="80px"> nu dans .mx_RoomSummaryCard_container ;
  * RoomAvatar n'envoie "square" que pour les Espaces → sans cette règle le salon
  * resterait rond.
+ * Modale de paramétrage du salon (onglet Général) : AvatarSetting est partagé avec le
+ * profil utilisateur, on ne peut donc pas le cibler par sa classe seule —
+ * .mx_RoomSettingsDialog restreint la règle au salon, le profil utilisateur reste rond.
+ * La règle amont `.mx_AvatarSetting_avatar > img { border-radius: 120px }` ne s'applique
+ * pas (l'<img> est rendu par BaseAvatar, sous .mx_AvatarSetting_avatarDisplay) : le rayon
+ * vient bien du token Compound.
  * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
  * descendants sans !important. */
 .mx_RoomListItemView .mx_BaseAvatar,
 .mx_RoomHeader > *:first-child.mx_BaseAvatar,
 .mx_RoomHeader > *:first-child .mx_BaseAvatar,
-.mx_RoomSummaryCard_container .mx_BaseAvatar {
+.mx_RoomSummaryCard_container .mx_BaseAvatar,
+.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar {
     --cpd-avatar-radius: 25% !important;
 }
 

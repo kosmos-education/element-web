@@ -271,9 +271,37 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   direct, et neutraliser `getDisplayAliasForAliasSet` aurait aussi affecté le routage d'URL de
   salon (`MatrixChat.tsx`) et `SpaceHierarchy`, hors périmètre.
 
-⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages` et
-`hide_room_alias` sont déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un
-type dérivé du schéma généré `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
+- **SCAT-46 — modale de paramétrage du salon** : trois customisations.
+  1. `disable_room_settings_tabs` (tableau d'identifiants `RoomSettingsTab`) : miroir exact de
+     `disable_settings_tabs` côté salon, filtre posé en fin de `RoomSettingsDialog.getTabs()`.
+     En production : `["ROOM_VOIP_TAB", "ROOM_POLL_HISTORY_TAB", "ROOM_ADVANCED_TAB"]`
+     (onglets « Audio et vidéo », « Sondages » et « Avancé »). Le filtre est appliqué **après**
+     les conditions amont (`element_call.disable`, `UIFeature.AdvancedSettings`, …), qui restent
+     donc en place : la config Kosmos ne fait que retrancher.
+  2. `hide_room_addresses` (booléen) : masque la `SettingsSection`
+     « Adresses du salon » de l'onglet Général (`GeneralRoomSettingsTab`), qui porte à la fois
+     « Adresses publiées » et « Adresses locales » (`AliasSettings`). La section entière est
+     rendue conditionnellement, `AliasSettings` n'est donc plus monté du tout — aucun appel
+     `getLocalAliases` / `getRoomDirectoryVisibility` inutile.
+  3. **Avatar du salon en carré arrondi** dans l'onglet Général : règle CSS ajoutée aux deux
+     thèmes La Bulle (`_la-bulle-overrides.pcss` et `_la-bulle-dark-overrides.pcss`), sur le
+     sélecteur `.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar`
+     (`--cpd-avatar-radius: 25%`, même valeur que la liste des salons et l'en-tête).
+     `AvatarSetting` étant partagé avec le profil utilisateur, la portée est restreinte par
+     `.mx_RoomSettingsDialog` afin que l'avatar utilisateur reste rond.
+  4. `hide_room_encryption_section` (booléen) : masque le `SettingsFieldset` « Chiffrement »
+     de l'onglet « Sécurité et vie privée » (`SecurityRoomSettingsTab`), avec sa bascule
+     « Chiffré », le message « une fois activé le chiffrement ne peut plus être désactivé »
+     et le drapeau `blacklistUnverifiedDevices`. Le déploiement n'utilise pas le chiffrement
+     de bout en bout : la section n'avait rien d'actionnable (voir aussi *Removing visible
+     mentions of encryption*). Le `SettingsSection` parent est conservé, il porte encore les
+     règles d'accès (`renderJoinRule`) et la visibilité de l'historique — pas de section vide.
+
+⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
+`hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses` et
+`hide_room_encryption_section` sont déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont
+a fait un type dérivé du schéma généré `WebConfigJson` — les champs Kosmos s'ajoutent dans
+`ConfigOptions`.
 
 ### Restoring the "Sign out" button in the user menu
 

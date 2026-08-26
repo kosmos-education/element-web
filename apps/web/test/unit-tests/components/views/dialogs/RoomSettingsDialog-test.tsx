@@ -25,6 +25,7 @@ import SettingsStore from "../../../../../src/settings/SettingsStore";
 import { UIFeature } from "../../../../../src/settings/UIFeature";
 import DMRoomMap from "../../../../../src/utils/DMRoomMap";
 import { TestSDKContext } from "../../../TestSDKContext.ts";
+import SdkConfig from "../../../../../src/SdkConfig";
 
 describe("<RoomSettingsDialog />", () => {
     const userId = "@alice:server.org";
@@ -165,6 +166,29 @@ describe("<RoomSettingsDialog />", () => {
             );
             getComponent();
             expect(screen.getByTestId("settings-tab-ROOM_ADVANCED_TAB")).toBeInTheDocument();
+        });
+
+        // Kosmos (SCAT-46) : onglets masqués via config.json `disable_room_settings_tabs`.
+        it("hides the tabs listed in disable_room_settings_tabs", () => {
+            jest.spyOn(SettingsStore, "getValue").mockImplementation(
+                (settingName) => settingName === UIFeature.AdvancedSettings,
+            );
+            SdkConfig.add({
+                disable_room_settings_tabs: ["ROOM_VOIP_TAB", "ROOM_POLL_HISTORY_TAB", "ROOM_ADVANCED_TAB"],
+            });
+
+            try {
+                getComponent();
+
+                expect(screen.queryByTestId("settings-tab-ROOM_VOIP_TAB")).not.toBeInTheDocument();
+                expect(screen.queryByTestId("settings-tab-ROOM_POLL_HISTORY_TAB")).not.toBeInTheDocument();
+                expect(screen.queryByTestId("settings-tab-ROOM_ADVANCED_TAB")).not.toBeInTheDocument();
+                // les autres onglets restent présents
+                expect(screen.getByTestId("settings-tab-ROOM_GENERAL_TAB")).toBeInTheDocument();
+                expect(screen.getByTestId("settings-tab-ROOM_SECURITY_TAB")).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
         });
     });
 

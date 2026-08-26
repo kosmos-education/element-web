@@ -40,6 +40,23 @@ export interface ConfigOptions extends WebConfigJson {
      * Absent/false ⇒ comportement amont inchangé.
      */
     hide_room_alias?: boolean;
+    /**
+     * Kosmos: identifiants d'onglets (`RoomSettingsTab`) à masquer dans la modale de paramétrage
+     * du salon. Ex. ["ROOM_VOIP_TAB", "ROOM_POLL_HISTORY_TAB", "ROOM_ADVANCED_TAB"].
+     * Absent/vide ⇒ aucun onglet masqué.
+     */
+    disable_room_settings_tabs?: string[];
+    /**
+     * Kosmos: masque la section « Adresses du salon » (adresses publiées et adresses locales)
+     * de l'onglet Général de la modale de paramétrage du salon.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_room_addresses?: boolean;
+    /**
+     * Kosmos: masque la section « Chiffrement » de l'onglet « Sécurité et vie privée » de la
+     * modale de paramétrage du salon. Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_room_encryption_section?: boolean;
 }
 
 /**
