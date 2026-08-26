@@ -508,6 +508,50 @@ que `RoomAvatar` passe toujours `type="round"` pour les salons non-space, et que
 ⚠️ **Au prochain rebase upstream** : vérifier que `RoomListItemContent.tsx` porte toujours
 `data-testid="room-name"` sur le div du nom du salon.
 
+**En-têtes de section de la liste (« Favoris », « Discussions »…) :**
+
+L'amont peint un fond **opaque** sur les en-têtes de section, car ils sont `position: sticky` et se
+recouvrent en défilant : `.stickyRow` (`GroupedVirtualizedList.module.css`, lignes réelles) et
+`.stickyBackground::before` (`RoomListSectionHeaderView.module.css`, calque « section courante »
+épinglé). Les deux utilisent `--cpd-color-bg-canvas-default`, soit une bande **blanche** en travers
+du périvenche du panneau. On repointe les deux sur `--skolengo-panel-bg` dans
+`_la-bulle-overrides.pcss` : le fond reste opaque (exigence de l'amont) mais se fond dans la liste.
+
+La **taille de police** des en-têtes passe de `body-sm` (13px) à `body-md` (15px), celle des tuiles de
+salon, pour une échelle homogène dans la liste. Seuls `font-size` et `letter-spacing` sont surchargés
+— la graisse (regular, ou semibold quand la section est non lue) reste celle de l'amont.
+
+Ces deux classes sont des **CSS modules hashés** (`_stickyRow_3tgsb_23`) ; seule la sous-chaîne est
+stable → sélecteurs en `[class*="stickyRow"]` / `[class*="stickyBackground"]` (même technique que
+`[class*="icon-button"]` dans `_la-bulle-tokens.pcss`).
+
+**Survol et sélection des tuiles de salon :**
+
+Depuis que le panneau est en périvenche (`--skolengo-panel-bg` = `indigo-300` `#edf1ff`), les valeurs
+globales de `_la-bulle-tokens.pcss` — survol `indigo-200` `#f6f8ff`, sélection `indigo-300` `#edf1ff` —
+ne fonctionnent plus : la sélection est **strictement de la même couleur que le fond** (invisible, seul
+le liseré de 4px trahissait le salon courant) et le survol est **plus clair** que le fond (effet
+inversé). On descend chacun d'un cran, dans le seul scope de la liste (`nav.mx_RoomListPanel`) :
+
+| Token                                    | Global (reste inchangé) | Liste des salons        |
+| ---------------------------------------- | ----------------------- | ----------------------- |
+| `--cpd-color-bg-action-tertiary-hovered`  | `indigo-200` `#f6f8ff`  | `indigo-400` `#dde5ff`  |
+| `--cpd-color-bg-action-tertiary-selected` | `indigo-300` `#edf1ff`  | `indigo-500` `#c4d0ff`  |
+
+Le scope est volontairement limité : ces tokens pilotent aussi les boutons/menus tertiaires du reste de
+l'app, posés sur fond blanc, où les valeurs globales restent correctes. Le sélecteur est qualifié
+`nav.` (RoomListPanel est rendu en `<nav>`) pour ne pas dupliquer `.mx_RoomListPanel` déjà utilisé plus
+haut dans le fichier (stylelint `no-duplicate-selectors`). Contrastes RGAA AA : survolée comme
+sélectionnée, la tuile passe son texte en `text-primary` `#1b1d22` → 12,9:1 sur `#c4d0ff`,
+15,3:1 sur `#dde5ff` ✓.
+
+**Mode sombre** : aucune de ces trois surcharges ne s'applique — `la-bulle-dark` ne repeint pas
+`.mx_RoomListPanel`, le fond de la liste **est** déjà `--cpd-color-bg-canvas-default`, donc les
+en-têtes s'y fondent nativement et les tokens Compound par défaut y sont déjà contrastés.
+
+⚠️ **Au prochain rebase upstream** : vérifier que `.stickyRow` et `.stickyBackground` existent
+toujours sous ces noms, et que `RoomListPanel.tsx` rend toujours un `<nav className="mx_RoomListPanel">`.
+
 **Espaces (space panel) — liseré et alignement :**
 
 Le `selectionWrapper` en mode narrow (barre repliée) reçoit `padding:1px; border:3px solid transparent`

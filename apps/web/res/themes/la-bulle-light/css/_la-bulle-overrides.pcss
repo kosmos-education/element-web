@@ -213,6 +213,78 @@
 
 /* ── Liste des salons ─────────────────────────────────────────────────────── */
 
+/* En-têtes de section (« Favoris », « Discussions »…) : fond de la liste.
+ *
+ * L'amont peint un fond OPAQUE sur chaque ligne d'en-tête et sur le calque
+ * épinglé, car ces en-têtes sont `position: sticky` et se recouvrent en
+ * défilant (sans fond opaque, les textes se superposent) :
+ *   - GroupedVirtualizedList.module.css → `.stickyRow`         (lignes réelles)
+ *   - RoomListSectionHeaderView.module.css → `.stickyBackground::before`
+ *     (calque « section courante » épinglé en haut)
+ * Les deux utilisent --cpd-color-bg-canvas-default (= blanc en clair), ce qui
+ * dessinait une bande blanche en travers du périvenche du panneau. On repointe
+ * sur --skolengo-panel-bg : l'opacité est conservée (exigence de l'amont), mais
+ * la bande se fond dans la liste.
+ *
+ * Ces classes sont des CSS modules hashés (ex. `_stickyRow_3tgsb_23`) ; seule la
+ * sous-chaîne est stable → sélecteur en [class*=], comme pour `.icon-button`
+ * dans _la-bulle-tokens.pcss.
+ *
+ * Mode sombre : non concerné. la-bulle-dark ne repeint pas .mx_RoomListPanel, le
+ * fond de la liste EST déjà --cpd-color-bg-canvas-default. */
+.mx_RoomListPanel [class*="stickyRow"] {
+    background: var(--skolengo-panel-bg);
+}
+
+.mx_RoomListPanel [class*="stickyBackground"]::before {
+    background: var(--skolengo-panel-bg);
+}
+
+/* Taille de police des en-têtes de section alignée sur celle des salons.
+ * L'amont met les en-têtes en body-sm (13px) et les tuiles de salon en body-md
+ * (15px) → rupture d'échelle dans une même liste. On ne surcharge QUE la taille
+ * et le crénage : la graisse (regular / semibold quand la section est non lue)
+ * reste celle de l'amont, ce qui préserve la hiérarchie visuelle.
+ *
+ * On surcharge `font-size` (et non le raccourci `font`) : la règle vit dans le
+ * layer app-web, déclaré APRÈS shared-components (cf. @layer de la-bulle-light.pcss),
+ * donc elle l'emporte déclaration par déclaration — y compris sur le `font:`
+ * raccourci de `.header.unread`, sans !important ni course à la spécificité. */
+.mx_RoomListPanel [class*="stickyRow"] button,
+.mx_RoomListPanel [class*="stickyBackground"] button {
+    font-size: var(--cpd-font-size-body-md);
+    letter-spacing: var(--cpd-font-letter-spacing-body-md);
+}
+
+/* Survol et sélection des tuiles de salon : teintes assombries.
+ *
+ * Les valeurs globales de _la-bulle-tokens.pcss (survol indigo-200 #f6f8ff,
+ * sélection indigo-300 #edf1ff) ont été calées sur un fond de liste blanc. Depuis
+ * que le panneau est en périvenche (--skolengo-panel-bg = indigo-300 #edf1ff) :
+ *   - la sélection est STRICTEMENT de la même couleur que le fond → invisible,
+ *     seul le liseré de 4px à gauche trahissait le salon courant ;
+ *   - le survol est plus CLAIR que le fond → effet inversé, illisible.
+ * On descend donc d'un cran chacun, dans le seul scope de la liste des salons :
+ * survol indigo-400 (#dde5ff), sélection indigo-500 (#c4d0ff). La sélection
+ * reste ainsi distinguable du survol, et les deux du fond.
+ *
+ * Scope volontairement limité à .mx_RoomListPanel : ces deux tokens Compound
+ * pilotent aussi les boutons/menus tertiaires du reste de l'app, posés sur fond
+ * blanc, où les valeurs globales restent correctes.
+ *
+ * L'en-tête de section hérite du même survol (il consomme tertiary-hovered).
+ *
+ * Contrastes RGAA AA : survolée comme sélectionnée, la tuile passe son texte en
+ * --cpd-color-text-primary (#1b1d22) → 12,9:1 sur #c4d0ff et 15,3:1 sur #dde5ff ✓.
+ *
+ * Sélecteur qualifié `nav.` (RoomListPanel est rendu en <nav>) plutôt que
+ * `.mx_RoomListPanel` seul, pour ne pas dupliquer le sélecteur déjà utilisé plus
+ * haut par le fond du panneau (stylelint no-duplicate-selectors). */
+nav.mx_RoomListPanel {
+    --cpd-color-bg-action-tertiary-hovered: var(--cpd-color-indigo-400);
+    --cpd-color-bg-action-tertiary-selected: var(--cpd-color-indigo-500);
+}
+
 /* Nom du salon : plus foncé et légèrement plus gras (maquette).
  * data-testid="room-name" est le seul sélecteur stable sur cet élément
  * (la classe CSS module est hashée à la compilation). */
