@@ -34,6 +34,7 @@ import MessageContextMenu from "../../../../../src/components/views/context_menu
 import { makeBeaconEvent, makeBeaconInfoEvent, makeLocationEvent, stubClient } from "../../../../test-utils";
 import dispatcher from "../../../../../src/dispatcher/dispatcher";
 import SettingsStore from "../../../../../src/settings/SettingsStore";
+import SdkConfig from "../../../../../src/SdkConfig";
 import { ReadPinsEventId } from "../../../../../src/components/views/right_panel/types";
 import { Action } from "../../../../../src/dispatcher/actions";
 import { createMessageEventContent } from "../../../../test-utils/events";
@@ -572,6 +573,29 @@ describe("MessageContextMenu", () => {
 
             const result = (contextMenuInstance as any).isSelectionWithinSingleTextBody();
             expect(result).toBe(true);
+        });
+    });
+
+    // Kosmos (SCAT-47) : option masquée via config.json `hide_report_content`.
+    describe("report content", () => {
+        it("shows the report option by default", () => {
+            createMenuWithContent(createMessageEventContent("hello"), { rightClick: true });
+
+            expect(screen.getByLabelText("Report")).toBeInTheDocument();
+        });
+
+        it("hides the report option when hide_report_content is set", () => {
+            SdkConfig.add({ hide_report_content: true });
+
+            try {
+                createMenuWithContent(createMessageEventContent("hello"), { rightClick: true });
+
+                expect(screen.queryByLabelText("Report")).not.toBeInTheDocument();
+                // le reste du menu est intact
+                expect(screen.getByLabelText("Forward")).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
         });
     });
 

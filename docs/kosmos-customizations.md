@@ -297,11 +297,33 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
      mentions of encryption*). Le `SettingsSection` parent est conservé, il porte encore les
      règles d'accès (`renderJoinRule`) et la visibilité de l'historique — pas de section vide.
 
+- **SCAT-47 — actions de signalement** : deux clés booléennes, une par objet signalé.
+  1. `hide_report_content` : masque l'option « Signaler » du menu contextuel d'un message
+     (`MessageContextMenu`), qui ouvre `ReportEventDialog`. La garde s'ajoute à la condition
+     amont existante (`mxEvent.getSender() !== me`), qui reste en place.
+  2. `hide_report_room` : masque l'action « Signaler le salon » sur ses **deux** points
+     d'entrée — le bouton `mx_RoomSummaryCard_bottomOptions` du panneau latéral d'information
+     (`RoomSummaryCardView`, qui ouvre `ReportRoomDialog`) et la bascule « Signaler le salon »
+     du dialogue de refus d'invitation (`DeclineAndBlockInviteDialog`, « Refuser et bloquer »),
+     qui signale sans passer par le dialogue dédié. Dans ce dialogue, la bascule et sa zone de
+     saisie de motif sont retirées ensemble ; `shouldReport` reste à `false`, donc `onFinished`
+     transmet `false` et aucun signalement n'est émis.
+
+  Les deux actions appellent l'API du serveur d'accueil (`client.reportEvent` →
+  `POST /_matrix/client/v3/rooms/{roomId}/report/{eventId}` et `client.reportRoom` →
+  `POST /_matrix/client/v3/rooms/{roomId}/report`) : le destinataire est l'administrateur du
+  homeserver, pas un modérateur du salon. Ces signalements n'étant ni collectés ni traités sur
+  nos déploiements, les boutons promettaient une prise en charge inexistante. Les dialogues
+  `ReportEventDialog` et `ReportRoomDialog` sont conservés (simplement plus atteignables), ainsi
+  que le paramètre amont `report_event.admin_message_md`, qui n'a plus de point d'affichage.
+  Le Module API a été écarté : aucun point d'extension sur la composition du menu contextuel
+  d'un message ni du panneau d'information du salon.
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
-`hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses` et
-`hide_room_encryption_section` sont déclarés dans `apps/web/src/IConfigOptions.ts`, dont l'amont
-a fait un type dérivé du schéma généré `WebConfigJson` — les champs Kosmos s'ajoutent dans
-`ConfigOptions`.
+`hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
+`hide_room_encryption_section`, `hide_report_content` et `hide_report_room` sont déclarés dans
+`apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
+`WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 
 ### Restoring the "Sign out" button in the user menu
 

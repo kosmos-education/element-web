@@ -49,4 +49,19 @@ describe("ConfirmRejectInviteDialog", () => {
         await userEvent.click(getByRole("button", { name: "Decline invite" }));
         expect(onFinished).toHaveBeenCalledWith(true, true, "");
     });
+
+    // Kosmos (SCAT-47) : bascule de signalement masquée via config.json `hide_report_room`.
+    it("hides the report room toggle when hide_report_room is set", async () => {
+        SdkConfig.add({ hide_report_room: true });
+        const { getByRole, queryByRole, queryByLabelText } = render(
+            <DeclineAndBlockInviteDialog onFinished={onFinished} roomName={MY_ROOM_NAME} />,
+        );
+
+        expect(queryByRole("switch", { name: "Report room" })).not.toBeInTheDocument();
+        expect(queryByLabelText("Reason")).not.toBeInTheDocument();
+        // le reste du dialogue est intact et aucun signalement n'est envoyé
+        await userEvent.click(getByRole("switch", { name: "Ignore user" }));
+        await userEvent.click(getByRole("button", { name: "Decline invite" }));
+        expect(onFinished).toHaveBeenCalledWith(true, true, false);
+    });
 });

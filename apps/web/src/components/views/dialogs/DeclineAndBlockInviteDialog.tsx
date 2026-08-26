@@ -9,6 +9,7 @@ import React, { type ChangeEventHandler, useCallback, useState } from "react";
 import { Field, Label, Root, SettingsToggleInput } from "@vector-im/compound-web";
 
 import { _t } from "../../../languageHandler";
+import SdkConfig from "../../../SdkConfig";
 import BaseDialog from "./BaseDialog";
 import DialogButtons from "../elements/DialogButtons";
 
@@ -35,6 +36,10 @@ export const DeclineAndBlockInviteDialog: React.FunctionComponent<IProps> = ({ o
         [setReportReason],
     );
 
+    // Kosmos : masque la bascule de signalement et sa zone de saisie lorsque `hide_report_room`
+    // est activé dans config.json. `shouldReport` reste alors à false, aucun signalement n'est envoyé.
+    const hideReportRoom = SdkConfig.get("hide_report_room");
+
     const onCancel = useCallback(() => onFinished(false, false, false), [onFinished]);
     const onOk = useCallback(
         () => onFinished(true, ignoreUser, shouldReport ? reportReason : false),
@@ -57,27 +62,31 @@ export const DeclineAndBlockInviteDialog: React.FunctionComponent<IProps> = ({ o
                     helpMessage={_t("decline_invitation_dialog|ignore_user_help")}
                     checked={ignoreUser}
                 />
-                <SettingsToggleInput
-                    name="report-room"
-                    label={_t("action|report_room")}
-                    onChange={onShouldReportChanged}
-                    helpMessage={_t("decline_invitation_dialog|report_room_description")}
-                    checked={shouldReport}
-                />
-                <Field name="report-reason" aria-disabled={!shouldReport}>
-                    <Label htmlFor="mx_DeclineAndBlockInviteDialog_reason">
-                        {_t("room_settings|permissions|ban_reason")}
-                    </Label>
-                    <textarea
-                        id="mx_DeclineAndBlockInviteDialog_reason"
-                        className="mx_RoomReportTextArea"
-                        placeholder={_t("decline_invitation_dialog|reason_description")}
-                        rows={5}
-                        onChange={reportReasonChanged}
-                        value={shouldReport ? reportReason : ""}
-                        disabled={!shouldReport}
-                    />
-                </Field>
+                {!hideReportRoom && (
+                    <>
+                        <SettingsToggleInput
+                            name="report-room"
+                            label={_t("action|report_room")}
+                            onChange={onShouldReportChanged}
+                            helpMessage={_t("decline_invitation_dialog|report_room_description")}
+                            checked={shouldReport}
+                        />
+                        <Field name="report-reason" aria-disabled={!shouldReport}>
+                            <Label htmlFor="mx_DeclineAndBlockInviteDialog_reason">
+                                {_t("room_settings|permissions|ban_reason")}
+                            </Label>
+                            <textarea
+                                id="mx_DeclineAndBlockInviteDialog_reason"
+                                className="mx_RoomReportTextArea"
+                                placeholder={_t("decline_invitation_dialog|reason_description")}
+                                rows={5}
+                                onChange={reportReasonChanged}
+                                value={shouldReport ? reportReason : ""}
+                                disabled={!shouldReport}
+                            />
+                        </Field>
+                    </>
+                )}
                 <DialogButtons
                     primaryButton={_t("action|decline_invite")}
                     primaryButtonClass="danger"

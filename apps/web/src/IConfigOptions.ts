@@ -57,6 +57,18 @@ export interface ConfigOptions extends WebConfigJson {
      * modale de paramétrage du salon. Absent/false ⇒ comportement amont inchangé.
      */
     hide_room_encryption_section?: boolean;
+    /**
+     * Kosmos: masque l'option « Signaler » du menu contextuel d'un message, qui envoie un
+     * signalement de contenu à l'administrateur du serveur d'accueil.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_report_content?: boolean;
+    /**
+     * Kosmos: masque l'action « Signaler le salon » : le bouton du panneau latéral d'information
+     * du salon et la bascule de signalement du dialogue de refus d'invitation.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_report_room?: boolean;
 }
 
 /**

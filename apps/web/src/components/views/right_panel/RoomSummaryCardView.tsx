@@ -40,6 +40,7 @@ import { Box, Flex, HistoryVisibilityBadge, LinkedText, StatusTextView } from "@
 
 import BaseCard from "./BaseCard.tsx";
 import { _t } from "../../../languageHandler";
+import SdkConfig from "../../../SdkConfig";
 import RoomAvatar from "../avatars/RoomAvatar.tsx";
 import { E2EStatus } from "../../../utils/ShieldUtils.ts";
 import { type RoomPermalinkCreator } from "../../../utils/permalinks/Permalinks.ts";
@@ -281,12 +282,15 @@ const RoomSummaryCardView: React.FC<IProps> = ({
 
                 <Separator />
                 <div className="mx_RoomSummaryCard_bottomOptions">
-                    <MenuItem
-                        Icon={ErrorIcon}
-                        kind="critical"
-                        label={_t("action|report_room")}
-                        onSelect={vm.onReportRoomClick}
-                    />
+                    {/* Kosmos : masque « Signaler le salon » lorsque `hide_report_room` est activé dans config.json. */}
+                    {!SdkConfig.get("hide_report_room") && (
+                        <MenuItem
+                            Icon={ErrorIcon}
+                            kind="critical"
+                            label={_t("action|report_room")}
+                            onSelect={vm.onReportRoomClick}
+                        />
+                    )}
                     <MenuItem
                         className="mx_RoomSummaryCard_leave"
                         Icon={LeaveIcon}

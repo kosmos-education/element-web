@@ -46,6 +46,7 @@ import {
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import dis from "../../../dispatcher/dispatcher";
 import { _t } from "../../../languageHandler";
+import SdkConfig from "../../../SdkConfig";
 import Modal from "../../../Modal";
 import Resend from "../../../Resend";
 import SettingsStore from "../../../settings/SettingsStore";
@@ -576,7 +577,8 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         }
 
         let reportEventButton: JSX.Element | undefined;
-        if (mxEvent.getSender() !== me) {
+        // Kosmos : masque l'option « Signaler » lorsque `hide_report_content` est activé dans config.json.
+        if (mxEvent.getSender() !== me && !SdkConfig.get("hide_report_content")) {
             reportEventButton = (
                 <IconizedContextMenuOption
                     icon={<ErrorSolidIcon />}

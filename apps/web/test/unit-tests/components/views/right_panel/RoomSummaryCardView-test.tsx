@@ -25,6 +25,7 @@ import {
 import DMRoomMap from "../../../../../src/utils/DMRoomMap";
 import { SDKContext } from "../../../../../src/contexts/SDKContext.ts";
 import { SDKContextClass } from "../../../../../src/contexts/SDKContextClass.ts";
+import SdkConfig from "../../../../../src/SdkConfig";
 
 // Mock the viewmodel hooks
 jest.mock("../../../../../src/components/viewmodels/right_panel/RoomSummaryCardViewModel", () => ({
@@ -135,6 +136,29 @@ describe("<RoomSummaryCard />", () => {
         const { container, getByText } = getComponent();
         expect(getByText("Edit")).toBeInTheDocument();
         expect(container).toMatchSnapshot();
+    });
+
+    // Kosmos (SCAT-47) : action masquée via config.json `hide_report_room`.
+    describe("report room", () => {
+        it("shows the report room button by default", () => {
+            getComponent();
+
+            expect(screen.getByRole("menuitem", { name: "Report room" })).toBeInTheDocument();
+        });
+
+        it("hides the report room button when hide_report_room is set", () => {
+            SdkConfig.add({ hide_report_room: true });
+
+            try {
+                getComponent();
+
+                expect(screen.queryByRole("menuitem", { name: "Report room" })).not.toBeInTheDocument();
+                // le bouton voisin reste présent
+                expect(screen.getByRole("menuitem", { name: "Leave room" })).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
     });
 
     describe("search", () => {
