@@ -47,3 +47,6 @@ storybook-static
 # Artefacts de diagnostic et de build locaux (Kosmos)
 /diag-upgrade
 /apps/web/dist
+
+# Réglages Claude Code personnels (les skills partagés restent versionnés)
+/.claude/settings.local.json
