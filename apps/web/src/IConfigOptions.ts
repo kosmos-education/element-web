@@ -69,6 +69,18 @@ export interface ConfigOptions extends WebConfigJson {
      * Absent/false ⇒ comportement amont inchangé.
      */
     hide_report_room?: boolean;
+    /**
+     * Kosmos: masque le partage d'un lien vers un message : l'option « Partager » du menu
+     * contextuel d'un message et l'option « Copier le lien vers le fil » du menu contextuel
+     * d'un fil de discussion. Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_share_content?: boolean;
+    /**
+     * Kosmos: masque le partage d'un lien vers un salon sur ses trois points d'entrée : le
+     * panneau latéral d'information, le menu d'un salon de la liste et le menu contextuel
+     * d'un résultat du Spotlight. Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_share_room?: boolean;
 }
 
 /**

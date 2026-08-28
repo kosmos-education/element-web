@@ -138,6 +138,30 @@ describe("<RoomSummaryCard />", () => {
         expect(container).toMatchSnapshot();
     });
 
+    // Kosmos (SCAT-48) : action masquée via config.json `hide_share_room`.
+    describe("share room", () => {
+        it("shows the copy link button by default", () => {
+            getComponent();
+
+            expect(screen.getByRole("menuitem", { name: "Copy link" })).toBeInTheDocument();
+        });
+
+        it("hides the copy link button when hide_share_room is set", () => {
+            SdkConfig.add({ hide_share_room: true });
+
+            try {
+                getComponent();
+
+                expect(screen.queryByRole("menuitem", { name: "Copy link" })).not.toBeInTheDocument();
+                // les entrées voisines restent présentes
+                expect(screen.getByRole("menuitem", { name: "Export Chat" })).toBeInTheDocument();
+                expect(screen.getByRole("menuitem", { name: "Settings" })).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
+    });
+
     // Kosmos (SCAT-47) : action masquée via config.json `hide_report_room`.
     describe("report room", () => {
         it("shows the report room button by default", () => {

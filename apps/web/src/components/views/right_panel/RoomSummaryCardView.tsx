@@ -266,7 +266,10 @@ const RoomSummaryCardView: React.FC<IProps> = ({
 
                 <Separator />
 
-                <MenuItem Icon={LinkIcon} label={_t("action|copy_link")} onSelect={vm.onShareRoomClick} />
+                {/* Kosmos : masque « Copier le lien » lorsque `hide_share_room` est activé dans config.json. */}
+                {!SdkConfig.get("hide_share_room") && (
+                    <MenuItem Icon={LinkIcon} label={_t("action|copy_link")} onSelect={vm.onShareRoomClick} />
+                )}
 
                 {!vm.isVideoRoom && (
                     <>

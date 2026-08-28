@@ -33,6 +33,7 @@ import { RoomListItemViewModel } from "../../../src/viewmodels/room-list/RoomLis
 import RoomListStoreV3 from "../../../src/stores/room-list-v3/RoomListStoreV3";
 import * as tagRoomModule from "../../../src/utils/room/tagRoom";
 import { CHATS_TAG } from "../../../src/stores/room-list-v3/section";
+import SdkConfig from "../../../src/SdkConfig";
 
 jest.mock("../../../src/viewmodels/room-list/utils", () => ({
     hasAccessToOptionsMenu: jest.fn().mockReturnValue(true),
@@ -506,6 +507,26 @@ describe("RoomListItemViewModel", () => {
             await flushPromises();
 
             expect(viewModel.getSnapshot().canCopyRoomLink).toBe(true);
+        });
+
+        // Kosmos (SCAT-48) : option masquée via config.json `hide_share_room`.
+        it("should not allow copying the room link when hide_share_room is set", async () => {
+            SdkConfig.add({ hide_share_room: true });
+
+            try {
+                const dmRoomMap = DMRoomMap.shared();
+                jest.spyOn(dmRoomMap, "getUserIdForRoomId").mockReturnValue(undefined);
+
+                viewModel = new RoomListItemViewModel({ room, client: matrixClient });
+
+                await flushPromises();
+
+                expect(viewModel.getSnapshot().canCopyRoomLink).toBe(false);
+                // le reste du menu est intact
+                expect(viewModel.getSnapshot().showMoreOptionsMenu).toBe(true);
+            } finally {
+                SdkConfig.reset();
+            }
         });
     });
 

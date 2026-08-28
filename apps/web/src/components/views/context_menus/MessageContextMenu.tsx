@@ -499,7 +499,9 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         }
 
         let permalinkButton: JSX.Element | undefined;
-        if (permalink) {
+        // Kosmos : masque l'option « Partager » lorsque `hide_share_content` est activé dans config.json.
+        // L'entrée est rendue comme une balise <a href={permalink}> : elle doit être masquée en entier.
+        if (permalink && !SdkConfig.get("hide_share_content")) {
             permalinkButton = (
                 <IconizedContextMenuOption
                     icon={<ShareIcon />}

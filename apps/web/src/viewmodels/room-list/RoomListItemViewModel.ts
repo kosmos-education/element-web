@@ -43,6 +43,7 @@ import { type Call, CallEvent } from "../../models/Call";
 import RoomListStoreV3 from "../../stores/room-list-v3/RoomListStoreV3";
 import { getCustomSectionData, isDefaultSectionTag } from "../../stores/room-list-v3/section";
 import { _t } from "../../languageHandler";
+import SdkConfig from "../../SdkConfig";
 import { fetchUserStatus, userStatusFromProfile } from "../../utils/userStatus";
 
 /**
@@ -346,7 +347,10 @@ export class RoomListItemViewModel
         const canMarkAsUnread = !canMarkAsRead && !isArchived;
 
         const canInvite = room.canInvite(client.getUserId()!) && !isDm && shouldShowComponent(UIComponent.InviteUsers);
-        const canCopyRoomLink = !isDm;
+        // Kosmos : masque « Copier le lien du salon » lorsque `hide_share_room` est activé dans
+        // config.json. La garde se pose ici plutôt que dans le rendu, qui vit dans le paquet
+        // partagé `packages/shared-components`.
+        const canCopyRoomLink = !isDm && !SdkConfig.get("hide_share_room");
 
         // Get the current room notification state from EchoChamber
         const echoChamber = EchoChamber.forRoom(room);

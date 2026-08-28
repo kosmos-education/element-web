@@ -20,6 +20,7 @@ import { RoomPermalinkCreator } from "../../../../../src/utils/permalinks/Permal
 import { stubClient, clientAndSDKContextRenderOptions } from "../../../../test-utils";
 import { mkThread } from "../../../../test-utils/threads";
 import { SDKContextClass } from "../../../../../src/contexts/SDKContextClass.ts";
+import SdkConfig from "../../../../../src/SdkConfig";
 
 describe("ThreadListContextMenu", () => {
     const ROOM_ID = "!123:matrix.org";
@@ -71,5 +72,24 @@ describe("ThreadListContextMenu", () => {
         const btn = getByTestId(container, "threadlist-dropdown-button");
         await userEvent.click(btn);
         expect(screen.queryByTestId("copy-thread-link")).not.toBeNull();
+    });
+
+    // Kosmos (SCAT-48) : option masquée via config.json `hide_share_content`.
+    it("does not render the permalink when hide_share_content is set", async () => {
+        SdkConfig.add({ hide_share_content: true });
+
+        try {
+            const { container } = getComponent({
+                permalinkCreator: new RoomPermalinkCreator(room, room.roomId, false),
+            });
+
+            const btn = getByTestId(container, "threadlist-dropdown-button");
+            await userEvent.click(btn);
+            expect(screen.queryByTestId("copy-thread-link")).toBeNull();
+            // le reste du menu est intact
+            expect(screen.getByLabelText("View in room")).toBeInTheDocument();
+        } finally {
+            SdkConfig.reset();
+        }
     });
 });

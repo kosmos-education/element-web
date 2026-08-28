@@ -20,6 +20,7 @@ import { _t } from "../../../languageHandler";
 import IconizedContextMenu, { IconizedContextMenuOption, IconizedContextMenuOptionList } from "./IconizedContextMenu";
 import { type ViewRoomPayload } from "../../../dispatcher/payloads/ViewRoomPayload";
 import { SDKContext } from "../../../contexts/SDKContext.ts";
+import SdkConfig from "../../../SdkConfig";
 
 export interface ThreadListContextMenuProps {
     mxEvent: MatrixEvent;
@@ -108,7 +109,9 @@ const ThreadListContextMenu: React.FC<ThreadListContextMenuProps> = ({
                                 icon={<VisibilityOnIcon />}
                             />
                         )}
-                        {permalinkCreator && (
+                        {/* Kosmos : masque « Copier le lien vers le fil » lorsque `hide_share_content`
+                            est activé dans config.json. */}
+                        {permalinkCreator && !SdkConfig.get("hide_share_content") && (
                             <IconizedContextMenuOption
                                 data-testid="copy-thread-link"
                                 onClick={(e) => copyLinkToThread(e)}

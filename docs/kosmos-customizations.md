@@ -319,9 +319,48 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   Le Module API a été écarté : aucun point d'extension sur la composition du menu contextuel
   d'un message ni du panneau d'information du salon.
 
+- **SCAT-48 — partage de lien** : deux clés booléennes, une par objet partagé.
+  1. `hide_share_content` : masque le partage d'un lien vers un message sur ses **deux** points
+     d'entrée — l'option « Partager » du menu contextuel d'un message (`MessageContextMenu`,
+     bloc `permalinkButton`, qui ouvre `ShareDialog`) et l'option « Copier le lien vers le
+     fil » du menu contextuel d'un fil (`ThreadListContextMenu`), qui copie directement le
+     permalien sans passer par le dialogue. Attention : l'entrée du menu contextuel du message
+     est rendue comme une balise `<a href={permalink} target="_blank">` — neutraliser son
+     `onClick` ne suffit pas, le lien resterait cliquable ; c'est le bloc entier qui est masqué.
+  2. `hide_share_room` : masque le partage d'un lien vers un salon sur ses **trois** points
+     d'entrée — l'entrée « Copier le lien » du panneau latéral d'information
+     (`RoomSummaryCardView`, qui ouvre `ShareDialog`), l'entrée « Copier le lien du salon » du
+     menu « … » d'un salon de la liste (`RoomListItemViewModel`) et la même entrée dans le menu
+     contextuel d'un résultat du Spotlight (`RoomGeneralContextMenu`, via
+     `RoomResultContextMenus`). Les deux dernières passent par l'action de dispatcher
+     `copy_room`, traitée dans `MatrixChat`.
+
+  Pour la liste des salons, la garde se pose sur le calcul de `canCopyRoomLink` dans
+  `RoomListItemViewModel` et **non** dans le rendu du menu : celui-ci vit dans le paquet
+  partagé `packages/shared-components`, qu'on évite ainsi de modifier.
+
+  Ces actions produisent un lien `matrix.to` destiné à être diffusé hors de l'application — le
+  dialogue de partage propose d'ailleurs un QR code et des boutons de réseaux sociaux. Ce n'est
+  pas un usage souhaité sur La Bulle, où l'invitation reste le chemin nominal pour donner accès
+  à un salon. `ShareDialog` est conservé (simplement plus atteignable pour un message ou un
+  salon), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté : aucun
+  point d'extension sur la composition de ces menus.
+
+  Deux paramètres amont existants réduisent le contenu du dialogue sans le supprimer :
+  `UIFeature.shareQrCode` et `UIFeature.shareSocial`, tous deux à `true` par défaut et
+  pilotables par `setting_defaults`. Ils ne suffisent pas au besoin, mais leur passage à
+  `false` est un filet de sécurité utile si un point d'entrée était oublié.
+
+  Restent hors périmètre, faute de besoin confirmé : le partage du profil d'un utilisateur
+  (`UserInfoBasicOptionsViewModel`), le lien d'invitation invité d'un appel
+  (`CallGuestLinkButton`) et le lien d'invitation d'un espace (`SpacePublicShare`). À noter
+  aussi qu'un lien `matrix.to` reçu ou forgé reste résolu par le client : ces clés suppriment
+  la production de liens depuis l'interface, pas leur exploitation.
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
-`hide_room_encryption_section`, `hide_report_content` et `hide_report_room` sont déclarés dans
+`hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
+`hide_share_content` et `hide_share_room` sont déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 

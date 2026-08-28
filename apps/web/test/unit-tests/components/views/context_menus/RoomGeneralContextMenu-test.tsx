@@ -29,6 +29,7 @@ import { UIComponent } from "../../../../../src/settings/UIFeature";
 import SettingsStore from "../../../../../src/settings/SettingsStore";
 import { clearAllModals } from "../../../../test-utils";
 import * as getTagsForRoomUtils from "../../../../../src/utils/room/getTagsForRoom";
+import SdkConfig from "../../../../../src/SdkConfig";
 
 jest.mock("../../../../../src/customisations/helpers/UIComponents", () => ({
     shouldShowComponent: jest.fn(),
@@ -154,6 +155,35 @@ describe("RoomGeneralContextMenu", () => {
             unread: true,
         });
         expect(onFinished).toHaveBeenCalled();
+    });
+
+    // Kosmos (SCAT-48) : option masquée via config.json `hide_share_room`.
+    describe("share room", () => {
+        beforeEach(() => {
+            // l'option n'est rendue que pour un salon rejoint et non archivé
+            room.updateMyMembership(KnownMembership.Join);
+            jest.spyOn(getTagsForRoomUtils, "getTagsForRoom").mockReturnValue([DefaultTagID.Favourite]);
+        });
+
+        it("shows the copy room link option by default", () => {
+            getComponent({});
+
+            expect(screen.getByRole("menuitem", { name: "Copy room link" })).toBeInTheDocument();
+        });
+
+        it("hides the copy room link option when hide_share_room is set", () => {
+            SdkConfig.add({ hide_share_room: true });
+
+            try {
+                getComponent({});
+
+                expect(screen.queryByRole("menuitem", { name: "Copy room link" })).not.toBeInTheDocument();
+                // l'entrée voisine reste présente
+                expect(screen.getByRole("menuitem", { name: "Settings" })).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
     });
 
     it("when developer mode is disabled, it should not render the developer tools option", () => {

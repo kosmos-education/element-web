@@ -39,6 +39,7 @@ import { ReadPinsEventId } from "../../../../../src/components/views/right_panel
 import { Action } from "../../../../../src/dispatcher/actions";
 import { createMessageEventContent } from "../../../../test-utils/events";
 import { ScopedRoomContextProvider } from "../../../../../src/contexts/ScopedRoomContext.tsx";
+import { type RoomPermalinkCreator } from "../../../../../src/utils/permalinks/Permalinks";
 
 jest.mock("../../../../../src/utils/strings", () => ({
     copyPlaintext: jest.fn(),
@@ -591,6 +592,44 @@ describe("MessageContextMenu", () => {
                 createMenuWithContent(createMessageEventContent("hello"), { rightClick: true });
 
                 expect(screen.queryByLabelText("Report")).not.toBeInTheDocument();
+                // le reste du menu est intact
+                expect(screen.getByLabelText("Forward")).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
+    });
+
+    // Kosmos (SCAT-48) : option masquée via config.json `hide_share_content`.
+    describe("share content", () => {
+        // L'option « Partager » n'est rendue que si un permalien peut être construit.
+        const permalinkCreator = {
+            forEvent: () => "https://matrix.to/#/!room:example.com/$eventId",
+        } as unknown as RoomPermalinkCreator;
+
+        function createShareableMenu(): void {
+            const mxEvent = new MatrixEvent({
+                type: EventType.RoomMessage,
+                content: createMessageEventContent("hello"),
+                event_id: "$eventId",
+                room_id: roomId,
+            });
+            createMenu(mxEvent, { rightClick: true, permalinkCreator });
+        }
+
+        it("shows the share option by default", () => {
+            createShareableMenu();
+
+            expect(screen.getByLabelText("Share")).toBeInTheDocument();
+        });
+
+        it("hides the share option when hide_share_content is set", () => {
+            SdkConfig.add({ hide_share_content: true });
+
+            try {
+                createShareableMenu();
+
+                expect(screen.queryByLabelText("Share")).not.toBeInTheDocument();
                 // le reste du menu est intact
                 expect(screen.getByLabelText("Forward")).toBeInTheDocument();
             } finally {

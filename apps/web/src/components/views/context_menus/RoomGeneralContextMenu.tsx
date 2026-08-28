@@ -44,6 +44,7 @@ import { UIComponent } from "../../../settings/UIFeature";
 import { DeveloperToolsOption } from "./DeveloperToolsOption";
 import { useSettingValue } from "../../../hooks/useSettings";
 import { getTagsForRoom } from "../../../utils/room/getTagsForRoom";
+import SdkConfig from "../../../SdkConfig";
 
 export interface RoomGeneralContextMenuProps extends IContextMenuProps {
     room: Room;
@@ -194,7 +195,8 @@ export const RoomGeneralContextMenu: React.FC<RoomGeneralContextMenuProps> = ({
     }
 
     let copyLinkOption: JSX.Element | null = null;
-    if (!isDm) {
+    // Kosmos : masque « Copier le lien du salon » lorsque `hide_share_room` est activé dans config.json.
+    if (!isDm && !SdkConfig.get("hide_share_room")) {
         copyLinkOption = (
             <IconizedContextMenuOption
                 onClick={wrapHandler(
