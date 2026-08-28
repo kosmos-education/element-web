@@ -87,6 +87,12 @@ export interface ConfigOptions extends WebConfigJson {
      * Absent/false ⇒ comportement amont inchangé.
      */
     hide_export_chat?: boolean;
+    /**
+     * Kosmos: masque l'option « Afficher la source » du menu contextuel d'un message, qui ouvre
+     * le dialogue affichant le JSON brut de l'événement Matrix.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_view_source?: boolean;
 }
 
 /**

@@ -638,6 +638,29 @@ describe("MessageContextMenu", () => {
         });
     });
 
+    // Kosmos (SCAT-50) : option masquée via config.json `hide_view_source`.
+    describe("view source", () => {
+        it("shows the view source option by default", () => {
+            createMenuWithContent(createMessageEventContent("hello"));
+
+            expect(screen.getByLabelText("View source")).toBeInTheDocument();
+        });
+
+        it("hides the view source option when hide_view_source is set", () => {
+            SdkConfig.add({ hide_view_source: true });
+
+            try {
+                createMenuWithContent(createMessageEventContent("hello"));
+
+                expect(screen.queryByLabelText("View source")).not.toBeInTheDocument();
+                // le reste du menu est intact
+                expect(screen.getByLabelText("Forward")).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
+    });
+
     describe("right click", () => {
         it("copy button does work as expected", () => {
             const text = "hello";

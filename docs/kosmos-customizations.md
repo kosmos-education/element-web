@@ -373,10 +373,34 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   qui n'est pas un export de conversation, et le téléchargement d'une pièce jointe depuis un
   message, qui reste un usage nominal.
 
+- **SCAT-50 — affichage de la source d'un message** : `hide_view_source` (booléen) masque
+  l'option « Afficher la source » du menu contextuel d'un message (`MessageContextMenu`, bloc
+  `viewSourceButton`), qui ouvre le dialogue `ViewSource` affichant le JSON brut de l'événement
+  Matrix. Outil de mise au point sans utilité pour les personnels d'établissement, et qui
+  expose la structure technique du protocole.
+
+  À noter que cette entrée n'est **pas** conditionnée au mode développeur en amont (le
+  commentaire amont le dit explicitement : « This is specifically not behind the developerMode
+  flag ») — elle est visible par tous, sur tous les messages. Les **deux autres** accès au même
+  dialogue le sont, eux : la barre d'action du dialogue « Historique des modifications »
+  (`EditHistoryMessage`) et le lien de repli d'une tuile en erreur de rendu
+  (`TileErrorViewModel`) testent `SettingsStore.getValue("developerMode")`. Ce réglage de
+  laboratoire est désactivé par défaut et l'onglet « Laboratoire » est masqué sur nos
+  environnements (`show_labs_settings` à `false`, `USER_LABS_TAB` dans
+  `disable_settings_tabs`) : ces deux accès sont inatteignables en l'état et n'ont pas été
+  modifiés. ⚠️ Ne pas activer `developerMode` dans `setting_defaults`, sans quoi ils
+  réapparaîtraient. Même remarque pour `showHiddenEventsInTimeline`, qui rend les événements
+  techniques dans la timeline.
+
+  `ViewSource` est conservé (simplement plus atteignable depuis le menu contextuel d'un
+  message), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté :
+  aucun point d'extension sur la composition du menu contextuel d'un message.
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
 `hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
-`hide_share_content`, `hide_share_room` et `hide_export_chat` sont déclarés dans
+`hide_share_content`, `hide_share_room`, `hide_export_chat` et `hide_view_source` sont
+déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 

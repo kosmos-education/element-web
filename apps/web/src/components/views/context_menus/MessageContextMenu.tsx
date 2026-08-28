@@ -479,13 +479,17 @@ export default class MessageContextMenu extends React.Component<IProps, IState> 
         }
 
         // This is specifically not behind the developerMode flag to give people insight into the Matrix
-        const viewSourceButton = (
-            <IconizedContextMenuOption
-                icon={<InlineCodeIcon />}
-                label={_t("timeline|context_menu|view_source")}
-                onClick={this.onViewSourceClick}
-            />
-        );
+        let viewSourceButton: JSX.Element | undefined;
+        // Kosmos : masque l'option « Afficher la source » lorsque `hide_view_source` est activé dans config.json.
+        if (!SdkConfig.get("hide_view_source")) {
+            viewSourceButton = (
+                <IconizedContextMenuOption
+                    icon={<InlineCodeIcon />}
+                    label={_t("timeline|context_menu|view_source")}
+                    onClick={this.onViewSourceClick}
+                />
+            );
+        }
 
         let unhidePreviewButton: JSX.Element | undefined;
         if (eventTileOps?.isWidgetHidden()) {
