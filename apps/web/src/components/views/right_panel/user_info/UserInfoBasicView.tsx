@@ -18,6 +18,7 @@ import { IgnoreToggleButton } from "./UserInfoIgnoreButtonView";
 import Spinner from "../../elements/Spinner";
 import { UserInfoAdminToolsContainer } from "./UserInfoAdminToolsContainer";
 import { UserInfoBasicOptionsView } from "./UserInfoBasicOptionsView";
+import SdkConfig from "../../../../SdkConfig";
 
 /**
  * There are two types of components that can be displayed in the right panel concerning userinfo
@@ -82,7 +83,9 @@ export const UserInfoBasicView: React.FC<{
                 {memberDetails}
             </UserInfoBasicOptionsView>
             {adminToolsContainer}
-            {!vm.isMe && (
+            {/* Kosmos : masque « Ignorer » lorsque `hide_ignore_user` est activé dans config.json.
+                La garde porte sur le Container, pour ne pas laisser de conteneur vide. */}
+            {!vm.isMe && !SdkConfig.get("hide_ignore_user") && (
                 <Container>
                     <IgnoreToggleButton member={member} />
                 </Container>

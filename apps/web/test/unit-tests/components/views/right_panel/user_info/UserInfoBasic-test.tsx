@@ -17,6 +17,7 @@ import {
 } from "../../../../../../src/components/viewmodels/right_panel/user_info/UserInfoBasicViewModel";
 import { UserInfoBasicView } from "../../../../../../src/components/views/right_panel/user_info/UserInfoBasicView";
 import MatrixClientContext from "../../../../../../src/contexts/MatrixClientContext";
+import SdkConfig from "../../../../../../src/SdkConfig";
 
 const defaultRoomPermissions = {
     canEdit: true,
@@ -80,6 +81,31 @@ describe("<UserInfoBasic />", () => {
 
         const ignoreButton = screen.queryByRole("button", { name: "Ignore" });
         expect(ignoreButton).not.toBeInTheDocument();
+    });
+
+    // Kosmos (SCAT-51) : action masquée via config.json `hide_ignore_user`.
+    describe("ignore user", () => {
+        it("shows the ignore button by default", () => {
+            mocked(useUserInfoBasicViewModel).mockReturnValue(defaultValue);
+            renderComponent();
+
+            expect(screen.getByRole("button", { name: "Ignore" })).toBeInTheDocument();
+        });
+
+        it("hides the ignore button when hide_ignore_user is set", () => {
+            SdkConfig.add({ hide_ignore_user: true });
+            mocked(useUserInfoBasicViewModel).mockReturnValue(defaultValue);
+
+            try {
+                renderComponent();
+
+                expect(screen.queryByRole("button", { name: "Ignore" })).not.toBeInTheDocument();
+                // le bloc voisin reste présent
+                expect(screen.getByRole("button", { name: "Deactivate user" })).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
     });
 
     it("should not show deactivate button", () => {

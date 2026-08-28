@@ -396,11 +396,35 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   message), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté :
   aucun point d'extension sur la composition du menu contextuel d'un message.
 
+- **SCAT-51 — action « Ignorer » un utilisateur** : `hide_ignore_user` (booléen) masque la
+  ligne « Ignorer » / « Ne plus ignorer » du panneau latéral d'information d'un utilisateur
+  (`UserInfoBasicView`, composant `IgnoreToggleButton`). La garde porte sur le `Container` qui
+  entoure le bouton, et **non** sur le bouton seul, pour ne pas laisser de conteneur vide dans
+  le panneau ; la condition amont `!vm.isMe` reste en place.
+
+  Ignorer un utilisateur masque, côté client uniquement, tous ses messages passés et futurs dans
+  tous les salons partagés — la liste vit dans les données de compte (`m.ignored_user_list`) et
+  suit l'utilisateur sur tous ses appareils. Sur La Bulle, les échanges sont professionnels,
+  entre personnels d'établissement, dans des salons pré-créés : le filtrage individuel n'y a pas
+  de place, et l'action est trompeuse (elle ne bloque rien côté serveur, l'auteur ignoré
+  continue d'écrire sans le savoir). `IgnoreToggleButton` et sa vue-modèle sont conservés
+  (simplement plus rendus), ainsi que les libellés i18n, fournis par l'amont. Le Module API a
+  été écarté : aucun point d'extension sur la composition du panneau d'information d'un
+  utilisateur.
+
+  Deux autres accès à la liste des utilisateurs ignorés subsistent : l'onglet « Sécurité et vie
+  privée » des paramètres (`MjolnirUserSettingsTab`), déjà masqué par `USER_SECURITY_TAB` dans
+  `disable_settings_tabs` (SCAT-42), et les commandes de composition `/ignore` et `/unignore`,
+  laissées actives. ⚠️ Conséquence pour l'exploitation : la ligne masquée portait aussi « Ne plus
+  ignorer ». Un utilisateur ignoré par erreur avant la mise en place de la customisation ne peut
+  plus être dé-ignoré depuis l'interface — `/unignore @utilisateur:serveur` est le chemin de
+  secours, et c'est une des raisons pour lesquelles ces commandes ne sont pas retirées.
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
 `hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
-`hide_share_content`, `hide_share_room`, `hide_export_chat` et `hide_view_source` sont
-déclarés dans
+`hide_share_content`, `hide_share_room`, `hide_export_chat`, `hide_view_source` et
+`hide_ignore_user` sont déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 

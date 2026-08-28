@@ -93,6 +93,12 @@ export interface ConfigOptions extends WebConfigJson {
      * Absent/false ⇒ comportement amont inchangé.
      */
     hide_view_source?: boolean;
+    /**
+     * Kosmos: masque la ligne « Ignorer » / « Ne plus ignorer » du panneau latéral d'information
+     * d'un utilisateur, qui masque côté client tous les messages du membre.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_ignore_user?: boolean;
 }
 
 /**
