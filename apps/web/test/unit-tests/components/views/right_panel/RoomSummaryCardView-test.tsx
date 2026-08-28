@@ -185,6 +185,30 @@ describe("<RoomSummaryCard />", () => {
         });
     });
 
+    // Kosmos (SCAT-49) : action masquée via config.json `hide_export_chat`.
+    describe("export chat", () => {
+        it("shows the export chat button by default", () => {
+            getComponent();
+
+            expect(screen.getByRole("menuitem", { name: "Export Chat" })).toBeInTheDocument();
+        });
+
+        it("hides the export chat button when hide_export_chat is set", () => {
+            SdkConfig.add({ hide_export_chat: true });
+
+            try {
+                getComponent();
+
+                expect(screen.queryByRole("menuitem", { name: "Export Chat" })).not.toBeInTheDocument();
+                // les entrées voisines restent présentes
+                expect(screen.getByRole("menuitem", { name: "Copy link" })).toBeInTheDocument();
+                expect(screen.getByRole("menuitem", { name: "Settings" })).toBeInTheDocument();
+            } finally {
+                SdkConfig.reset();
+            }
+        });
+    });
+
     describe("search", () => {
         it("has the search field", async () => {
             const onSearchChange = jest.fn();

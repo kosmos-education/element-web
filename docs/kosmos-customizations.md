@@ -357,10 +357,26 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   aussi qu'un lien `matrix.to` reçu ou forgé reste résolu par le client : ces clés suppriment
   la production de liens depuis l'interface, pas leur exploitation.
 
+- **SCAT-49 — export des conversations** : `hide_export_chat` (booléen) masque l'entrée
+  « Exporter la conversation » du panneau latéral d'information du salon
+  (`RoomSummaryCardView`, qui ouvre `ExportDialog`). Point d'entrée unique — la garde s'ajoute
+  à la condition amont existante `!vm.isVideoRoom`, qui reste en place.
+
+  L'export produit un fichier local (HTML, texte brut ou JSON) contenant l'historique du salon,
+  pièces jointes incluses : une extraction hors application de messages d'établissement, sans
+  traçabilité côté serveur, et dont le format JSON expose la structure technique des événements
+  Matrix. `ExportDialog` est conservé (simplement plus atteignable), ainsi que les libellés
+  i18n, fournis par l'amont. Le Module API a été écarté : aucun point d'extension sur la
+  composition du panneau d'information du salon.
+
+  Restent hors périmètre : l'export des journaux de débogage (`bug_reporting|download_logs`),
+  qui n'est pas un export de conversation, et le téléchargement d'une pièce jointe depuis un
+  message, qui reste un usage nominal.
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
 `hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
-`hide_share_content` et `hide_share_room` sont déclarés dans
+`hide_share_content`, `hide_share_room` et `hide_export_chat` sont déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 

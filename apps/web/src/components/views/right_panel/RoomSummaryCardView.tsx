@@ -271,7 +271,8 @@ const RoomSummaryCardView: React.FC<IProps> = ({
                     <MenuItem Icon={LinkIcon} label={_t("action|copy_link")} onSelect={vm.onShareRoomClick} />
                 )}
 
-                {!vm.isVideoRoom && (
+                {/* Kosmos : masque « Exporter la conversation » lorsque `hide_export_chat` est activé dans config.json. */}
+                {!vm.isVideoRoom && !SdkConfig.get("hide_export_chat") && (
                     <>
                         <MenuItem
                             Icon={ExportArchiveIcon}

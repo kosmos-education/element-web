@@ -81,6 +81,12 @@ export interface ConfigOptions extends WebConfigJson {
      * d'un résultat du Spotlight. Absent/false ⇒ comportement amont inchangé.
      */
     hide_share_room?: boolean;
+    /**
+     * Kosmos: masque l'entrée « Exporter la conversation » du panneau latéral d'information du
+     * salon, qui ouvre le dialogue d'export de l'historique.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_export_chat?: boolean;
 }
 
 /**
