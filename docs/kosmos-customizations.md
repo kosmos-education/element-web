@@ -952,3 +952,15 @@ déploiements.
 
 ⚠️ **Au prochain rebase upstream** : `HomePage.tsx` est réécrit intégralement, tout changement
 amont sur ce fichier est à réexaminer plutôt qu'à fusionner.
+
+**Actions de la page (SCAT-56) :**
+
+- « Lancer une conversation » bascule sur le premier espace de la barre latérale
+  (`spaceStore.spacePanelSpaces[0]`, déjà trié et filtré comme le panneau), via
+  `setActiveSpace`, qui rouvre le dernier salon consulté dans cet espace. La liste des espaces se
+  remplit après la connexion, souvent une fois la page d'accueil déjà affichée : le composant
+  s'abonne à `UPDATE_TOP_LEVEL_SPACES` plutôt que de la lire une seule fois. Sans aucun espace
+  l'action n'aurait nulle part où mener, le bouton est alors masqué.
+- « Comment ça marche ? » ouvre `help_url` (`config.json`) dans un nouvel onglet. ⚠️ La clé n'est
+  pas renseignée dans `apps/web/config.json` : sans elle, le bouton mène au défaut d'Element
+  (`https://element.io/help`).

@@ -5,10 +5,16 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { type JSX } from "react";
+import React, { type JSX, useCallback, useContext } from "react";
 import { AutoHideScrollbar } from "@element-hq/web-shared-components";
+import { Button } from "@vector-im/compound-web";
+import { ChatSolidIcon, PopOutIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { _t } from "../../languageHandler";
+import SdkConfig from "../../SdkConfig";
+import { SDKContext } from "../../contexts/SDKContext";
+import { UPDATE_TOP_LEVEL_SPACES } from "../../stores/spaces";
+import { useEventEmitterState } from "../../hooks/useEventEmitter";
 
 /**
  * Page d'accueil de La Bulle (SCAT-53).
@@ -20,12 +26,49 @@ import { _t } from "../../languageHandler";
  * tout le monde.
  */
 const LaBulleHomePage: React.FC = (): JSX.Element => {
+    const sdkContext = useContext(SDKContext);
+    // Premier espace de la barre latérale gauche : un utilisateur peut en avoir
+    // plusieurs, on retient celui du haut. `spacePanelSpaces` est déjà trié et
+    // filtré comme le panneau, les deux restent donc d'accord. La liste se remplit
+    // après la connexion, souvent une fois la page d'accueil déjà affichée, d'où
+    // l'abonnement plutôt qu'une simple lecture.
+    const firstSpace = useEventEmitterState(
+        sdkContext.spaceStore,
+        UPDATE_TOP_LEVEL_SPACES,
+        () => sdkContext.spaceStore.spacePanelSpaces[0],
+    );
+
+    const onStartChatting = useCallback((): void => {
+        if (!firstSpace) return;
+        sdkContext.spaceStore.setActiveSpace(firstSpace.roomId);
+    }, [firstSpace, sdkContext]);
+
     return (
         <AutoHideScrollbar className="mx_AutoHideScrollbar mx_HomePage mx_HomePage_laBulle" as="main">
             <div className="mx_HomePage_laBulle_wrapper">
                 <div className="mx_HomePage_laBulle_content">
                     <h1 className="mx_HomePage_laBulle_title">{_t("home_page|welcome_title")}</h1>
                     <p className="mx_HomePage_laBulle_intro">{_t("home_page|welcome_description")}</p>
+
+                    <div className="mx_HomePage_laBulle_actions">
+                        {/* Sans espace, l'action n'aurait nulle part où mener : on la masque. */}
+                        {firstSpace && (
+                            <Button kind="primary" size="md" Icon={ChatSolidIcon} onClick={onStartChatting}>
+                                {_t("home_page|start_chatting")}
+                            </Button>
+                        )}
+                        <Button
+                            as="a"
+                            kind="secondary"
+                            size="md"
+                            Icon={PopOutIcon}
+                            href={SdkConfig.get("help_url")}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                        >
+                            {_t("home_page|how_it_works")}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </AutoHideScrollbar>

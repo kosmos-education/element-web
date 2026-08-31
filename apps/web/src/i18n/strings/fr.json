@@ -1265,6 +1265,8 @@
         "sent": "Envoyé"
     },
     "home_page": {
+        "how_it_works": "Comment ça marche ?",
+        "start_chatting": "Lancer une conversation",
         "welcome_description": "Communiquez encore plus efficacement avec vos collaborateurs, voici les salons actuellement disponibles",
         "welcome_title": "Bienvenue sur La Bulle, votre chat d’équipe"
     },

@@ -1037,6 +1037,8 @@
         "sent": "Enviado"
     },
     "home_page": {
+        "how_it_works": "¿Cómo funciona?",
+        "start_chatting": "Iniciar una conversación",
         "welcome_description": "Comunícate de forma aún más eficaz con tus compañeros, estas son las salas disponibles actualmente",
         "welcome_title": "Bienvenido a La Bulle, el chat de tu equipo"
     },
