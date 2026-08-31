@@ -216,6 +216,9 @@ session soft-logout comme « pas de jeton ». Tests dans `apps/web/src/vector/ap
 
 ### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
 
+Depuis SCAT-54, `EmbeddedPage` ne sert plus qu'à la page de bienvenue (`embedded_pages.welcome_url`) :
+la page d'accueil est un composant applicatif. Ce qui suit ne vaut donc plus que pour la bienvenue.
+
 `EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG
 (`EMBEDDED_SVG_TAGS` / `EMBEDDED_SVG_ATTRS`) et autorise `<style>`, la page embarquée étant
 fournie par l'exploitant (même niveau de confiance que `config.json`). La casse des attributs
@@ -921,3 +924,31 @@ box-sizing:border-box`.
 - Remap optionnel des échelles EMS pour les états succès/erreur/info (comme dans l'ancien plan
   `config.json`), si l'on veut aligner aussi ces palettes sur les teintes EMS exactes.
 - Les translucides `--cpd-color-alpha-*` ne sont pas teintés (impact visuel mineur).
+
+### Page d'accueil La Bulle (SCAT-53 / SCAT-54)
+
+Element proposait deux mécanismes d'accueil : sa page intégrée (avatar, « Explorer les salons »,
+« Créer un salon ») et une page HTML statique servie via `embedded_pages.home_url`, la seconde
+court-circuitant la première. Nos déploiements utilisaient la page statique, qui n'a accès ni au
+thème ni aux composants de l'application. Les deux sont remplacés par une page applicative.
+
+- `HomePage.tsx` ne contient plus que le rendu de `LaBulleHomePage.tsx` (nouveau fichier). Sa prop
+  `justRegistered` est conservée pour ne pas toucher à la chaîne `MatrixChat` → `LoggedInView`,
+  mais n'a plus d'effet : la page est la même à la première connexion.
+- `utils/pages.ts` perd `getHomePageUrl`, et `WellKnownUtils.ts` le bloc `io.element.embedded_pages`
+  (`EMBEDDED_PAGES_WK_PROPERTY`, `IEmbeddedPagesWellKnown`, `getEmbeddedPagesWellKnown`,
+  `embeddedPagesFromWellKnown`), qui n'avaient plus de consommateur. `shouldUseLoginForWelcome` et
+  `embedded_pages.welcome_url` restent en place : ils concernent la page de bienvenue, pas l'accueil.
+- `UserMenuViewModel` conditionnait l'entrée « Accueil » du menu utilisateur à la présence d'un
+  `home_url` (`openHomePage: hasHomePage`) ; elle est désormais toujours affichée.
+- `res/css/structures/_HomePage.pcss` est supprimé — il ne stylait que la page intégrée — et
+  remplacé par `_LaBulleHomePage.pcss`. La classe `.mx_HomePage` reste portée par le conteneur :
+  `LandmarkNavigation` la cible pour donner le focus à la zone principale.
+- Le contenu est éditorial et identique pour tous : il ne dépend ni du compte, ni des salons
+  auxquels l'utilisateur a accès. Textes sous la clé i18n `home_page` (fr, en, es, de).
+
+`embedded_pages.home_url` peut rester dans `config.json` sans effet ; la clé est à retirer des
+déploiements.
+
+⚠️ **Au prochain rebase upstream** : `HomePage.tsx` est réécrit intégralement, tout changement
+amont sur ce fichier est à réexaminer plutôt qu'à fusionner.

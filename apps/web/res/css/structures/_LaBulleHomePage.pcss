@@ -1,0 +1,43 @@
+/*
+Copyright 2026 Kosmos
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+/* Page d'accueil de La Bulle (SCAT-53).
+ * La classe .mx_HomePage reste portée par le conteneur : LandmarkNavigation la cible
+ * pour donner le focus à la zone principale. Elle n'a plus de styles propres —
+ * _HomePage.pcss a été supprimé avec la page d'accueil intégrée d'Element.
+ */
+.mx_HomePage_laBulle {
+    width: 100%;
+    padding: var(--cpd-space-10x) var(--cpd-space-8x);
+    container-type: inline-size;
+    container-name: homepage;
+}
+
+.mx_HomePage_laBulle_wrapper {
+    display: flex;
+    gap: var(--cpd-space-8x);
+    align-items: flex-start;
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.mx_HomePage_laBulle_content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.mx_HomePage_laBulle_title {
+    margin: 0;
+    font: var(--cpd-font-heading-md-semibold);
+    color: var(--cpd-color-text-primary);
+}
+
+.mx_HomePage_laBulle_intro {
+    margin: var(--cpd-space-2x) 0 var(--cpd-space-6x);
+    font: var(--cpd-font-body-md-regular);
+    color: var(--cpd-color-text-secondary);
+}

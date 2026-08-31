@@ -19,8 +19,6 @@ import QuestionDialog from "../../components/views/dialogs/QuestionDialog";
 import { _t } from "../../languageHandler";
 import UserIdentifierCustomisations from "../../customisations/UserIdentifier";
 import { shouldShowFeedback } from "../../utils/Feedback";
-import { getHomePageUrl } from "../../utils/pages";
-import SdkConfig from "../../SdkConfig";
 import type { MatrixClient } from "matrix-js-sdk/src/matrix";
 import { clearAllUserStatus } from "../../utils/userStatus";
 import { type SetStatusViewModel, UserMenuSetStatusViewModel } from "../status/SetStatusViewModel";
@@ -43,7 +41,6 @@ export class UserMenuViewModel
         ownProfileStore: OwnProfileStore,
         isPanelCollapsed: boolean,
     ): UserMenuSnapshot {
-        const hasHomePage = !!getHomePageUrl(SdkConfig.get(), client);
         const isAuthenticated = !client.isGuest();
         const userId = client.getSafeUserId();
         // Displayed identifier, routed through the UserIdentifier customisation so a
@@ -72,7 +69,8 @@ export class UserMenuViewModel
             actions: {
                 createAccount: !isAuthenticated,
                 signIn: !isAuthenticated,
-                openHomePage: hasHomePage,
+                // La page d'accueil La Bulle (SCAT-54) est toujours disponible.
+                openHomePage: true,
                 // Masqués pour Kosmos (SCAT-41) : entrées retirées du menu utilisateur.
                 linkNewDevice: false,
                 openSecurity: false,

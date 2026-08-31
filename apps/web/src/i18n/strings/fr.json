@@ -1264,6 +1264,10 @@
         "sending": "Envoi",
         "sent": "Envoyé"
     },
+    "home_page": {
+        "welcome_description": "Communiquez encore plus efficacement avec vos collaborateurs, voici les salons actuellement disponibles",
+        "welcome_title": "Bienvenue sur La Bulle, votre chat d’équipe"
+    },
     "identity_server": {
         "change": "Changer le serveur d’identité",
         "change_prompt": "Se déconnecter du serveur d’identité <current /> et se connecter à <new /> à la place ?",

@@ -1230,6 +1230,10 @@
         "sending": "Senden",
         "sent": "Gesendet"
     },
+    "home_page": {
+        "welcome_description": "Kommuniziere noch effizienter mit deinen Kolleginnen und Kollegen – dies sind die derzeit verfügbaren Räume",
+        "welcome_title": "Willkommen bei La Bulle, deinem Team-Chat"
+    },
     "identity_server": {
         "change": "Identitäts-Server wechseln",
         "change_prompt": "Vom Identitäts-Server <current /> trennen, und stattdessen mit <new /> verbinden?",

@@ -90,7 +90,6 @@ describe("UserMenuViewModel", () => {
     });
 
     it("should generate a menu options that includes a home page", () => {
-        SdkConfig.put({ embedded_pages: { home_url: "https://example.org" } });
         const vm = new UserMenuViewModel({ ownProfileStore: mockOwnProfileStore }, dispatcher, client, true);
         vm.setOpen(true);
         expect(vm.getSnapshot().actions.openHomePage).toEqual(true);
@@ -113,7 +112,6 @@ describe("UserMenuViewModel", () => {
     });
 
     it("can open the home menu", async () => {
-        SdkConfig.put({ embedded_pages: { home_url: "https://example.org" } });
         const vm = new UserMenuViewModel({ ownProfileStore: mockOwnProfileStore }, dispatcher, client, true);
         const dispatcherSpy = jest.fn();
         dispatcher.register(dispatcherSpy);

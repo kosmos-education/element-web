@@ -1266,6 +1266,10 @@
         "sending": "Sending",
         "sent": "Sent"
     },
+    "home_page": {
+        "welcome_description": "Communicate even more effectively with your colleagues. Here are the rooms currently available",
+        "welcome_title": "Welcome to La Bulle, your team chat"
+    },
     "identity_server": {
         "change": "Change identity server",
         "change_prompt": "Disconnect from the identity server <current /> and connect to <new /> instead?",
