@@ -82,3 +82,34 @@ Please see LICENSE files in the repository root for full details.
     font: var(--cpd-font-body-sm-regular);
     color: var(--cpd-color-text-secondary);
 }
+
+/* Largeur intermédiaire : l'encart passe sous le contenu de bienvenue.
+ * La largeur observée est celle de la page, qui dépend du panneau de salons et pas
+ * seulement de la fenêtre — d'où les container queries plutôt que des media queries. */
+@container homepage (max-width: 899px) {
+    .mx_HomePage_laBulle_wrapper {
+        flex-direction: column;
+    }
+
+    .mx_HomePage_laBulle_download {
+        width: 100%;
+    }
+}
+
+/* Écran étroit : proposer de télécharger l'application par QR code n'a plus de sens,
+ * l'utilisateur est déjà sur un appareil de ce format — et Element bascule de toute
+ * façon vers /mobile_guide/ sur mobile. */
+@container homepage (max-width: 559px) {
+    .mx_HomePage_laBulle {
+        padding: var(--cpd-space-6x) var(--cpd-space-4x);
+    }
+
+    .mx_HomePage_laBulle_download {
+        display: none;
+    }
+
+    .mx_HomePage_laBulle_actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

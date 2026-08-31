@@ -985,3 +985,14 @@ aux applications Element par défaut (`SdkConfig.ts`).
 L'encart réutilise le composant `QRCode` d'Element (dépendance `qrcode`, déjà présente) et encode
 `new URL("app/", window.location.href)` : la même convention que `getVectorConfig` pour
 `config.json`, ce qui reste juste sur un déploiement servi sous un sous-chemin, sans paramétrage.
+
+**Largeurs réduites (SCAT-59) :**
+
+La largeur disponible dépend du panneau de salons, pas seulement de la fenêtre : l'adaptation
+passe donc par des container queries (`container-name: homepage`, comme le faisait
+`_HomePage.pcss`) et non par des media queries. Sous 900 px l'encart de téléchargement passe sous
+le contenu ; sous 560 px il disparaît — l'utilisateur est déjà sur un appareil de ce format, et
+`vector/index.ts` bascule de toute façon vers `/mobile_guide/` sur mobile — et les boutons
+occupent toute la largeur. Le seuil de 560 px reprend celui de l'ancien `_HomePage.pcss`.
+
+Le thème sombre reste à faire : sa maquette n'est pas disponible.
