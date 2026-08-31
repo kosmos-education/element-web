@@ -89,13 +89,19 @@
  * La règle amont `.mx_AvatarSetting_avatar > img { border-radius: 120px }` ne s'applique
  * pas (l'<img> est rendu par BaseAvatar, sous .mx_AvatarSetting_avatarDisplay) : le rayon
  * vient bien du token Compound.
+ * Message d'accueil du salon (NewRoomIntro, haut de la timeline d'un salon neuf) :
+ * <RoomAvatar size=AVATAR_SIZE> nu, ou enveloppé dans MiniAvatarUploader quand le salon
+ * n'a pas encore d'avatar — on cible .mx_BaseAvatar en descendant pour couvrir les deux.
+ * La branche 1-1 de ce composant utilise aussi <RoomAvatar>, donc elle passe en carré
+ * elle aussi : c'est cohérent avec .mx_RoomListItemView, où les 1-1 sont déjà carrés.
  * !important nécessaire : .avatar[data-type="round"] (0,2,0) bat les sélecteurs
  * descendants sans !important. */
 .mx_RoomListItemView .mx_BaseAvatar,
 .mx_RoomHeader > *:first-child.mx_BaseAvatar,
 .mx_RoomHeader > *:first-child .mx_BaseAvatar,
 .mx_RoomSummaryCard_container .mx_BaseAvatar,
-.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar {
+.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar,
+.mx_NewRoomIntro .mx_BaseAvatar {
     --cpd-avatar-radius: 25% !important;
 }
 

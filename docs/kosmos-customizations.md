@@ -639,12 +639,24 @@ Le contrôle rapide consiste à extraire les classes `mx_` des deux fichiers
 
 **Avatars — forme et couleurs :**
 
-Les avatars de **salons** (liste + en-tête) sont rendus en **carré arrondi** (border-radius 25 %).
+Les avatars de **salons** (liste, en-tête, room summary panel, modale de paramétrage et message
+d'accueil du salon) sont rendus en **carré arrondi** (border-radius 25 %).
 Les avatars d'auteurs dans les messages de la timeline restent **ronds**.
-La surcharge est dans `_la-bulle-overrides.pcss` via `--cpd-avatar-radius: 25% !important` sur
+La surcharge est dans `_la-bulle-overrides.pcss` (et son pendant `_la-bulle-dark-overrides.pcss`,
+qui doit être tenu à jour en parallèle) via `--cpd-avatar-radius: 25% !important` sur
 les sélecteurs `.mx_RoomListItemView .mx_BaseAvatar`, `.mx_RoomHeader > *:first-child.mx_BaseAvatar`
-(avatar enfant direct — cas fréquent sans présence) et `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
-(avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée).
+(avatar enfant direct — cas fréquent sans présence), `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
+(avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée),
+`.mx_RoomSummaryCard_container .mx_BaseAvatar`,
+`.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar` et
+`.mx_NewRoomIntro .mx_BaseAvatar` (`SCAT-…`, message d'accueil en haut de la timeline d'un salon
+neuf : `NewRoomIntro` rend un `<RoomAvatar>` nu, ou enveloppé dans `MiniAvatarUploader` quand le
+salon n'a pas encore d'avatar — le sélecteur descendant couvre les deux).
+
+**Reste rond, non corrigé :** la vignette de 14 px dans l'événement de timeline « X a changé
+l'avatar du salon en … » (`RoomAvatarEventView`, `packages/shared-components`). Ses classes viennent
+d'un CSS Module (noms hachés), il n'y a donc pas de sélecteur stable à cibler depuis le thème ;
+à cette taille l'écart entre rond et 25 % est quasi invisible.
 
 Point technique en-tête : `WithPresenceIndicator` renvoie un **Fragment** (aucun nœud DOM) quand
 il n'y a pas de présence → l'avatar devient l'**enfant direct** de `.mx_RoomHeader`, pas un
