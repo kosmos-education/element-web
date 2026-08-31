@@ -11,21 +11,13 @@ import { Button } from "@vector-im/compound-web";
 import { ChatSolidIcon, PopOutIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { _t } from "../../languageHandler";
-import QRCode from "../views/elements/QRCode";
 import SdkConfig from "../../SdkConfig";
 import { SDKContext } from "../../contexts/SDKContext";
 import { UPDATE_TOP_LEVEL_SPACES } from "../../stores/spaces";
 import { useEventEmitterState } from "../../hooks/useEventEmitter";
+import QRCode from "../views/elements/QRCode";
+import skolengoLogo from "../../../res/img/la-bulle/logo-skolengo.svg";
 
-/**
- * Page d'accueil de La Bulle (SCAT-53).
- *
- * Remplace les deux mécanismes d'accueil d'Element — la page intégrée et la page
- * HTML statique servie via `embedded_pages.home_url` — par une page applicative
- * aux couleurs de La Bulle. Le contenu est éditorial : il ne dépend ni du compte
- * de l'utilisateur ni des salons auxquels il a accès, et est donc identique pour
- * tout le monde.
- */
 /**
  * Adresse de la page publique qui renvoie vers le magasin d'applications (SCAT-58),
  * encodée dans le QR code. Elle est dérivée de l'adresse consultée — même convention
@@ -36,6 +28,15 @@ function getAppRedirectUrl(): string {
     return new URL("app/", window.location.href).toString();
 }
 
+/**
+ * Page d'accueil de La Bulle (SCAT-53).
+ *
+ * Remplace les deux mécanismes d'accueil d'Element — la page intégrée et la page
+ * HTML statique servie via `embedded_pages.home_url` — par une page applicative
+ * aux couleurs de La Bulle. Le contenu est éditorial : il ne dépend ni du compte
+ * de l'utilisateur ni des salons auxquels il a accès, et est donc identique pour
+ * tout le monde.
+ */
 const LaBulleHomePage: React.FC = (): JSX.Element => {
     const sdkContext = useContext(SDKContext);
     const appRedirectUrl = useMemo(getAppRedirectUrl, []);
@@ -81,6 +82,14 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                             {_t("home_page|how_it_works")}
                         </Button>
                     </div>
+
+                    <img
+                        className="mx_HomePage_laBulle_logo"
+                        src={skolengoLogo}
+                        alt="Skolengo"
+                        width="205"
+                        height="47"
+                    />
                 </div>
 
                 <aside className="mx_HomePage_laBulle_download">

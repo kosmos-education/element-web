@@ -944,6 +944,8 @@ thème ni aux composants de l'application. Les deux sont remplacés par une page
 - `res/css/structures/_HomePage.pcss` est supprimé — il ne stylait que la page intégrée — et
   remplacé par `_LaBulleHomePage.pcss`. La classe `.mx_HomePage` reste portée par le conteneur :
   `LandmarkNavigation` la cible pour donner le focus à la zone principale.
+- Le logo Skolengo (`res/img/la-bulle/logo-skolengo.svg`, la version sans donut) est embarqué dans
+  l'application, et non plus servi par une URL externe comme `branding.auth_header_logo_url`.
 - Le contenu est éditorial et identique pour tous : il ne dépend ni du compte, ni des salons
   auxquels l'utilisateur a accès. Textes sous la clé i18n `home_page` (fr, en, es, de).
 
