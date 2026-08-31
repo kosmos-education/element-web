@@ -979,3 +979,9 @@ paramétré pour cet appareil : repli sur `/mobile_guide/`, laissée inchangée.
 
 ⚠️ `mobile_builds` n'est pas renseigné dans `apps/web/config.json` : sans lui, la redirection mène
 aux applications Element par défaut (`SdkConfig.ts`).
+
+**Encart QR code (SCAT-57) :**
+
+L'encart réutilise le composant `QRCode` d'Element (dépendance `qrcode`, déjà présente) et encode
+`new URL("app/", window.location.href)` : la même convention que `getVectorConfig` pour
+`config.json`, ce qui reste juste sur un déploiement servi sous un sous-chemin, sans paramétrage.

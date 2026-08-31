@@ -9,6 +9,10 @@ import React from "react";
 import { render, screen, fireEvent } from "jest-matrix-react";
 import { type Room } from "matrix-js-sdk/src/matrix";
 
+// Avant l'import du composant : le helper installe le mock de « qrcode », que QRCode.tsx
+// capture au chargement.
+import { mockQRCodeRender, resetQRCodeMock, waitForQRCodeRender } from "../../../test-utils/qrcode";
+import { toDataURL } from "qrcode";
 import LaBulleHomePage from "../../../../src/components/structures/LaBulleHomePage";
 import { SDKContext } from "../../../../src/contexts/SDKContext";
 import { SDKContextClass } from "../../../../src/contexts/SDKContextClass";
@@ -32,6 +36,11 @@ describe("<LaBulleHomePage/>", () => {
         localStorage.clear();
         SdkConfig.reset();
         sdkContext = new SDKContextClass();
+        mockQRCodeRender();
+    });
+
+    afterEach(() => {
+        resetQRCodeMock();
     });
 
     it("welcomes the user to La Bulle", () => {
@@ -60,6 +69,14 @@ describe("<LaBulleHomePage/>", () => {
         fireEvent.click(screen.getByRole("button", { name: "Start a conversation" }));
 
         expect(setActiveSpace).toHaveBeenCalledWith("!first:example.org");
+    });
+
+    it("encodes the app redirect page of the current deployment in the QR code", async () => {
+        givenSpaces();
+        renderPage();
+        await waitForQRCodeRender();
+
+        expect(jest.mocked(toDataURL)).toHaveBeenCalledWith(`${window.location.origin}/app/`, expect.anything());
     });
 
     it("hides the conversation button while no space is available", () => {

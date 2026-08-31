@@ -1037,6 +1037,8 @@
         "sent": "Enviado"
     },
     "home_page": {
+        "download_hint": "Escanea el código de arriba para encontrar todo Skolengo en iPhone o Android.",
+        "download_title": "La Bulle está disponible en tu aplicación Skolengo",
         "how_it_works": "¿Cómo funciona?",
         "start_chatting": "Iniciar una conversación",
         "welcome_description": "Comunícate de forma aún más eficaz con tus compañeros, estas son las salas disponibles actualmente",
