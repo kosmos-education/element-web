@@ -171,6 +171,7 @@ export default (env: string, argv: Record<string, any>): webpack.Configuration =
         entry: {
             bundle: "./src/vector/index.ts",
             mobileguide: "./src/vector/mobile_guide/index.ts",
+            appredirect: "./src/vector/app_redirect/index.ts",
             jitsi: "./src/vector/jitsi/index.ts",
             usercontent: "./src/usercontent/index.ts",
             serviceworker: {
@@ -642,7 +643,7 @@ export default (env: string, argv: Record<string, any>): webpack.Configuration =
                 // HtmlWebpackPlugin will screw up our formatting like the names
                 // of the themes and which chunks we actually care about.
                 inject: false,
-                excludeChunks: ["mobileguide", "usercontent", "jitsi", "serviceworker"],
+                excludeChunks: ["mobileguide", "appredirect", "usercontent", "jitsi", "serviceworker"],
                 minify: false,
                 templateParameters: {
                     og_image_url: ogImageUrl,
@@ -664,6 +665,14 @@ export default (env: string, argv: Record<string, any>): webpack.Configuration =
                 filename: "mobile_guide/index.html",
                 minify: false,
                 chunks: ["mobileguide"],
+            }),
+
+            // Cible du QR code de la page d'accueil : redirige vers le magasin d'applications (SCAT-58)
+            new HtmlWebpackPlugin({
+                template: "./src/vector/app_redirect/index.html",
+                filename: "app/index.html",
+                minify: false,
+                chunks: ["appredirect"],
             }),
 
             // These are the static error pages for when the javascript env is *really unsupported*

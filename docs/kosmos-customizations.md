@@ -964,3 +964,18 @@ amont sur ce fichier est à réexaminer plutôt qu'à fusionner.
 - « Comment ça marche ? » ouvre `help_url` (`config.json`) dans un nouvel onglet. ⚠️ La clé n'est
   pas renseignée dans `apps/web/config.json` : sans elle, le bouton mène au défaut d'Element
   (`https://element.io/help`).
+
+**Page publique de redirection vers les magasins (SCAT-58) :**
+
+`src/vector/app_redirect/` est une entrée webpack indépendante du bundle principal, servie sous
+`/app/` (chunk `appredirect`, exclu du `HtmlWebpackPlugin` de la page principale). Elle est la
+cible du QR code de la page d'accueil : elle lit `mobile_builds` dans `config.json` via
+`getVectorConfig("..")` — comme `/mobile_guide/` — et redirige immédiatement, sans écran
+intermédiaire, vers `mobile_builds.ios` ou `mobile_builds.android`.
+
+`detectPlatform()` est isolée dans `platform.ts` pour être testable. Un iPad se présente comme un
+Mac depuis iPadOS 13 : seul `maxTouchPoints` les sépare. Appareil indéterminé, ou magasin non
+paramétré pour cet appareil : repli sur `/mobile_guide/`, laissée inchangée.
+
+⚠️ `mobile_builds` n'est pas renseigné dans `apps/web/config.json` : sans lui, la redirection mène
+aux applications Element par défaut (`SdkConfig.ts`).
