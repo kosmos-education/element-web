@@ -998,3 +998,17 @@ le contenu ; sous 560 px il disparaît — l'utilisateur est déjà sur un appar
 occupent toute la largeur. Le seuil de 560 px reprend celui de l'ancien `_HomePage.pcss`.
 
 Le thème sombre reste à faire : sa maquette n'est pas disponible.
+
+**Présentation des salons (SCAT-55) :**
+
+Liste éditoriale de quatre entrées — Générale, Vie scolaire, salon nominatif enseignant / Vie
+scolaire, PPMS — identique pour tout le monde : elle décrit les salons types d'un établissement,
+sans lien avec ceux auxquels l'utilisateur a effectivement accès, et n'est donc pas cliquable.
+
+Les pastilles colorées font partie des SVG fournis (`res/img/la-bulle/room-*.svg`, 40×40, fond
+inclus) : ni la couleur ni la forme ne sont dans le CSS. Les images sont décoratives
+(`alt=""`, `aria-hidden`), le nom du salon les suit immédiatement.
+
+Les noms de salons ne sont pas traduits dans les quatre langues : ce sont ceux créés côté serveur.
+Seuls les compléments et les descriptions le sont. Dans l'entrée nominative, « NOM Prénom » est mis
+en italique via une sous-balise `<i>` : c'est un exemple, pas l'identité de l'utilisateur connecté.

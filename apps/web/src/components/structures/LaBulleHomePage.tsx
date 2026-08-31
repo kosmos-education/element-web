@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { type JSX, useCallback, useContext, useMemo } from "react";
+import React, { type JSX, type ReactNode, useCallback, useContext, useMemo } from "react";
 import { AutoHideScrollbar } from "@element-hq/web-shared-components";
 import { Button } from "@vector-im/compound-web";
 import { ChatSolidIcon, PopOutIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
@@ -16,7 +16,55 @@ import { SDKContext } from "../../contexts/SDKContext";
 import { UPDATE_TOP_LEVEL_SPACES } from "../../stores/spaces";
 import { useEventEmitterState } from "../../hooks/useEventEmitter";
 import QRCode from "../views/elements/QRCode";
+import roomGeneraleIcon from "../../../res/img/la-bulle/room-generale.svg";
+import roomVieScolaireIcon from "../../../res/img/la-bulle/room-vie-scolaire.svg";
+import roomEnseignantVieScolaireIcon from "../../../res/img/la-bulle/room-enseignant-vie-scolaire.svg";
+import roomPpmsIcon from "../../../res/img/la-bulle/room-ppms.svg";
 import skolengoLogo from "../../../res/img/la-bulle/logo-skolengo.svg";
+
+interface PresentedRoom {
+    id: string;
+    icon: string;
+    name: ReactNode;
+    description: string;
+}
+
+/**
+ * Salons présentés sur la page. Liste éditoriale : elle décrit les salons types d'un
+ * établissement, sans lien avec ceux auxquels l'utilisateur a effectivement accès, et
+ * n'est donc pas cliquable. Les noms de salons ne sont pas traduits, ce sont ceux
+ * créés côté serveur.
+ */
+function getPresentedRooms(): PresentedRoom[] {
+    return [
+        {
+            id: "generale",
+            icon: roomGeneraleIcon,
+            name: _t("home_page|room_generale_name"),
+            description: _t("home_page|room_generale_description"),
+        },
+        {
+            id: "vie_scolaire",
+            icon: roomVieScolaireIcon,
+            name: _t("home_page|room_vie_scolaire_name"),
+            description: _t("home_page|room_vie_scolaire_description"),
+        },
+        {
+            id: "enseignant_vie_scolaire",
+            icon: roomEnseignantVieScolaireIcon,
+            // L'identité de l'enseignant est un exemple, pas celle de l'utilisateur connecté :
+            // la page est la même pour tout le monde, d'où la mise en italique.
+            name: _t("home_page|room_enseignant_vie_scolaire_name", {}, { i: (sub) => <i>{sub}</i> }),
+            description: _t("home_page|room_enseignant_vie_scolaire_description"),
+        },
+        {
+            id: "ppms",
+            icon: roomPpmsIcon,
+            name: _t("home_page|room_ppms_name"),
+            description: _t("home_page|room_ppms_description"),
+        },
+    ];
+}
 
 /**
  * Adresse de la page publique qui renvoie vers le magasin d'applications (SCAT-58),
@@ -62,6 +110,19 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                 <div className="mx_HomePage_laBulle_content">
                     <h1 className="mx_HomePage_laBulle_title">{_t("home_page|welcome_title")}</h1>
                     <p className="mx_HomePage_laBulle_intro">{_t("home_page|welcome_description")}</p>
+
+                    <ul className="mx_HomePage_laBulle_rooms">
+                        {getPresentedRooms().map(({ id, icon, name, description }) => (
+                            <li key={id} className="mx_HomePage_laBulle_room">
+                                {/* Décoratif : le nom du salon suit immédiatement. */}
+                                <img src={icon} alt="" aria-hidden="true" width="40" height="40" />
+                                <div>
+                                    <span className="mx_HomePage_laBulle_room_name">{name}</span>
+                                    <p className="mx_HomePage_laBulle_room_description">{description}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
 
                     <div className="mx_HomePage_laBulle_actions">
                         {/* Sans espace, l'action n'aurait nulle part où mener : on la masque. */}

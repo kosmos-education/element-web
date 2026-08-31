@@ -49,6 +49,25 @@ describe("<LaBulleHomePage/>", () => {
         expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("La Bulle");
     });
 
+    it("presents the four rooms of a school, without making them clickable", () => {
+        givenSpaces();
+        const { container } = renderPage();
+
+        const rooms = container.querySelectorAll(".mx_HomePage_laBulle_room");
+        expect(rooms).toHaveLength(4);
+        expect([...rooms].map((room) => room.querySelector(".mx_HomePage_laBulle_room_name")?.textContent)).toEqual([
+            "Générale, an open communication room",
+            "Vie scolaire",
+            "SURNAME First name & Vie scolaire",
+            "PPMS",
+        ]);
+        rooms.forEach((room) => {
+            expect(room.querySelector("a, button")).toBeNull();
+            // Les pastilles sont décoratives : le nom du salon les suit immédiatement.
+            expect(room.querySelector("img")).toHaveAttribute("aria-hidden", "true");
+        });
+    });
+
     it("links to the configured help page in a new tab", () => {
         givenSpaces();
         SdkConfig.put({ help_url: "https://example.org/aide" });
