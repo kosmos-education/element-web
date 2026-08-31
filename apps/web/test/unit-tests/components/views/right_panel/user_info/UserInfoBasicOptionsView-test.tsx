@@ -19,6 +19,7 @@ import { UserInfoBasicOptionsView } from "../../../../../../src/components/views
 import { UIComponent } from "../../../../../../src/settings/UIFeature";
 import { shouldShowComponent } from "../../../../../../src/customisations/helpers/UIComponents";
 import { type Member } from "../../../../../../src/components/views/right_panel/UserInfo";
+import SdkConfig from "../../../../../../src/SdkConfig";
 
 jest.mock("../../../../../../src/components/viewmodels/right_panel/user_info/UserInfoBasicOptionsViewModel", () => ({
     useUserInfoBasicOptionsViewModel: jest.fn(),
@@ -88,6 +89,22 @@ describe("<UserOptionsSection />", () => {
         fireEvent.click(sharedButton2);
 
         expect(onShareUserClick).toHaveBeenCalled();
+    });
+
+    // Kosmos (SCAT-48) : action masquée via config.json `hide_share_user`.
+    it("should hide sharedButton when hide_share_user is set", () => {
+        mocked(useUserInfoBasicOptionsViewModel).mockReturnValue({ ...defaultValue });
+        SdkConfig.add({ hide_share_user: true });
+
+        try {
+            render(<UserInfoBasicOptionsView {...defaultProps} />);
+
+            expect(screen.queryByRole("button", { name: "Share profile" })).not.toBeInTheDocument();
+            // l'entrée voisine reste présente
+            expect(screen.getByRole("button", { name: "Jump to read receipt" })).toBeInTheDocument();
+        } finally {
+            SdkConfig.reset();
+        }
     });
 
     it("should show insert pill button when user is not me and showinsertpill is true", () => {

@@ -15,6 +15,7 @@ import { _t } from "../../../../languageHandler";
 import { useUserInfoBasicOptionsViewModel } from "../../../viewmodels/right_panel/user_info/UserInfoBasicOptionsViewModel";
 import { Container } from "../UserInfo";
 import { shouldShowComponent } from "../../../../customisations/helpers/UIComponents";
+import SdkConfig from "../../../../SdkConfig";
 import { UIComponent } from "../../../../settings/UIFeature";
 
 export const UserInfoBasicOptionsView: React.FC<{
@@ -71,7 +72,8 @@ export const UserInfoBasicOptionsView: React.FC<{
         }
     }
 
-    const shareUserButton = (
+    // Kosmos : masque « Partager le profil » lorsque `hide_share_user` est activé dans config.json.
+    const shareUserButton = SdkConfig.get("hide_share_user") ? undefined : (
         <MenuItem
             role="button"
             onSelect={async (ev) => {

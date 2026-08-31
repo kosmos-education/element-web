@@ -82,6 +82,12 @@ export interface ConfigOptions extends WebConfigJson {
      */
     hide_share_room?: boolean;
     /**
+     * Kosmos: masque l'entrée « Partager le profil » du panneau latéral d'information d'un
+     * utilisateur, qui ouvre le dialogue de partage d'un lien vers son profil.
+     * Absent/false ⇒ comportement amont inchangé.
+     */
+    hide_share_user?: boolean;
+    /**
      * Kosmos: masque l'entrée « Exporter la conversation » du panneau latéral d'information du
      * salon, qui ouvre le dialogue d'export de l'historique.
      * Absent/false ⇒ comportement amont inchangé.

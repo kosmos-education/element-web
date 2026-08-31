@@ -319,7 +319,7 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   Le Module API a été écarté : aucun point d'extension sur la composition du menu contextuel
   d'un message ni du panneau d'information du salon.
 
-- **SCAT-48 — partage de lien** : deux clés booléennes, une par objet partagé.
+- **SCAT-48 — partage de lien** : trois clés booléennes, une par objet partagé.
   1. `hide_share_content` : masque le partage d'un lien vers un message sur ses **deux** points
      d'entrée — l'option « Partager » du menu contextuel d'un message (`MessageContextMenu`,
      bloc `permalinkButton`, qui ouvre `ShareDialog`) et l'option « Copier le lien vers le
@@ -334,6 +334,11 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
      contextuel d'un résultat du Spotlight (`RoomGeneralContextMenu`, via
      `RoomResultContextMenus`). Les deux dernières passent par l'action de dispatcher
      `copy_room`, traitée dans `MatrixChat`.
+  3. `hide_share_user` : masque l'entrée « Partager le profil » du panneau latéral d'information
+     d'un utilisateur (`UserInfoBasicOptionsView`, bloc `shareUserButton`, qui ouvre
+     `ShareDialog` avec la cible `member`). Point d'entrée **unique**. Le bouton est rendu hors
+     du bloc `!vm.isMe` : la garde le masque aussi bien sur son propre profil que sur celui d'un
+     autre membre.
 
   Pour la liste des salons, la garde se pose sur le calcul de `canCopyRoomLink` dans
   `RoomListItemViewModel` et **non** dans le rendu du menu : celui-ci vit dans le paquet
@@ -351,8 +356,7 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   pilotables par `setting_defaults`. Ils ne suffisent pas au besoin, mais leur passage à
   `false` est un filet de sécurité utile si un point d'entrée était oublié.
 
-  Restent hors périmètre, faute de besoin confirmé : le partage du profil d'un utilisateur
-  (`UserInfoBasicOptionsViewModel`), le lien d'invitation invité d'un appel
+  Restent hors périmètre, faute de besoin confirmé : le lien d'invitation invité d'un appel
   (`CallGuestLinkButton`) et le lien d'invitation d'un espace (`SpacePublicShare`). À noter
   aussi qu'un lien `matrix.to` reçu ou forgé reste résolu par le client : ces clés suppriment
   la production de liens depuis l'interface, pas leur exploitation.
@@ -423,8 +427,8 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
 `hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
-`hide_share_content`, `hide_share_room`, `hide_export_chat`, `hide_view_source` et
-`hide_ignore_user` sont déclarés dans
+`hide_share_content`, `hide_share_room`, `hide_share_user`, `hide_export_chat`,
+`hide_view_source` et `hide_ignore_user` sont déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 
