@@ -14,6 +14,12 @@ Please see LICENSE files in the repository root for full details.
     /* Element ne pose pas `box-sizing: border-box` globalement : sans cette ligne, la
      * page mesure 100 % de sa zone PLUS son padding, et déborde sur la droite. */
     box-sizing: border-box;
+    /* Colonne dont le seul enfant porte des marges automatiques : le contenu est centré
+     * dans la hauteur tant qu'il tient, et se cale en haut dès qu'il déborde — les marges
+     * automatiques tombent à zéro faute d'espace libre. Un `align-items: center` aurait
+     * rendu le haut de la page inatteignable au défilement. */
+    display: flex;
+    flex-direction: column;
     width: 100%;
     /* Hauteur bornée, sans quoi l'`overflow-y: auto` d'AutoHideScrollbar n'a rien à
      * faire défiler et le bas de la page devient inatteignable. Cf. le commentaire de
@@ -48,7 +54,7 @@ Please see LICENSE files in the repository root for full details.
     gap: var(--cpd-space-8x);
     align-items: flex-start;
     max-width: 69.33em; /* 1040px à l'échelle de repos */
-    margin: 0 auto;
+    margin: auto;
     padding-block: var(--cpd-space-10x);
 }
 

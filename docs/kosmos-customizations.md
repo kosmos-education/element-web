@@ -1046,6 +1046,12 @@ un palier exprime une intention de lisibilité, pas une garantie de non-déborde
 Le palier 899 px ne fait donc plus que devancer le passage à la ligne, pour ne pas serrer les
 descriptions de salons.
 
+Le contenu est centré dans la hauteur, comme le faisait la page d'accueil d'Element avec son
+`place-items: center`. `.mx_HomePage_laBulle` est une colonne flex dont le wrapper, seul enfant,
+porte `margin: auto` : centré tant que le contenu tient, calé en haut dès qu'il déborde, les marges
+automatiques tombant à zéro faute d'espace libre. ⚠️ Ne pas remplacer par `align-items: center`,
+qui rendrait le haut de la page inatteignable au défilement.
+
 Deux points sur le défilement :
 
 - `.mx_HomePage_laBulle` doit garder `height: 100%`, sans quoi l'`overflow-y: auto` d'
