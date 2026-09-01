@@ -1017,7 +1017,11 @@ demandé un traitement, les deux derniers dans `la-bulle-dark/css/_la-bulle-dark
   (modules clairs sur fond sombre) ; la norme ISO 18004 suppose l'inverse et les appareils photo
   natifs échouent souvent sur un code inversé — un QR qui ne se scanne pas vide la fonctionnalité de
   son sens. `.mx_HomePage_laBulle_download_qr` porte donc une pastille blanche permanente, qui se
-  confond avec la carte en thème clair et se détache en sombre.
+  confond avec la carte en thème clair et se détache en sombre. Elle se centre par
+  `width: fit-content` et des marges automatiques, et la largeur de l'image ne doit pas
+  s'exprimer en pourcentage : ce serait un pourcentage de la pastille, dont la largeur dépend
+  elle-même de l'image. Le navigateur résout la circularité avec la taille intrinsèque du PNG
+  (256 px), la pastille prend alors toute la place disponible et le code s'y décale.
 - **La carte du QR** utilise `bg-canvas-default` en clair, où elle est le point le plus lumineux de
   l'encart. En sombre ce même token est PLUS foncé que l'encart (#101317 contre #1d1f24) : le
   rapport s'inverse et la carte disparaît. Elle passe donc à `bg-subtle-primary` en sombre.
