@@ -127,9 +127,20 @@ Please see LICENSE files in the repository root for full details.
     text-align: center;
 }
 
-.mx_HomePage_laBulle_download_qr img {
-    width: min(8.67em, 100%); /* 130px à l'échelle de repos */
-    height: auto;
+/* Le QR reste sombre sur clair dans tous les thèmes, y compris sombre : la norme
+ * ISO 18004 le suppose, et les appareils photo natifs échouent souvent sur un code
+ * inversé. En thème clair, cette pastille se confond avec la carte qui la porte. */
+.mx_HomePage_laBulle_download_qr {
+    display: inline-block;
+    padding: var(--cpd-space-2x);
+    border-radius: var(--cpd-space-1x);
+    background-color: #fff; /* dans tous les thèmes */
+
+    img {
+        display: block;
+        width: min(8.67em, 100%); /* 130px à l'échelle de repos */
+        height: auto;
+    }
 }
 
 .mx_HomePage_laBulle_download_hint {

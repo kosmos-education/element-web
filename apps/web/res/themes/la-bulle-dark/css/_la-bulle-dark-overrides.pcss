@@ -142,3 +142,20 @@
     padding: 8px;
     box-sizing: border-box;
 }
+
+/* ── Page d'accueil La Bulle (SCAT-59) ─────────────────────────────────────── */
+
+/* En clair, la carte du QR code est le point le plus lumineux de l'encart
+ * (`bg-canvas-default`, blanc). En sombre ce même token est PLUS foncé que l'encart
+ * (#101317 contre #1d1f24) : le rapport s'inverse et la carte disparaît. On remonte
+ * donc d'un cran dans l'échelle de gris, qui est inversée entre les deux thèmes. */
+.mx_HomePage_laBulle_download_card {
+    background-color: var(--cpd-color-bg-subtle-primary);
+}
+
+/* Le logo Skolengo est monochrome (#444A7E) et illisible sur le canvas sombre. Rendu
+ * en SVG inline, sa couleur est pilotable : on ne touche qu'aux tracés peints, le SVG
+ * portant aussi un groupe `fill="none"`. */
+.mx_HomePage_laBulle_logo path:not([fill="none"]) {
+    fill: var(--cpd-color-text-primary);
+}

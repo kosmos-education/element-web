@@ -20,7 +20,9 @@ import roomGeneraleIcon from "../../../res/img/la-bulle/room-generale.svg";
 import roomVieScolaireIcon from "../../../res/img/la-bulle/room-vie-scolaire.svg";
 import roomEnseignantVieScolaireIcon from "../../../res/img/la-bulle/room-enseignant-vie-scolaire.svg";
 import roomPpmsIcon from "../../../res/img/la-bulle/room-ppms.svg";
-import skolengoLogo from "../../../res/img/la-bulle/logo-skolengo.svg";
+// SVG inline (et non image) : sa couleur devient pilotable, le logo étant monochrome
+// et illisible tel quel sur le fond du thème sombre.
+import SkolengoLogo from "../../../res/img/la-bulle/logo-skolengo.svg?react";
 
 interface PresentedRoom {
     id: string;
@@ -171,13 +173,7 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                     le logo reste le dernier élément, l'encart venant s'intercaler entre les
                     boutons et lui. */}
                 <div className="mx_HomePage_laBulle_logoRow">
-                    <img
-                        className="mx_HomePage_laBulle_logo"
-                        src={skolengoLogo}
-                        alt="Skolengo"
-                        width="205"
-                        height="47"
-                    />
+                    <SkolengoLogo className="mx_HomePage_laBulle_logo" />
                 </div>
             </div>
         </AutoHideScrollbar>

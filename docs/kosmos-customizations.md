@@ -1007,7 +1007,24 @@ l'encart disparaissait sur une tablette en portrait ou dès que la fenêtre éta
 contenu reste utile quel que soit l'appareil, puisqu'il annonce que La Bulle existe dans
 l'application Skolengo. Il passe sous le contenu et rétrécit plutôt que de disparaître.
 
-Le thème sombre reste à faire : sa maquette n'est pas disponible.
+**Thème sombre :**
+
+L'essentiel suit tout seul : textes, boutons et fond de l'encart reposent sur des tokens
+sémantiques Compound, dont l'échelle de gris est inversée entre les deux thèmes. Trois points ont
+demandé un traitement, les deux derniers dans `la-bulle-dark/css/_la-bulle-dark-overrides.pcss` :
+
+- **Le QR code reste sombre sur clair dans tous les thèmes.** La maquette le montrait inversé
+  (modules clairs sur fond sombre) ; la norme ISO 18004 suppose l'inverse et les appareils photo
+  natifs échouent souvent sur un code inversé — un QR qui ne se scanne pas vide la fonctionnalité de
+  son sens. `.mx_HomePage_laBulle_download_qr` porte donc une pastille blanche permanente, qui se
+  confond avec la carte en thème clair et se détache en sombre.
+- **La carte du QR** utilise `bg-canvas-default` en clair, où elle est le point le plus lumineux de
+  l'encart. En sombre ce même token est PLUS foncé que l'encart (#101317 contre #1d1f24) : le
+  rapport s'inverse et la carte disparaît. Elle passe donc à `bg-subtle-primary` en sombre.
+- **Le logo Skolengo** est monochrome (`#444A7E`) et illisible sur le canvas sombre. Il est rendu en
+  SVG inline (`logo-skolengo.svg?react`, loader `@svgr/webpack`) plutôt qu'en `<img>`, ce qui rend sa
+  couleur pilotable : en sombre, les tracés peints prennent `--cpd-color-text-primary`. Le sélecteur
+  exclut `[fill="none"]`, le SVG portant aussi un groupe non peint.
 
 **Échelle fluide (SCAT-59) :**
 
