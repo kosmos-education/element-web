@@ -143,14 +143,6 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                             {_t("home_page|how_it_works")}
                         </Button>
                     </div>
-
-                    <img
-                        className="mx_HomePage_laBulle_logo"
-                        src={skolengoLogo}
-                        alt="Skolengo"
-                        width="205"
-                        height="47"
-                    />
                 </div>
 
                 <aside className="mx_HomePage_laBulle_download">
@@ -160,6 +152,19 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                         <p className="mx_HomePage_laBulle_download_hint">{_t("home_page|download_hint")}</p>
                     </div>
                 </aside>
+
+                {/* Hors du contenu et après l'encart : une fois la page en colonne unique,
+                    le logo reste le dernier élément, l'encart venant s'intercaler entre les
+                    boutons et lui. */}
+                <div className="mx_HomePage_laBulle_logoRow">
+                    <img
+                        className="mx_HomePage_laBulle_logo"
+                        src={skolengoLogo}
+                        alt="Skolengo"
+                        width="205"
+                        height="47"
+                    />
+                </div>
             </div>
         </AutoHideScrollbar>
     );

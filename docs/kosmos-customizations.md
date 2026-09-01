@@ -1046,6 +1046,20 @@ un palier exprime une intention de lisibilité, pas une garantie de non-déborde
 Le palier 899 px ne fait donc plus que devancer le passage à la ligne, pour ne pas serrer les
 descriptions de salons.
 
+Deux points sur le défilement :
+
+- `.mx_HomePage_laBulle` doit garder `height: 100%`, sans quoi l'`overflow-y: auto` d'
+  `AutoHideScrollbar` n'a rien à faire défiler et le bas de la page devient inatteignable. C'est ce
+  que rappelle le commentaire de `.mx_MatrixChat > :not(…)` dans `_MatrixChat.pcss` : « needed
+  height 100% all the way down to the HomePage ».
+- Le padding vertical est porté par le wrapper, pas par le conteneur défilant : les navigateurs ne
+  traitent pas tous le `padding-bottom` d'un élément qui défile de la même façon, et il finit rogné
+  une fois arrivé en bas.
+
+Le logo Skolengo est sorti du bloc de contenu, placé après l'encart et posé en `flex: 1 0 100%` :
+toujours seul sur sa ligne, donc toujours en dernier. En deux colonnes il passe sous le contenu et
+l'encart ; en colonne unique, l'encart vient s'intercaler entre les boutons et lui.
+
 **Présentation des salons (SCAT-55) :**
 
 Liste éditoriale de quatre entrées — Générale, Vie scolaire, salon nominatif enseignant / Vie

@@ -15,7 +15,15 @@ Please see LICENSE files in the repository root for full details.
      * page mesure 100 % de sa zone PLUS son padding, et déborde sur la droite. */
     box-sizing: border-box;
     width: 100%;
-    padding: var(--cpd-space-10x) var(--cpd-space-8x);
+    /* Hauteur bornée, sans quoi l'`overflow-y: auto` d'AutoHideScrollbar n'a rien à
+     * faire défiler et le bas de la page devient inatteignable. Cf. le commentaire de
+     * `.mx_MatrixChat > :not(…)` dans _MatrixChat.pcss : « needed height 100% all the
+     * way down to the HomePage ». */
+    height: 100%;
+    /* Padding horizontal seulement : le padding vertical est porté par le wrapper, les
+     * navigateurs ne traitant pas tous le `padding-bottom` d'un conteneur défilant de la
+     * même façon — il finit rogné une fois arrivé en bas. */
+    padding-inline: var(--cpd-space-8x);
     container-type: inline-size;
     container-name: homepage;
 
@@ -41,6 +49,7 @@ Please see LICENSE files in the repository root for full details.
     align-items: flex-start;
     max-width: 69.33em; /* 1040px à l'échelle de repos */
     margin: 0 auto;
+    padding-block: var(--cpd-space-10x);
 }
 
 .mx_HomePage_laBulle_content {
@@ -138,7 +147,11 @@ Please see LICENSE files in the repository root for full details.
  * façon vers /mobile_guide/ sur mobile. */
 @container homepage (max-width: 559px) {
     .mx_HomePage_laBulle {
-        padding: var(--cpd-space-6x) var(--cpd-space-4x);
+        padding-inline: var(--cpd-space-4x);
+    }
+
+    .mx_HomePage_laBulle_wrapper {
+        padding-block: var(--cpd-space-6x);
     }
 
     .mx_HomePage_laBulle_download {
@@ -191,9 +204,15 @@ Please see LICENSE files in the repository root for full details.
     color: var(--cpd-color-text-secondary);
 }
 
+/* Toujours seul sur sa ligne, donc toujours en dernier : en deux colonnes il passe sous
+ * le contenu et l'encart, et en colonne unique l'encart s'intercale entre les boutons
+ * et lui. L'espacement vient du `gap` du wrapper. */
+.mx_HomePage_laBulle_logoRow {
+    flex: 1 0 100%;
+}
+
 .mx_HomePage_laBulle_logo {
     display: block;
     width: min(13.67em, 100%); /* 205px à l'échelle de repos */
     height: auto;
-    margin-top: var(--cpd-space-8x);
 }
