@@ -151,6 +151,10 @@
  * donc d'un cran dans l'échelle de gris, qui est inversée entre les deux thèmes. */
 .mx_HomePage_laBulle_download_card {
     background-color: var(--cpd-color-bg-subtle-primary);
+    /* Les deux fonds restent proches en sombre (#26282d sur #1d1f24) : un liseré rend au
+     * bloc la séparation que l'écart de luminosité assure en clair. Inutile en thème clair,
+     * où la carte blanche se détache déjà de l'encart. */
+    border: 1px solid var(--cpd-color-border-interactive-secondary);
 }
 
 /* Le logo Skolengo est monochrome (#444A7E) et illisible sur le canvas sombre. Rendu

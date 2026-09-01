@@ -1024,7 +1024,9 @@ demandé un traitement, les deux derniers dans `la-bulle-dark/css/_la-bulle-dark
   (256 px), la pastille prend alors toute la place disponible et le code s'y décale.
 - **La carte du QR** utilise `bg-canvas-default` en clair, où elle est le point le plus lumineux de
   l'encart. En sombre ce même token est PLUS foncé que l'encart (#101317 contre #1d1f24) : le
-  rapport s'inverse et la carte disparaît. Elle passe donc à `bg-subtle-primary` en sombre.
+  rapport s'inverse et la carte disparaît. Elle passe donc à `bg-subtle-primary` en sombre, avec un liseré
+  `border-interactive-secondary` : les deux fonds y restent proches (#26282d sur #1d1f24), là où
+  l'écart de luminosité suffit à séparer les blocs en clair.
 - **Le logo Skolengo** est monochrome (`#444A7E`) et illisible sur le canvas sombre. Il est rendu en
   SVG inline (`logo-skolengo.svg?react`, loader `@svgr/webpack`) plutôt qu'en `<img>`, ce qui rend sa
   couleur pilotable : en sombre, les tracés peints prennent `--cpd-color-text-primary`. Le sélecteur
