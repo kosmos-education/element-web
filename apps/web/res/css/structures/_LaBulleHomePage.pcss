@@ -133,6 +133,12 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_HomePage_laBulle_download_hint {
+    /* Le lien mène à la même page que le QR code. */
+    a {
+        color: var(--cpd-color-text-action-accent);
+        text-decoration: underline;
+    }
+
     margin: var(--cpd-space-3x) 0 0;
     font-weight: var(--cpd-font-weight-regular);
     font-size: 0.87em; /* body-sm à l'échelle de repos */

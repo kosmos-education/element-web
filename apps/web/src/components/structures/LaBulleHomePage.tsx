@@ -149,7 +149,21 @@ const LaBulleHomePage: React.FC = (): JSX.Element => {
                     <h2 className="mx_HomePage_laBulle_download_title">{_t("home_page|download_title")}</h2>
                     <div className="mx_HomePage_laBulle_download_card">
                         <QRCode data={appRedirectUrl} width={256} className="mx_HomePage_laBulle_download_qr" />
-                        <p className="mx_HomePage_laBulle_download_hint">{_t("home_page|download_hint")}</p>
+                        <p className="mx_HomePage_laBulle_download_hint">
+                            {_t(
+                                "home_page|download_hint",
+                                {},
+                                {
+                                    // Même destination que le QR code : qui lit la page sur son
+                                    // téléphone n'a pas à le scanner pour rejoindre le magasin.
+                                    a: (sub) => (
+                                        <a href={appRedirectUrl} target="_blank" rel="noreferrer noopener">
+                                            {sub}
+                                        </a>
+                                    ),
+                                },
+                            )}
+                        </p>
                     </div>
                 </aside>
 

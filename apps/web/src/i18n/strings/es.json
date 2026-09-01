@@ -1037,7 +1037,7 @@
         "sent": "Enviado"
     },
     "home_page": {
-        "download_hint": "Escanea el código de arriba para encontrar todo Skolengo en iPhone o Android.",
+        "download_hint": "Escanea el código de arriba para <a>encontrar todo Skolengo</a> en iPhone o Android.",
         "download_title": "La Bulle está disponible en tu aplicación Skolengo",
         "how_it_works": "¿Cómo funciona?",
         "room_enseignant_vie_scolaire_description": "Una sala reservada al intercambio directo entre un docente y el equipo de Vie scolaire",

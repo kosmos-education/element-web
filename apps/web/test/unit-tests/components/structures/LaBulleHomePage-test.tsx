@@ -98,6 +98,15 @@ describe("<LaBulleHomePage/>", () => {
         expect(jest.mocked(toDataURL)).toHaveBeenCalledWith(`${window.location.origin}/app/`, expect.anything());
     });
 
+    it("points the download link at the same page as the QR code", () => {
+        givenSpaces();
+        renderPage();
+
+        const link = screen.getByRole("link", { name: "find all of Skolengo" });
+        expect(link).toHaveAttribute("href", `${window.location.origin}/app/`);
+        expect(link).toHaveAttribute("target", "_blank");
+    });
+
     it("hides the conversation button while no space is available", () => {
         givenSpaces();
         renderPage();

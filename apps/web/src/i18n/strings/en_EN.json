@@ -1267,7 +1267,7 @@
         "sent": "Sent"
     },
     "home_page": {
-        "download_hint": "Scan the code above to find all of Skolengo on iPhone or Android.",
+        "download_hint": "Scan the code above to <a>find all of Skolengo</a> on iPhone or Android.",
         "download_title": "La Bulle is available in your Skolengo app",
         "how_it_works": "How does it work?",
         "room_enseignant_vie_scolaire_description": "A room for direct exchanges between a teacher and the Vie scolaire team",

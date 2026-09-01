@@ -1231,7 +1231,7 @@
         "sent": "Gesendet"
     },
     "home_page": {
-        "download_hint": "Scanne den Code oben, um Skolengo vollständig auf iPhone oder Android zu nutzen.",
+        "download_hint": "Scanne den Code oben, um <a>Skolengo vollständig</a> auf iPhone oder Android zu nutzen.",
         "download_title": "La Bulle ist in deiner Skolengo-App verfügbar",
         "how_it_works": "Wie funktioniert das?",
         "room_enseignant_vie_scolaire_description": "Ein Raum für den direkten Austausch zwischen einer Lehrkraft und dem Vie-scolaire-Team",

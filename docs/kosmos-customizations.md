@@ -988,6 +988,10 @@ L'encart réutilise le composant `QRCode` d'Element (dépendance `qrcode`, déj�
 `new URL("app/", window.location.href)` : la même convention que `getVectorConfig` pour
 `config.json`, ce qui reste juste sur un déploiement servi sous un sous-chemin, sans paramétrage.
 
+Le lien « retrouver tout Skolengo » du texte mène à cette même adresse, via une sous-balise `<a>`
+dans la clé `home_page|download_hint`. Qui consulte la page depuis son téléphone n'a donc pas à
+scanner le code pour rejoindre le magasin d'applications : le lien fait le même trajet.
+
 **Largeurs réduites (SCAT-59) :**
 
 La largeur disponible dépend du panneau de salons, pas seulement de la fenêtre : l'adaptation
