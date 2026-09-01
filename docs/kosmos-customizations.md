@@ -1027,6 +1027,25 @@ C'est la **première typographie fluide du dépôt** : aucun autre `font-size` n
   surcharge leur seul `font-size`, comme le fait `_la-bulle-overrides.pcss` pour les en-têtes de la
   room list.
 
+**Robustesse de la mise en page :**
+
+⚠️ Element **ne pose pas `box-sizing: border-box` globalement** (aucune règle sur `*` dans
+`_common.pcss`) : un conteneur en `width: 100%` avec un padding horizontal déborde de sa zone. La
+page d'accueil intégrée d'Element contournait le problème avec `width: min(100% - 50px, 960px)` ;
+`.mx_HomePage_laBulle` déclare `box-sizing: border-box`. À vérifier avant d'ajouter tout padding
+sur un bloc en largeur pleine.
+
+La mise en page ne repose pas sur les seules container queries pour éviter les débordements —
+un palier exprime une intention de lisibilité, pas une garantie de non-débordement :
+
+- le wrapper est en `flex-wrap: wrap`, le contenu en `flex: 1 1 30em` : l'encart passe à la ligne
+  de lui-même dès qu'il ne tient plus, palier ou pas ;
+- l'encart est en `flex: 0 1 17.33em` avec `max-width: 100%` : il rétrécit plutôt que de déborder ;
+- le QR code et le logo sont en `min(<largeur>, 100%)`.
+
+Le palier 899 px ne fait donc plus que devancer le passage à la ligne, pour ne pas serrer les
+descriptions de salons.
+
 **Présentation des salons (SCAT-55) :**
 
 Liste éditoriale de quatre entrées — Générale, Vie scolaire, salon nominatif enseignant / Vie

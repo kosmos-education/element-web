@@ -11,6 +11,9 @@ Please see LICENSE files in the repository root for full details.
  * _HomePage.pcss a été supprimé avec la page d'accueil intégrée d'Element.
  */
 .mx_HomePage_laBulle {
+    /* Element ne pose pas `box-sizing: border-box` globalement : sans cette ligne, la
+     * page mesure 100 % de sa zone PLUS son padding, et déborde sur la droite. */
+    box-sizing: border-box;
     width: 100%;
     padding: var(--cpd-space-10x) var(--cpd-space-8x);
     container-type: inline-size;
@@ -28,8 +31,12 @@ Please see LICENSE files in the repository root for full details.
     font-size: clamp(var(--cpd-font-size-body-md), calc(0.6875rem + 0.55cqi), 1.125rem);
 }
 
+/* La mise en page ne doit jamais dépendre du seul palier ci-dessous pour ne pas
+ * déborder : le wrapper passe l'encart à la ligne dès qu'il ne tient plus, et chaque
+ * élément de largeur fixe est plafonné à la place réellement disponible. */
 .mx_HomePage_laBulle_wrapper {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--cpd-space-8x);
     align-items: flex-start;
     max-width: 69.33em; /* 1040px à l'échelle de repos */
@@ -37,7 +44,8 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_HomePage_laBulle_content {
-    flex: 1 1 auto;
+    /* Sous 30em de large, le contenu réclame la ligne entière et l'encart passe dessous. */
+    flex: 1 1 30em;
     min-width: 0;
 }
 
@@ -76,9 +84,10 @@ Please see LICENSE files in the repository root for full details.
 
 /* Encart de téléchargement de l'application mobile */
 .mx_HomePage_laBulle_download {
-    flex: 0 0 auto;
+    /* Ne grandit pas au-delà de sa largeur, mais rétrécit plutôt que de déborder. */
+    flex: 0 1 17.33em; /* 260px à l'échelle de repos */
     box-sizing: border-box;
-    width: 17.33em; /* 260px à l'échelle de repos */
+    max-width: 100%;
     padding: var(--cpd-space-5x);
     border-radius: var(--cpd-space-3x);
     background-color: var(--cpd-color-bg-subtle-secondary);
@@ -101,7 +110,7 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_HomePage_laBulle_download_qr img {
-    width: 8.67em; /* 130px à l'échelle de repos */
+    width: min(8.67em, 100%); /* 130px à l'échelle de repos */
     height: auto;
 }
 
@@ -114,16 +123,13 @@ Please see LICENSE files in the repository root for full details.
     color: var(--cpd-color-text-secondary);
 }
 
-/* Largeur intermédiaire : l'encart passe sous le contenu de bienvenue.
+/* Largeur intermédiaire : on fait passer l'encart sous le contenu avant même que le
+ * wrapper n'y soit contraint, pour ne pas serrer les descriptions de salons.
  * La largeur observée est celle de la page, qui dépend du panneau de salons et pas
  * seulement de la fenêtre — d'où les container queries plutôt que des media queries. */
 @container homepage (max-width: 899px) {
-    .mx_HomePage_laBulle_wrapper {
-        flex-direction: column;
-    }
-
-    .mx_HomePage_laBulle_download {
-        width: 100%;
+    .mx_HomePage_laBulle_content {
+        flex-basis: 100%;
     }
 }
 
@@ -187,7 +193,7 @@ Please see LICENSE files in the repository root for full details.
 
 .mx_HomePage_laBulle_logo {
     display: block;
-    width: 13.67em; /* 205px à l'échelle de repos */
+    width: min(13.67em, 100%); /* 205px à l'échelle de repos */
     height: auto;
     margin-top: var(--cpd-space-8x);
 }
