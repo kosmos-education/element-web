@@ -97,7 +97,10 @@ Please see LICENSE files in the repository root for full details.
     }
 }
 
-/* Encart de téléchargement de l'application mobile */
+/* Encart de téléchargement de l'application mobile. Affiché à toutes les tailles : il
+ * porte une information — La Bulle existe dans l'application Skolengo — qui vaut aussi
+ * pour quelqu'un déjà sur un petit écran. Il passe sous le contenu et rétrécit plutôt que
+ * de disparaître. */
 .mx_HomePage_laBulle_download {
     /* Ne grandit pas au-delà de sa largeur, mais rétrécit plutôt que de déborder. */
     flex: 0 1 17.33em; /* 260px à l'échelle de repos */
@@ -161,18 +164,6 @@ Please see LICENSE files in the repository root for full details.
     .mx_HomePage_laBulle_actions {
         flex-direction: column;
         align-items: stretch;
-    }
-}
-
-/* Appareil étroit : proposer de télécharger l'application n'a plus de sens, l'utilisateur
- * y est déjà — et Element bascule de toute façon vers /mobile_guide/ sur mobile.
- *
- * C'est bien une media query : la question porte sur l'appareil, pas sur la place laissée
- * par le panneau de salons. Une container query masquerait l'encart sur une tablette, ou
- * dès que la fenêtre est partagée avec une autre application. */
-@media (max-width: 559px) {
-    .mx_HomePage_laBulle_download {
-        display: none;
     }
 }
 

@@ -996,12 +996,12 @@ passe donc par des container queries (`container-name: homepage`, comme le faisa
 le contenu ; sous 560 px les marges se resserrent et les boutons occupent toute la largeur. Le
 seuil de 560 px reprend celui de l'ancien `_HomePage.pcss`.
 
-⚠️ Le masquage de l'encart est le seul point qui relève d'une **media query** et non d'une
-container query : la question porte sur l'appareil — inutile d'y proposer le téléchargement de
-l'application, et `vector/index.ts` bascule de toute façon vers `/mobile_guide/` sur mobile — pas
-sur la place laissée par le panneau de salons. En container query, l'encart disparaissait sur une
-tablette en portrait (820 px de large, dont ~300 px de panneau) ou dès que la fenêtre était
-partagée avec une autre application.
+L'encart de téléchargement reste affiché à **toutes** les tailles. Une version antérieure le
+masquait sur les écrans étroits, au motif que l'utilisateur y serait déjà sur mobile : c'était une
+mauvaise idée à deux titres. La container query mesure la place disponible et non l'appareil —
+l'encart disparaissait sur une tablette en portrait ou dès que la fenêtre était partagée — et son
+contenu reste utile quel que soit l'appareil, puisqu'il annonce que La Bulle existe dans
+l'application Skolengo. Il passe sous le contenu et rétrécit plutôt que de disparaître.
 
 Le thème sombre reste à faire : sa maquette n'est pas disponible.
 
