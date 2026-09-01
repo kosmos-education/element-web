@@ -148,9 +148,7 @@ Please see LICENSE files in the repository root for full details.
     }
 }
 
-/* Écran étroit : proposer de télécharger l'application par QR code n'a plus de sens,
- * l'utilisateur est déjà sur un appareil de ce format — et Element bascule de toute
- * façon vers /mobile_guide/ sur mobile. */
+/* Place réduite : on resserre les marges et on empile les boutons. */
 @container homepage (max-width: 559px) {
     .mx_HomePage_laBulle {
         padding-inline: var(--cpd-space-4x);
@@ -160,13 +158,21 @@ Please see LICENSE files in the repository root for full details.
         padding-block: var(--cpd-space-6x);
     }
 
-    .mx_HomePage_laBulle_download {
-        display: none;
-    }
-
     .mx_HomePage_laBulle_actions {
         flex-direction: column;
         align-items: stretch;
+    }
+}
+
+/* Appareil étroit : proposer de télécharger l'application n'a plus de sens, l'utilisateur
+ * y est déjà — et Element bascule de toute façon vers /mobile_guide/ sur mobile.
+ *
+ * C'est bien une media query : la question porte sur l'appareil, pas sur la place laissée
+ * par le panneau de salons. Une container query masquerait l'encart sur une tablette, ou
+ * dès que la fenêtre est partagée avec une autre application. */
+@media (max-width: 559px) {
+    .mx_HomePage_laBulle_download {
+        display: none;
     }
 }
 

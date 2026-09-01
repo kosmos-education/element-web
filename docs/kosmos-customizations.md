@@ -993,9 +993,15 @@ L'encart réutilise le composant `QRCode` d'Element (dépendance `qrcode`, déj�
 La largeur disponible dépend du panneau de salons, pas seulement de la fenêtre : l'adaptation
 passe donc par des container queries (`container-name: homepage`, comme le faisait
 `_HomePage.pcss`) et non par des media queries. Sous 900 px l'encart de téléchargement passe sous
-le contenu ; sous 560 px il disparaît — l'utilisateur est déjà sur un appareil de ce format, et
-`vector/index.ts` bascule de toute façon vers `/mobile_guide/` sur mobile — et les boutons
-occupent toute la largeur. Le seuil de 560 px reprend celui de l'ancien `_HomePage.pcss`.
+le contenu ; sous 560 px les marges se resserrent et les boutons occupent toute la largeur. Le
+seuil de 560 px reprend celui de l'ancien `_HomePage.pcss`.
+
+⚠️ Le masquage de l'encart est le seul point qui relève d'une **media query** et non d'une
+container query : la question porte sur l'appareil — inutile d'y proposer le téléchargement de
+l'application, et `vector/index.ts` bascule de toute façon vers `/mobile_guide/` sur mobile — pas
+sur la place laissée par le panneau de salons. En container query, l'encart disparaissait sur une
+tablette en portrait (820 px de large, dont ~300 px de panneau) ou dès que la fenêtre était
+partagée avec une autre application.
 
 Le thème sombre reste à faire : sa maquette n'est pas disponible.
 
