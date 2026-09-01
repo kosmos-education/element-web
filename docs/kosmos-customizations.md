@@ -999,6 +999,34 @@ occupent toute la largeur. Le seuil de 560 px reprend celui de l'ancien `_HomePa
 
 Le thème sombre reste à faire : sa maquette n'est pas disponible.
 
+**Échelle fluide (SCAT-59) :**
+
+Sur un grand écran, un bloc de largeur fixe en texte de 15 px paraissait perdu dans l'espace
+disponible. `.mx_HomePage_laBulle` porte donc une échelle unique dont dérive tout le reste, tailles
+de texte comme dimensions, exprimées en `em` — ce qui garde constants les rapports de la maquette :
+
+```css
+font-size: clamp(var(--cpd-font-size-body-md), calc(0.6875rem + 0.55cqi), 1.125rem);
+```
+
+Plancher `body-md` (la taille de repos, jamais franchie vers le bas), plafond 18 px atteint vers
+1270 px, et entre les deux 0,55 % de la largeur du conteneur `homepage` — la largeur réellement
+disponible, qui dépend du panneau de salons et pas de la fenêtre. Les deux bornes sont en `rem` :
+le réglage « taille du texte » d'Element (`FontWatcher`, qui pose `font-size` sur `<html>`) décale
+l'ensemble vers le haut comme partout ailleurs.
+
+C'est la **première typographie fluide du dépôt** : aucun autre `font-size` n'utilise `clamp()`,
+`cqi` ou `vw`. Deux conséquences à connaître avant d'y toucher :
+
+- Les règles typographiques de la page n'utilisent plus les raccourcis `font: var(--cpd-font-…)`,
+  qui réinitialisent `font-size` et couperaient l'héritage de l'échelle. Elles passent par les
+  tokens primitifs (`--cpd-font-weight-*`, `--cpd-font-line-height-*`,
+  `--cpd-font-letter-spacing-*`) avec une taille en `em`. Les commentaires du fichier donnent
+  l'équivalent en pixels à l'échelle de repos, pour retrouver le token d'origine.
+- Les boutons Compound figent leur taille dans un raccourci `font` : `.mx_HomePage_laBulle_actions`
+  surcharge leur seul `font-size`, comme le fait `_la-bulle-overrides.pcss` pour les en-têtes de la
+  room list.
+
 **Présentation des salons (SCAT-55) :**
 
 Liste éditoriale de quatre entrées — Générale, Vie scolaire, salon nominatif enseignant / Vie

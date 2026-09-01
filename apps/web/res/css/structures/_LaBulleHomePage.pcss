@@ -15,13 +15,24 @@ Please see LICENSE files in the repository root for full details.
     padding: var(--cpd-space-10x) var(--cpd-space-8x);
     container-type: inline-size;
     container-name: homepage;
+
+    /* Échelle de la page. Tout le reste — tailles de texte comme dimensions — en dérive
+     * en `em`, ce qui garde constants les rapports de la maquette.
+     *
+     * Plancher : body-md, la taille de repos, jamais franchie vers le bas. Plafond : 18px,
+     * atteint vers 1270px de large. Entre les deux, 0,55 % de la largeur du conteneur, soit
+     * celle réellement disponible — elle dépend du panneau de salons, pas de la fenêtre.
+     *
+     * Les deux bornes sont en `rem` : le réglage « taille du texte » d'Element décale
+     * l'ensemble vers le haut, comme sur le reste de l'application. */
+    font-size: clamp(var(--cpd-font-size-body-md), calc(0.6875rem + 0.55cqi), 1.125rem);
 }
 
 .mx_HomePage_laBulle_wrapper {
     display: flex;
     gap: var(--cpd-space-8x);
     align-items: flex-start;
-    max-width: 1040px;
+    max-width: 69.33em; /* 1040px à l'échelle de repos */
     margin: 0 auto;
 }
 
@@ -30,15 +41,22 @@ Please see LICENSE files in the repository root for full details.
     min-width: 0;
 }
 
+/* Les raccourcis `font` de Compound réinitialisent `font-size` et couperaient l'héritage
+ * de l'échelle : la typographie passe ici par les tokens primitifs. */
 .mx_HomePage_laBulle_title {
     margin: 0;
-    font: var(--cpd-font-heading-md-semibold);
+    font-weight: var(--cpd-font-weight-semibold);
+    font-size: 1.6em; /* heading-md à l'échelle de repos */
+    line-height: var(--cpd-font-line-height-tight);
+    letter-spacing: var(--cpd-font-letter-spacing-heading-md);
     color: var(--cpd-color-text-primary);
 }
 
 .mx_HomePage_laBulle_intro {
     margin: var(--cpd-space-2x) 0 var(--cpd-space-6x);
-    font: var(--cpd-font-body-md-regular);
+    font-weight: var(--cpd-font-weight-regular);
+    line-height: var(--cpd-font-line-height-regular);
+    letter-spacing: var(--cpd-font-letter-spacing-body-md);
     color: var(--cpd-color-text-secondary);
 }
 
@@ -47,13 +65,20 @@ Please see LICENSE files in the repository root for full details.
     flex-wrap: wrap;
     gap: var(--cpd-space-3x);
     margin-top: var(--cpd-space-8x);
+
+    /* Les boutons Compound figent leur taille dans un raccourci `font` : on ne surcharge
+     * que `font-size`, pour qu'ils suivent l'échelle sans toucher à leur graisse. */
+    > button,
+    > a {
+        font-size: 1em;
+    }
 }
 
 /* Encart de téléchargement de l'application mobile */
 .mx_HomePage_laBulle_download {
     flex: 0 0 auto;
     box-sizing: border-box;
-    width: 260px;
+    width: 17.33em; /* 260px à l'échelle de repos */
     padding: var(--cpd-space-5x);
     border-radius: var(--cpd-space-3x);
     background-color: var(--cpd-color-bg-subtle-secondary);
@@ -61,7 +86,10 @@ Please see LICENSE files in the repository root for full details.
 
 .mx_HomePage_laBulle_download_title {
     margin: 0 0 var(--cpd-space-4x);
-    font: var(--cpd-font-body-lg-semibold);
+    font-weight: var(--cpd-font-weight-semibold);
+    font-size: 1.13em; /* body-lg à l'échelle de repos */
+    line-height: var(--cpd-font-line-height-regular);
+    letter-spacing: var(--cpd-font-letter-spacing-body-lg);
     color: var(--cpd-color-text-primary);
 }
 
@@ -73,13 +101,16 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_HomePage_laBulle_download_qr img {
-    width: 130px;
-    height: 130px;
+    width: 8.67em; /* 130px à l'échelle de repos */
+    height: auto;
 }
 
 .mx_HomePage_laBulle_download_hint {
     margin: var(--cpd-space-3x) 0 0;
-    font: var(--cpd-font-body-sm-regular);
+    font-weight: var(--cpd-font-weight-regular);
+    font-size: 0.87em; /* body-sm à l'échelle de repos */
+    line-height: var(--cpd-font-line-height-regular);
+    letter-spacing: var(--cpd-font-letter-spacing-body-sm);
     color: var(--cpd-color-text-secondary);
 }
 
@@ -129,25 +160,34 @@ Please see LICENSE files in the repository root for full details.
     gap: var(--cpd-space-4x);
     align-items: flex-start;
 
-    /* Les pastilles colorées font partie des SVG fournis : ne pas les redimensionner. */
+    /* Les pastilles colorées font partie des SVG fournis : les redimensionner en bloc,
+     * sans toucher à leurs proportions. */
     img {
         flex: 0 0 auto;
+        width: 2.67em; /* 40px à l'échelle de repos */
+        height: auto;
     }
 }
 
 .mx_HomePage_laBulle_room_name {
     display: block;
-    font: var(--cpd-font-body-md-semibold);
+    font-weight: var(--cpd-font-weight-semibold);
+    line-height: var(--cpd-font-line-height-regular);
+    letter-spacing: var(--cpd-font-letter-spacing-body-md);
     color: var(--cpd-color-text-primary);
 }
 
 .mx_HomePage_laBulle_room_description {
     margin: var(--cpd-space-1x) 0 0;
-    font: var(--cpd-font-body-md-regular);
+    font-weight: var(--cpd-font-weight-regular);
+    line-height: var(--cpd-font-line-height-regular);
+    letter-spacing: var(--cpd-font-letter-spacing-body-md);
     color: var(--cpd-color-text-secondary);
 }
 
 .mx_HomePage_laBulle_logo {
     display: block;
+    width: 13.67em; /* 205px à l'échelle de repos */
+    height: auto;
     margin-top: var(--cpd-space-8x);
 }
