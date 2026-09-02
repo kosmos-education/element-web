@@ -1,5 +1,6 @@
 /*
 Copyright 2026 Element Creations Ltd.
+Copyright 2026 Kosmos
 
 SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE files in the repository root for full details.
@@ -9,30 +10,60 @@ Please see LICENSE files in the repository root for full details.
 
 import { vi, describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { waitFor } from "@testing-library/dom";
-import fetchMock from "@fetch-mock/vitest";
 
 vi.mock("../getconfig.ts", () => ({
-    getVectorConfig: vi.fn().mockResolvedValue({ default_server_name: "server_name" }),
+    getVectorConfig: vi.fn().mockResolvedValue({
+        mobile_builds: {
+            ios: "https://apps.example.org/skolengo",
+            android: "https://play.example.org/skolengo",
+        },
+    }),
 }));
-vi.mock("./mobile-apps.ts");
 
-describe("onBackToElementClick", () => {
+describe("mobile guide", () => {
     beforeAll(async () => {
+        for (const id of ["heading", "intro", "step1_heading", "step2_heading"]) {
+            const element = document.createElement("h1");
+            element.id = id;
+            document.body.append(element);
+        }
+
+        for (const [linkId, badgeId] of [
+            ["app_store_link", "app_store_badge"],
+            ["play_store_link", "play_store_badge"],
+        ]) {
+            const link = document.createElement("a");
+            link.id = linkId;
+            const badge = document.createElement("img");
+            badge.id = badgeId;
+            link.append(badge);
+            document.body.append(link);
+        }
+
         const backButton = document.createElement("a");
         backButton.id = "back_to_element_button";
-        backButton.textContent = "Back";
         document.body.append(backButton);
 
-        fetchMock.get("https://server_name/.well-known/matrix/client", {
-            "m.homeserver": {
-                base_url: "https://server/",
-            },
-        });
         await import("./index.ts");
     });
 
-    beforeEach(async () => {
+    beforeEach(() => {
         sessionStorage.clear();
+    });
+
+    it("points both store badges at the configured applications", async () => {
+        await waitFor(() =>
+            expect(document.getElementById("app_store_link")).toHaveProperty(
+                "href",
+                "https://apps.example.org/skolengo",
+            ),
+        );
+        expect(document.getElementById("play_store_link")).toHaveProperty("href", "https://play.example.org/skolengo");
+    });
+
+    it("translates the page", () => {
+        expect(document.getElementById("heading")!.textContent).toBeTruthy();
+        expect(document.getElementById("step1_heading")!.textContent).toBeTruthy();
     });
 
     it("should set skip_mobile_redirect in sessionStorage", async () => {

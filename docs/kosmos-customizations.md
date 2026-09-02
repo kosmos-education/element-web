@@ -975,6 +975,26 @@ cible du QR code de la page d'accueil : elle lit `mobile_builds` dans `config.js
 `getVectorConfig("..")` — comme `/mobile_guide/` — et redirige immédiatement, sans écran
 intermédiaire, vers `mobile_builds.ios` ou `mobile_builds.android`.
 
+Le guide mobile `/mobile_guide/` — vers lequel `vector/index.ts` bascule aussi quand on ouvre le
+site depuis un téléphone — est refait aux couleurs La Bulle (SCAT-58) : vignette du donut Skolengo,
+titre, accroche, puis deux étapes (télécharger l'application, s'y connecter) avec les badges App
+Store et Google Play. Les adresses viennent de `mobile_builds` ; un badge sans adresse est retiré.
+
+- `mobile-apps.ts` est supprimé avec ce qu'il portait : les variantes Element X / Classic / Pro
+  (`mobile_guide_app_variant`, qui reste déclaré dans les types mais n'a plus d'effet), les liens
+  profonds vers `mobile.element.io`, et la section « revenez ici pour vous connecter ». La page ne
+  lit plus `default_server_config` ni le well-known du homeserver : `mobile_builds` lui suffit.
+- ⚠️ Le lien « Continuer sur le site web » (`skip_mobile_redirect`) est conservé bien qu'absent de
+  la maquette : c'est le seul moyen d'atteindre La Bulle depuis un navigateur mobile, que la page
+  d'accueil redirige systématiquement vers ce guide.
+- Les textes vivent dans `mobile_guide/strings.ts`, dans les quatre langues, et sont choisis d'après
+  `navigator.languages`. Ce bundle est tenu à l'écart de l'application — il doit se charger vite sur
+  un téléphone — et n'a donc accès ni à `languageHandler` ni aux catalogues de `i18n/`.
+- Le thème suit `prefers-color-scheme` : la page est publique, le thème Element de l'utilisateur y
+  est hors de portée. Les imports `-mq` de `compound-design-tokens.css` s'en chargent seuls.
+- Les captures de référence Playwright des trois anciennes variantes sont supprimées ; la nouvelle
+  (`mobile-guide.png`) est à générer par le CI Docker, pas en local.
+
 `detectPlatform()` est isolée dans `platform.ts` pour être testable. Un iPad se présente comme un
 Mac depuis iPadOS 13 : seul `maxTouchPoints` les sépare. Appareil indéterminé, ou magasin non
 paramétré pour cet appareil : repli sur `/mobile_guide/`, laissée inchangée.
