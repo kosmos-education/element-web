@@ -2,8 +2,17 @@
 @Library('kosmos_pipeline') _
 
 def localBuildClosure = { defaultStep, args ->
-    // Comme en plus de faire l'image docker, on va utiliser yarn publish, on utilise les credentials de Nexus
-    withCredentials([usernamePassword(credentialsId: 'JENKINS_NEXUS_AUTH', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+    // Comme en plus de faire l'image docker, on va utiliser yarn publish, on utilise les credentials de Nexus.
+    //
+    // gitUsernamePassword s'ajoute pour defaultStep() : la librairie kosmos_pipeline y pose un tag
+    // de release et le pousse (`git push origin skolengo/element-web-…`) en `sh` brut, donc sans
+    // credential. GitHub bride les opérations non authentifiées (cf. ULK-1762) et le push échoue.
+    // À terme, ce binding a sa place dans kosmos_pipeline plutôt qu'ici, où il profiterait à tous
+    // les projets ; en attendant, il débloque celui-ci.
+    withCredentials([
+        usernamePassword(credentialsId: 'JENKINS_NEXUS_AUTH', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS'),
+        gitUsernamePassword(credentialsId: 'GITHUB_BOTKOSMOS', gitToolName: 'Default'),
+    ]) {
         sh "docker build -f apps/web/Dockerfile --secret id=NEXUS_USER --secret id=NEXUS_PASS ."
         defaultStep()
     }
