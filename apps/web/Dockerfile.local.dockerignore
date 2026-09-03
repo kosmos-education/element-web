@@ -1,0 +1,14 @@
+# Dockerfile.local ne consomme que l'artefact de build et la conf nginx : on exclut tout
+# le reste pour garder un contexte minimal.
+#
+# Ce fichier est indispensable et ne peut pas être remplacé par
+# apps/web/Dockerfile.dockerignore, qui exclut apps/web/webapp/ (reconstruit dans le stage
+# builder du Dockerfile de production) — le COPY échouerait.
+*
+!apps/web/webapp
+!apps/web/docker
+!apps/web/config.sample.json
+
+# Une éventuelle config de dev locale ne doit pas se retrouver dans l'image
+apps/web/webapp/config.json
+apps/web/webapp/config.*.json
