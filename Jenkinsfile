@@ -19,23 +19,51 @@ pipelineDocker(
         DOCKER_OPTIONS: '--build-arg NPM_TOKEN=${NPM_TOKEN}',
 	DOCKERFILE: 'apps/web/Dockerfile',
         PRE_BUILD_CLOSURE: {
-            echo "Préparation du repo Git (fetch tags + unshallow si nécessaire)"
+            // Les tags git ne servent QUE dans un cas : scripts/dist-version.sh termine par
+            // `git describe --abbrev=0 --tags` lorsque la branche n'est pas une branche kosmos/*.
+            // Sur kosmos/release/vX.Y.Z* comme sur kosmos/<xxx>, DIST_VERSION est dérivée du nom
+            // de branche et aucun tag n'est lu : inutile d'aller solliciter GitHub.
+            //
+            // Job multibranche => BRANCH_NAME vaut exactement "kosmos/release/v1.12.26".
+            // GIT_BRANCH (jobs classiques) sert de repli et peut être préfixé "origin/".
+            String branch = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replaceFirst(/^origin\//, '')
 
-            sh '''
-            # Vérifie si le dépôt est shallow
-            if git rev-parse --is-shallow-repository 2>/dev/null | grep -q "true"; then
-                echo "Dépôt shallow détecté → unshallow"
-                git fetch --unshallow
-            else
-                echo "Dépôt déjà complet → pas d'unshallow"
-            fi
+            if (branch.startsWith('kosmos/')) {
+                echo "Branche « ${branch} » : DIST_VERSION dérive du nom de branche " +
+                     "(cf. scripts/dist-version.sh) → pas de fetch des tags ni d'unshallow."
+                return
+            }
 
-            # Récupération des tags
-            git fetch --tags
+            // Branche indéterminée ou hors kosmos/* : on récupère l'historique et les tags.
+            // Repli volontairement prudent — au pire un fetch superflu, jamais un build develop cassé.
+            echo "Branche « ${branch ?: 'indéterminée'} » : DIST_VERSION vient de " +
+                 "git describe --tags → récupération de l'historique et des tags."
 
-            echo "Tags disponibles :"
-            git tag -l
-        '''
+            // GitHub bride les opérations non authentifiées, même sur un dépôt public (cf. ULK-1762).
+            // Le binding GIT_ASKPASS du checkout SCM ne survit pas à l'étape : un `git fetch` nu
+            // repart sans credential et échoue (exit 128, « could not read Username »).
+            // gitUsernamePassword installe un credential helper temporaire, purgé en sortie du
+            // bloc — rien n'est écrit dans l'URL du remote ni dans .git/config.
+            withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_BOTKOSMOS', gitToolName: 'Default')]) {
+                sh(label: 'Fetch des tags (authentifié)', script: '''
+                    set -e
+                    # Pas de TTY sur l'agent k8s : échouer vite plutôt qu'attendre une saisie.
+                    export GIT_TERMINAL_PROMPT=0
+
+                    # `git fetch --unshallow` échoue si le dépôt est déjà complet : garder la garde.
+                    if git rev-parse --is-shallow-repository 2>/dev/null | grep -q "true"; then
+                        echo "Dépôt shallow détecté → unshallow + tags"
+                        git fetch --unshallow --tags --force
+                    else
+                        echo "Dépôt déjà complet → fetch des tags uniquement"
+                        git fetch --tags --force
+                    fi
+
+                    echo "Derniers tags disponibles :"
+                    git tag -l | tail -n 5
+                '''
+                )
+            }
         },
         BUILD_STEP_CLOSURE: localBuildClosure
 )
