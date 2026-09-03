@@ -487,16 +487,30 @@ l'app déployée tant que le package n'est pas rebuildé. Ne pas se fier au `dis
 qui peut dater d'un état antérieur aux modifications.
 
 **Correctif Kosmos** — `scripts/docker-package.sh` rebuilde systématiquement **tous** les
-packages partagés avant `apps/web` :
+packages partagés avant `apps/web`, ainsi que le module de customisations, qui vit dans
+`modules/` et n'est donc pas couvert par le filtre :
 
 ```bash
 NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build
+NX_SKIP_NX_CACHE=true pnpm --filter @kosmos/element-web-module-customisations build
 VERSION=$DIST_VERSION pnpm --dir apps/web build
 ```
 
 `NX_SKIP_NX_CACHE=true` force un build frais à chaque CI (aucun `dist/` servi depuis le
-cache nx). Ce script est la **seule voie de build pour les déploiements Kosmos** (image
-Docker → Nexus pour l'intégration k8s, `.tgz` pour la prod VM).
+cache nx). Ce script est la voie de build **de référence** pour les déploiements Kosmos
+(image Docker → Nexus pour l'intégration k8s, `.tgz` pour la prod VM).
+
+Il n'est cependant pas rejouable hors CI : il suppose le repo monté sur `/src` et son upload
+Nexus est inconditionnel. Pour une release depuis un poste quand Jenkins est indisponible,
+voir [`docs/kosmos-release-locale.md`](kosmos-release-locale.md), qui reproduit la même
+séquence et documente les écueils propres au build local. La règle de versionnage est
+partagée par les deux voies (`scripts/dist-version.sh`).
+
+⚠️ **Au prochain rebase upstream** — `apps/web/Dockerfile.local` duplique à la main le
+contenu des stages `element_web` et `element_web_modules` de `apps/web/Dockerfile` (image
+nginx épinglée par digest, paquets apk, templates, entrypoints, healthcheck). Vérifier que
+la duplication est toujours fidèle : un simple bump de digest en amont fait diverger l'image
+locale de celle de la CI, sans aucun signal.
 
 À noter : le fork ajoute bien un `^build` dans `apps/web/project.json`, mais sur le target
 **`start`** (dev-server), pas sur `build` — ce qui ne change rien au raisonnement ci-dessus.

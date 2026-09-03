@@ -54,6 +54,8 @@ REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # pour que la validation plus bas la rejette.
 NEXUS_REPO="${NEXUS_REPO-https://nexus.nantes.kosmos.fr/nexus/repository/kdecole.internal.raw}"
 IMAGE_NAME="${IMAGE_NAME-skolengo/element-web}"
+# Image intermédiaire, locale, portant /modules (cf. étape « Récupération des modules amont »)
+MODULES_IMAGE="element-web-modules-local"
 REGISTRY="${DOCKER_REGISTRY-}"
 
 DIST_VERSION=""
@@ -180,6 +182,13 @@ pnpm --dir apps/web exec nx prebuild:module_system
 log "Build des packages partagés"
 NX_SKIP_NX_CACHE=true pnpm -r --filter "./packages/**" build
 
+# Le module de customisations Kosmos vit dans modules/, pas dans packages/ : le filtre
+# ci-dessus ne le couvre pas. Son bundle (lib/, gitignoré) est copié dans webapp/ par
+# webpack, donc il doit être buildé AVANT l'app — sinon la copie est silencieusement
+# ignorée (noErrorOnMissing) et l'image part sans les customisations.
+log "Build du module de customisations Kosmos"
+NX_SKIP_NX_CACHE=true pnpm --filter @kosmos/element-web-module-customisations build
+
 log "Build de l'application"
 VERSION=$DIST_VERSION pnpm --dir apps/web build
 
@@ -199,6 +208,15 @@ rm -f "$REPO_ROOT/apps/web/webapp/config.json"
 echo "    $(du -h "$TARBALL" | cut -f1)"
 
 if $BUILD_IMAGE; then
+    # Les modules amont (banner, restricted-guests, widget-lifecycle, widget-toggles) sont
+    # embarqués par le dernier stage du Dockerfile de production, donc présents dans l'image
+    # de la CI et injectés dans config.json au runtime par l'entrypoint. On les récupère du
+    # stage `modules` du Dockerfile de production plutôt que de redéclarer leurs versions et
+    # leurs checksums ici. Ce stage part d'une image alpine et ne dépend pas du builder :
+    # son build est immédiat.
+    log "Récupération des modules amont"
+    docker build -f apps/web/Dockerfile --target modules -t "$MODULES_IMAGE" "$REPO_ROOT"
+
     log "Construction de l'image $IMAGE_TAG"
     # Nexus 3.22 (le registry cible) n'implémente que le manifeste Docker Schema 2 : il
     # rejette avec « error from registry: unknown » aussi bien les listes de manifestes que
@@ -211,11 +229,13 @@ if $BUILD_IMAGE; then
     # magasin historique, `docker build -t` produit déjà du Docker Schema 2 : rien à forcer.
     if docker info 2>/dev/null | grep -q 'io.containerd.snapshotter'; then
         docker build -f apps/web/Dockerfile.local \
+            --build-arg "MODULES_IMAGE=$MODULES_IMAGE" \
             --provenance=false --sbom=false --platform linux/amd64 \
             --output "type=image,name=${IMAGE_TAG},oci-mediatypes=false" \
             "$REPO_ROOT"
     else
         docker build -f apps/web/Dockerfile.local \
+            --build-arg "MODULES_IMAGE=$MODULES_IMAGE" \
             --provenance=false --sbom=false --platform linux/amd64 \
             -t "$IMAGE_TAG" "$REPO_ROOT"
     fi

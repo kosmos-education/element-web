@@ -183,16 +183,53 @@ Vérifiable à tout moment :
    de `packages/**`, pas leurs sources : sauter cette étape retire silencieusement les
    customisations Kosmos (thème « La Bulle », etc.) du bundle. Cf.
    [`docs/kosmos-customizations.md`](kosmos-customizations.md), section « Build pipeline ».
-4. **Build de l'application** avec `VERSION=<version>`.
-5. **Archive à plat** : le contenu de `webapp/` à la racine du `.tgz`, forme attendue par les
+4. **Build du module de customisations Kosmos**
+   (`@kosmos/element-web-module-customisations`). Il vit dans `modules/`, pas dans
+   `packages/` : le filtre de l'étape précédente ne le couvre pas. Son bundle `lib/` est
+   gitignoré et copié dans `webapp/` par webpack en `noErrorOnMissing`, donc un build
+   manquant ne produit **aucune erreur** — l'image part simplement sans les customisations.
+   Même ordre que [`scripts/docker-package.sh`](../scripts/docker-package.sh).
+5. **Build de l'application** avec `VERSION=<version>`.
+6. **Archive à plat** : le contenu de `webapp/` à la racine du `.tgz`, forme attendue par les
    cibles nginx. C'est ce qui distingue cette archive de celle d'
    [`apps/web/scripts/package.sh`](../apps/web/scripts/package.sh) (script upstream Element),
    qui encapsule tout dans un dossier `element-<version>/` — **ne pas utiliser ce dernier
    pour une release Kosmos**.
-6. **Image Docker** via [`apps/web/Dockerfile.local`](../apps/web/Dockerfile.local), qui
-   reprend le stage applicatif du Dockerfile de production en partant de l'artefact déjà
+7. **Récupération des modules amont** : `docker build --target modules` sur le Dockerfile de
+   production. Voir la section suivante.
+8. **Image Docker** via [`apps/web/Dockerfile.local`](../apps/web/Dockerfile.local), qui
+   reprend les stages applicatifs du Dockerfile de production en partant de l'artefact déjà
    construit au lieu de tout rebuilder dans un conteneur.
-7. **Publications** (opt-in) : upload de l'archive sur Nexus, push de l'image.
+9. **Publications** (opt-in) : upload de l'archive sur Nexus, push de l'image.
+
+## Dockerfile.local duplique le Dockerfile de production
+
+`apps/web/Dockerfile.local` reproduit le contenu des stages `element_web` et
+`element_web_modules` de [`apps/web/Dockerfile`](../apps/web/Dockerfile), en remplaçant le
+seul `COPY --from=builder` par une copie de `apps/web/webapp` depuis le contexte. **Cette
+duplication doit être maintenue à la main** : image nginx (épinglée par digest), paquets
+`apk`, templates nginx, entrypoints, `ELEMENT_WEB_PORT`, healthcheck. Toute évolution du
+Dockerfile de production — y compris un simple bump de digest par un rebase amont — doit y
+être répercutée, sans quoi l'image locale diverge silencieusement de celle de la CI.
+
+Deux points ne sont volontairement **pas** dupliqués :
+
+- **Les modules amont** (`banner`, `restricted-guests`, `widget-lifecycle`,
+  `widget-toggles`), épinglés par version et par checksum sha256. Le script construit le
+  stage `modules` du Dockerfile de production (`docker build --target modules`) et
+  `Dockerfile.local` y puise via `COPY --from`. Ce stage part d'une image `alpine` et ne
+  dépend pas du `builder` : son build est immédiat. Les versions et les checksums n'existent
+  donc qu'en un seul endroit.
+- Le `builder` lui-même, qui est précisément ce que le build local remplace.
+
+Ces modules comptent : l'entrypoint
+[`18-load-element-modules.sh`](../apps/web/docker/docker-entrypoint.d/18-load-element-modules.sh)
+scanne `/modules` et injecte chaque module trouvé dans le champ `modules` de `config.json`.
+Une image sans eux ne charge pas les mêmes fonctionnalités que celle de la CI.
+
+> `COPY --from=${VARIABLE}` n'est pas supporté par BuildKit : l'`ARG MODULES_IMAGE` est
+> déclaré en portée globale et consommé par un stage nommé (`FROM ${MODULES_IMAGE} AS
+> modules_src`), qui est le contournement documenté.
 
 ## Vérifications après build
 

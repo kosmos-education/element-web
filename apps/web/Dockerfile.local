@@ -1,15 +1,25 @@
-# syntax=docker.io/docker/dockerfile:1.24-labs@sha256:7d49dad25a050e14338ba7028b0460243f9d911dedc160a8fe20c34738fef3af
+# syntax=docker.io/docker/dockerfile:1.25-labs@sha256:4426b5e269e36911b94fb79cf67f1fd7155ef11b2bbc8ab23cbfcbc97130efe9
 # Context must be the root of the monorepo
 #
 # Variante de apps/web/Dockerfile pour un build lancé depuis un poste de dev : le stage
 # builder est remplacé par l'artefact déjà construit dans apps/web/webapp (produit par
-# ./scripts/local-release.sh). Le stage applicatif est identique à celui du Dockerfile de
-# production — toute modification de l'un doit être répercutée sur l'autre.
+# ./scripts/local-release.sh).
+#
+# Le contenu reproduit les stages element_web + element_web_modules du Dockerfile de
+# production — toute modification de l'un doit être répercutée sur l'autre. Les modules
+# amont ne sont PAS redéclarés ici : ils sont puisés dans le stage `modules` du Dockerfile
+# de production, construit au préalable par local-release.sh, afin que leurs versions et
+# leurs checksums n'existent qu'en un seul endroit.
 #
 #   ./scripts/local-release.sh
-#   docker build -f apps/web/Dockerfile.local -t <registry>/skolengo/element-web:<version> .
 
-FROM nginxinc/nginx-unprivileged:alpine-slim@sha256:17986f2763649d8c654ff581e596bb14f8339c158e12855f8dcd41978f78edac
+# Image portant /modules, issue de `docker build --target modules -f apps/web/Dockerfile`.
+# L'ARG est en portée globale et passe par un stage nommé : `COPY --from` n'accepte pas
+# l'expansion de variables.
+ARG MODULES_IMAGE=element-web-modules-local
+FROM ${MODULES_IMAGE} AS modules_src
+
+FROM nginxinc/nginx-unprivileged:alpine-slim@sha256:22f839c5fb4007dc24d203a170a9e03fc185d660bfefc34ac6823a7aef085cbc
 
 # Need root user to install packages & manipulate the usr directory
 USER root
@@ -37,3 +47,7 @@ USER nginx
 ENV ELEMENT_WEB_PORT=80
 
 HEALTHCHECK --start-period=5s CMD wget -q --spider http://localhost:$ELEMENT_WEB_PORT/config.json
+
+# Modules amont, repris du stage `modules` du Dockerfile de production (cf. en-tête).
+# Chargés au runtime dans config.json par docker-entrypoint.d/18-load-element-modules.sh.
+COPY --from=modules_src /modules /modules
