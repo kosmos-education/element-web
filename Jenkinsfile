@@ -33,7 +33,7 @@ pipelineDocker(
             // Sur kosmos/release/vX.Y.Z* comme sur kosmos/<xxx>, DIST_VERSION est dérivée du nom
             // de branche et aucun tag n'est lu : inutile d'aller solliciter GitHub.
             //
-            // Job multibranche => BRANCH_NAME vaut exactement "kosmos/release/v1.12.26".
+            // Job multibranche => BRANCH_NAME vaut exactement "kosmos/release/v1.12.22-2".
             // GIT_BRANCH (jobs classiques) sert de repli et peut être préfixé "origin/".
             String branch = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replaceFirst(/^origin\//, '')
 
