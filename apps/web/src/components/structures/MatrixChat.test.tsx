@@ -1676,6 +1676,45 @@ describe("<MatrixChat />", () => {
 
                 expect(loginClient.clearStores).not.toHaveBeenCalled();
             });
+
+            // SCAT-60: a remembered start_sso/start_cas screen must not be replayed after a failed token login,
+            // otherwise Element redirects to SSO again and loops forever (e.g. while the homeserver rate-limits /login).
+            describe.each(["start_sso", "start_cas"])("when the initial screen was %s", (ssoScreen) => {
+                let platform: ReturnType<typeof mockPlatformPeg>;
+                beforeEach(() => {
+                    platform = mockPlatformPeg({ startSingleSignOn: vi.fn() });
+                    // we are not logged in, otherwise showScreen() would redirect auth screens to home
+                    unmockClientPeg();
+                    sessionStorage.setItem("mx_screen_after_login", JSON.stringify({ screen: ssoScreen, params: {} }));
+                });
+
+                // The root beforeEach only clears localStorage, so tidy up the remembered screen ourselves:
+                // a failing assertion would otherwise leak it into the tests that follow.
+                afterEach(() => {
+                    sessionStorage.removeItem("mx_screen_after_login");
+                });
+
+                it("should not redirect to SSO again and should show the welcome page", async () => {
+                    getComponent({ urlParams, initialScreenAfterLogin: { screen: ssoScreen, params: {} } });
+
+                    await flushPromises();
+                    await screen.findByRole("dialog");
+
+                    await waitFor(() => expect(defaultProps.onNewScreen).toHaveBeenLastCalledWith("welcome", false));
+                    expect(platform.startSingleSignOn).not.toHaveBeenCalled();
+                    expect(sessionStorage.getItem("mx_screen_after_login")).toBeNull();
+                });
+            });
+
+            it("should still go to the login page when the initial screen was login", async () => {
+                unmockClientPeg();
+                getComponent({ urlParams, initialScreenAfterLogin: { screen: "login", params: {} } });
+
+                await flushPromises();
+                await screen.findByRole("dialog");
+
+                await waitFor(() => expect(defaultProps.onNewScreen).toHaveBeenLastCalledWith("login", false));
+            });
         });
 
         describe("when login succeeds", () => {

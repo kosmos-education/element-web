@@ -87,6 +87,14 @@ function setInitialScreenAfterLogin(screenAfterLogin?: ReturnType<typeof getScre
 }
 
 /**
+ * Forget the screen remembered for after login (see {@link getInitialScreenAfterLogin}).
+ * Used to break the SSO redirect loop when a token login fails on a `start_sso` / `start_cas` entry point.
+ */
+export function clearInitialScreenAfterLogin(): void {
+    sessionStorage.removeItem(ScreenAfterLoginStorageKey);
+}
+
+/**
  * Get the initial screen to be displayed after login,
  * for example when trying to view a room via a link before logging in
  *

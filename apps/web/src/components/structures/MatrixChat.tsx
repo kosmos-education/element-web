@@ -136,12 +136,14 @@ import Markdown from "../../Markdown";
 import { LinkedTextConfiguration, sanitizeHtmlParams } from "../../Linkify";
 import { isOnlyAdmin } from "../../utils/membership";
 import { ModuleApi } from "../../modules/Api.ts";
-import { type IScreen } from "../../vector/routing.ts";
+import { clearInitialScreenAfterLogin, type IScreen } from "../../vector/routing.ts";
 import { type URLParams } from "../../vector/url_utils.ts";
 import { type QrLoginCredentials } from "../views/auth/LoginWithQR.tsx";
 import { configureFromCompletedOAuthLogin } from "../../Lifecycle";
 
 const AUTH_SCREENS = ["register", "mobile_register", "login", "forgot_password", "start_sso", "start_cas", "welcome"];
+// Screens which, when shown, immediately redirect the browser to the SSO/CAS provider.
+const SSO_START_SCREENS = ["start_sso", "start_cas"];
 
 // Actions that are redirected through the onboarding process prior to being
 // re-dispatched. NOTE: some actions are non-trivial and would require
@@ -334,8 +336,10 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             this.getFragmentAfterLogin(),
         );
 
+        const isReturningFromDelegatedAuth = !!this.props.urlParams.legacy_sso || !!this.props.urlParams.oauth2;
+
         // remove the loginToken or auth code from the URL regardless
-        if (!!this.props.urlParams.legacy_sso || !!this.props.urlParams.oauth2) {
+        if (isReturningFromDelegatedAuth) {
             this.props.onTokenLoginCompleted(this.props.urlParams, this.getFragmentAfterLogin());
         }
 
@@ -349,6 +353,23 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             await Lifecycle.restoreSessionFromStorage({ ignoreGuest: true });
             await this.postLoginSetup();
             return;
+        }
+
+        // SCAT-60: if we came back from SSO and the token login failed (e.g. rate-limited by the homeserver),
+        // do NOT replay a remembered `start_sso` / `start_cas` screen: that would immediately redirect to SSO
+        // again and loop forever between Element and the homeserver. Forget it (it is persisted in
+        // sessionStorage by getInitialScreenAfterLogin) and fall back to the welcome page instead; the error
+        // dialog shown by Lifecycle offers a "Try again" button which restarts SSO on demand.
+        if (
+            isReturningFromDelegatedAuth &&
+            this.screenAfterLogin &&
+            SSO_START_SCREENS.includes(this.screenAfterLogin.screen)
+        ) {
+            logger.warn(
+                `initSession: delegated auth failed, dropping remembered screen ${this.screenAfterLogin.screen} to avoid an SSO loop`,
+            );
+            this.screenAfterLogin = undefined;
+            clearInitialScreenAfterLogin();
         }
 
         // if the user has followed a login or register link, don't reanimate
