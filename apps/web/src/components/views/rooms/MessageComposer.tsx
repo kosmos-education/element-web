@@ -31,6 +31,7 @@ import SettingsStore from "../../../settings/SettingsStore";
 import { aboveLeftOf, type MenuProps } from "../../structures/ContextMenu";
 import ReplyPreview from "./ReplyPreview";
 import { UserIdentityWarning } from "./UserIdentityWarning";
+import { MessageRetentionBanner } from "./MessageRetentionBanner";
 import { UPDATE_EVENT } from "../../../stores/AsyncStore";
 import VoiceRecordComposerTile from "./VoiceRecordComposerTile";
 import { VoiceRecordingStore } from "../../../stores/VoiceRecordingStore";
@@ -659,6 +660,12 @@ export class MessageComposer extends React.Component<IProps, IState> {
                 <div className="mx_MessageComposer_wrapper">
                     <MessageComposerUrlPreviewWrapper urlPreviewVm={this.props.urlPreviewVm} />
                     <UserIdentityWarning room={this.props.room} key={this.props.room.roomId} />
+                    {/* Kosmos : avertissement de conservation des messages (SCAT-61). Enfant du
+                        wrapper, il s'aligne sur la largeur du champ de saisie ; la garde exclut
+                        les fils de discussion, qui montent ce même composer. Placé AVANT
+                        ReplyPreview, dont l'encadré sans bordure basse doit se refermer sur le
+                        champ de saisie et non sur cet avertissement. */}
+                    {this.props.relation?.rel_type !== THREAD_RELATION_TYPE.name && <MessageRetentionBanner />}
                     <ReplyPreview
                         replyToEvent={this.props.replyToEvent}
                         permalinkCreator={this.props.permalinkCreator}

@@ -1,0 +1,27 @@
+/*
+Copyright 2026 Kosmos
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+/* Kosmos (SCAT-61) — avertissement de conservation des messages.
+ *
+ * Enfant de .mx_MessageComposer_wrapper : il hérite de ses paddings (42px à gauche, 16px à
+ * droite) et occupe donc exactement la largeur du champ de saisie, sans la compensation par
+ * marge négative qu'applique .mx_UserIdentityWarning pour s'étendre sur toute la largeur.
+ *
+ * Il est affiché en permanence : une révélation au focus du champ de saisie a été essayée,
+ * puis écartée, parce que l'apparition et la disparition décalaient toute la conversation. */
+.mx_MessageRetentionBanner {
+    margin: 0;
+    padding-block: var(--cpd-space-1x);
+
+    font: var(--cpd-font-body-xs-regular);
+    color: var(--cpd-color-text-secondary);
+
+    /* Liseré léger sur le haut seulement : il sépare l'avertissement de la conversation sans
+     * l'encadrer. Pas de padding horizontal, pour que le texte reste aligné au pixel sur le
+     * champ de saisie. */
+    border-top: 1px solid var(--cpd-color-border-interactive-secondary);
+}
