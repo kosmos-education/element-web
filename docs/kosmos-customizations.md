@@ -424,11 +424,317 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   plus être dé-ignoré depuis l'interface — `/unignore @utilisateur:serveur` est le chemin de
   secours, et c'est une des raisons pour lesquelles ces commandes ne sont pas retirées.
 
+- **SCAT-61 — avertissement de conservation des messages** : `kosmos.message_retention_days`
+  (nombre de jours) affiche, au-dessus du champ de saisie d'un salon, un avertissement
+  rappelant que La Bulle est destinée aux échanges immédiats, que les messages disparaissent
+  après la durée annoncée, et qu'il faut éviter d'y communiquer des données sensibles. Clé
+  absente, nulle, non entière ou ≤ 0 ⇒ **aucun avertissement** : c'est le moyen de le
+  désactiver par configuration, et la garantie qu'une config malformée n'affiche jamais
+  « 0 jours ».
+
+  La durée vient de la configuration du client, et **non** de la politique de rétention de
+  Synapse. Lire la rétention côté serveur supposerait que Synapse expose sa configuration, ce
+  qui relève d'une option expérimentale distincte de l'activation de la rétention. ⚠️
+  Conséquence pour l'exploitation : la valeur doit être tenue cohérente à la main avec la
+  rétention réellement appliquée par le serveur.
+
+  Le libellé (`composer|kosmos_message_retention_notice`, renseigné dans les quatre langues de
+  `available_languages`) est une forme pluralisée `one`/`other` : l'accord singulier/pluriel
+  est porté par la variable `count` d'`i18next`, sans condition dans le code.
+
+  `MessageRetentionBanner` (`apps/web/src/components/views/rooms/`) est un simple `<p>`, monté
+  dans `MessageComposer` comme enfant de `.mx_MessageComposer_wrapper`, juste avant
+  `.mx_MessageComposer_row`. Étant enfant du wrapper, il hérite de ses paddings et occupe donc
+  exactement la largeur du champ de saisie — à l'inverse de `.mx_UserIdentityWarning`, qui
+  annule ces paddings par une marge négative pour s'étendre sur toute la largeur. Ne pas
+  reprendre cette compensation ici.
+
+  Il est placé **avant** `ReplyPreview` : cet encadré amont porte un `border-bottom: none`
+  destiné à le refermer sur le champ de saisie, et s'intercaler entre les deux le refermait
+  sur l'avertissement, en ajoutant un liseré horizontal au milieu du bloc.
+
+  L'avertissement est affiché **en permanence**. Une révélation au seul `:focus-within` du
+  champ de saisie a été essayée puis écartée : son apparition et sa disparition décalaient
+  toute la conversation à chaque prise de focus.
+
+  Le style ne consomme que des tokens `--cpd-*` (`--cpd-font-body-xs-regular`,
+  `--cpd-color-text-secondary`, `--cpd-color-border-interactive-secondary`), donc aucune
+  surcharge de thème n'est nécessaire : le rendu suit seul La Bulle clair et sombre. Le liseré
+  d'1 px ne court que sur le haut : il sépare l'avertissement de la conversation sans
+  l'encadrer, et l'absence de padding horizontal garde le texte aligné sur le champ de saisie.
+
+  `MessageComposer` étant partagé avec `ThreadView`, qui le monte avec
+  `relation={threadRelation}`, le montage est gardé par
+  `this.props.relation?.rel_type !== THREAD_RELATION_TYPE.name` — c'est le test de contexte
+  thread déjà utilisé par l'amont dans ce fichier. ⚠️ Au rebase : vérifier que cette garde
+  survit, que le composant reste enfant direct du wrapper (dont dépend sa largeur) et qu'il
+  reste placé avant `ReplyPreview`.
+
+  Le `Banner` de `packages/shared-components` (`src/room/composer/Banner/`), pourtant prévu
+  pour les informations affichées au-dessus du composer, a été écarté : icône 24 px, padding
+  `4x` et dégradé pleine largeur en font un bandeau trop imposant pour un rappel permanent.
+
+⚠️ **Au prochain rebase upstream** : l'amont fait régulièrement évoluer cette campagne de
+vérification. Le test associé a été co-localisé et migré vers Vitest en v1.12.26
+(`apps/web/src/DeviceListener.test.ts`).
+
+### Relancer le SSO immédiat en soft-logout (SCAT-37)
+
+Une session soft-logout conserve son jeton (devenu inutilisable) dans le stockage local, ce qui
+laissait `hasPossibleToken = true` et neutralisait l'auto-redirection SSO
+(`sso_redirect_options.immediate`) : l'utilisateur arrivant sur `#/start_sso` depuis Skolengo
+restait bloqué sur l'écran de soft-logout. `apps/web/src/vector/app.tsx` traite désormais une
+session soft-logout comme « pas de jeton ». Tests dans `apps/web/src/vector/app.test.ts`
+(Vitest depuis la v1.12.26).
+
+### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
+
+`EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG
+(`EMBEDDED_SVG_TAGS` / `EMBEDDED_SVG_ATTRS`) et autorise `<style>`, la page embarquée étant
+fournie par l'exploitant (même niveau de confiance que `config.json`). La casse des attributs
+est préservée, sans quoi `viewBox` devient `viewbox` et le SVG ne s'affiche plus.
+
+⚠️ En v1.12.26, `sanitize-html` type `allowedTags` / `allowedAttributes` en `false | …`
+(`false` = tout autoriser) : ces options sont renormalisées avant d'être étendues.
+
+### Éviter le dialogue d'erreur au retour dans un salon
+
+Au retour dans un salon, la position de scroll sauvegardée peut cibler un événement que le
+serveur ne renvoie plus (purge, redaction), ce qui affichait un dialogue d'erreur bloquant.
+Deux garde-fous complémentaires :
+
+- `RoomView.tsx` ne restaure la position sauvegardée que si l'événement est encore connu
+  localement ;
+- `TimelinePanel.tsx` retombe silencieusement sur la live timeline lorsqu'un chargement **non
+  explicite** (non surligné) échoue. Ce repli est volontairement restreint à l'événement
+  réellement introuvable (`M_NOT_FOUND` / 404) : toute autre erreur (permission, réseau, 5xx)
+  doit rester visible. Intercepter toutes les erreurs laissait par ailleurs le panneau droit
+  monté au retour dans un salon ayant affiché un appel (constaté en v1.12.26).
+
+### Désactiver les source maps en production sans Sentry
+
+`apps/web/webpack.config.ts` ne génère de source maps en production que si `SENTRY_DSN` est
+défini, pour ne pas exposer les sources sur les déploiements Kosmos.
+
+### Restriction des langues et des écrans de paramétrage (lot 2)
+
+Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention contraire :
+
+- **SCAT-40 — masquage de l'identifiant Matrix** : un module Kosmos
+  (`modules/kosmos-customisations`, chargé au runtime via la clé `modules` de `config.json`)
+  surcharge le point d'extension `UserIdentifier` (`getDisplayUserIdentifier` → `null`).
+  Le menu utilisateur affiche un `userIdentifier` routé par cette surcharge, le `userId` réel
+  restant utilisé pour la couleur d'avatar. Le module est buildé par `docker-package.sh` et
+  copié dans `webapp/` par webpack.
+- **SCAT-41** : masquage des entrées « Associer un nouvel appareil » et « Sécurité et
+  confidentialité » du menu utilisateur.
+- **SCAT-42** : masquage d'onglets de la modale de paramétrage (`disable_settings_tabs`),
+  restriction des langues proposées (`available_languages`, filtre posé dans
+  `apps/web/src/i18n/utils.ts`), onglet Notifications limité aux 5 premières options,
+  masquage de l'URL du homeserver et du jeton d'accès, retrait du bouton « Rechercher une
+  mise à jour » et de l'option « Afficher le contenu sensible (NSFW) ».
+- **SCAT-43** : recherche restreinte aux salons accessibles (voir la section Spotlight).
+- **SCAT-45 — masquage de l'identifiant du salon** : `hide_room_alias` (booléen). Lorsqu'il vaut
+  `true`, `useRoomSummaryCardViewModel` renvoie `alias: ""`, ce qui vide la ligne
+  `.mx_RoomSummaryCard_alias` affichée sous le nom du salon dans le panneau latéral
+  d'information. Aucune modification de la vue : `RoomSummaryCardView` rend déjà ce bloc vide
+  pour les salons sans alias (élément de hauteur nulle, donc pas d'espace résiduel), et les
+  snapshots amont restent inchangés. Le point d'extension `AliasCustomisations` du Module API a
+  été écarté volontairement : `RoomSummaryCardViewModel` lit `room.getCanonicalAlias()` en
+  direct, et neutraliser `getDisplayAliasForAliasSet` aurait aussi affecté le routage d'URL de
+  salon (`MatrixChat.tsx`) et `SpaceHierarchy`, hors périmètre.
+
+- **SCAT-46 — modale de paramétrage du salon** : trois customisations.
+  1. `disable_room_settings_tabs` (tableau d'identifiants `RoomSettingsTab`) : miroir exact de
+     `disable_settings_tabs` côté salon, filtre posé en fin de `RoomSettingsDialog.getTabs()`.
+     En production : `["ROOM_VOIP_TAB", "ROOM_POLL_HISTORY_TAB", "ROOM_ADVANCED_TAB"]`
+     (onglets « Audio et vidéo », « Sondages » et « Avancé »). Le filtre est appliqué **après**
+     les conditions amont (`element_call.disable`, `UIFeature.AdvancedSettings`, …), qui restent
+     donc en place : la config Kosmos ne fait que retrancher.
+  2. `hide_room_addresses` (booléen) : masque la `SettingsSection`
+     « Adresses du salon » de l'onglet Général (`GeneralRoomSettingsTab`), qui porte à la fois
+     « Adresses publiées » et « Adresses locales » (`AliasSettings`). La section entière est
+     rendue conditionnellement, `AliasSettings` n'est donc plus monté du tout — aucun appel
+     `getLocalAliases` / `getRoomDirectoryVisibility` inutile.
+  3. **Avatar du salon en carré arrondi** dans l'onglet Général : règle CSS ajoutée aux deux
+     thèmes La Bulle (`_la-bulle-overrides.pcss` et `_la-bulle-dark-overrides.pcss`), sur le
+     sélecteur `.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar`
+     (`--cpd-avatar-radius: 25%`, même valeur que la liste des salons et l'en-tête).
+     `AvatarSetting` étant partagé avec le profil utilisateur, la portée est restreinte par
+     `.mx_RoomSettingsDialog` afin que l'avatar utilisateur reste rond.
+  4. `hide_room_encryption_section` (booléen) : masque le `SettingsFieldset` « Chiffrement »
+     de l'onglet « Sécurité et vie privée » (`SecurityRoomSettingsTab`), avec sa bascule
+     « Chiffré », le message « une fois activé le chiffrement ne peut plus être désactivé »
+     et le drapeau `blacklistUnverifiedDevices`. Le déploiement n'utilise pas le chiffrement
+     de bout en bout : la section n'avait rien d'actionnable (voir aussi *Removing visible
+     mentions of encryption*). Le `SettingsSection` parent est conservé, il porte encore les
+     règles d'accès (`renderJoinRule`) et la visibilité de l'historique — pas de section vide.
+
+- **SCAT-47 — actions de signalement** : deux clés booléennes, une par objet signalé.
+  1. `hide_report_content` : masque l'option « Signaler » du menu contextuel d'un message
+     (`MessageContextMenu`), qui ouvre `ReportEventDialog`. La garde s'ajoute à la condition
+     amont existante (`mxEvent.getSender() !== me`), qui reste en place.
+  2. `hide_report_room` : masque l'action « Signaler le salon » sur ses **deux** points
+     d'entrée — le bouton `mx_RoomSummaryCard_bottomOptions` du panneau latéral d'information
+     (`RoomSummaryCardView`, qui ouvre `ReportRoomDialog`) et la bascule « Signaler le salon »
+     du dialogue de refus d'invitation (`DeclineAndBlockInviteDialog`, « Refuser et bloquer »),
+     qui signale sans passer par le dialogue dédié. Dans ce dialogue, la bascule et sa zone de
+     saisie de motif sont retirées ensemble ; `shouldReport` reste à `false`, donc `onFinished`
+     transmet `false` et aucun signalement n'est émis.
+
+  Les deux actions appellent l'API du serveur d'accueil (`client.reportEvent` →
+  `POST /_matrix/client/v3/rooms/{roomId}/report/{eventId}` et `client.reportRoom` →
+  `POST /_matrix/client/v3/rooms/{roomId}/report`) : le destinataire est l'administrateur du
+  homeserver, pas un modérateur du salon. Ces signalements n'étant ni collectés ni traités sur
+  nos déploiements, les boutons promettaient une prise en charge inexistante. Les dialogues
+  `ReportEventDialog` et `ReportRoomDialog` sont conservés (simplement plus atteignables), ainsi
+  que le paramètre amont `report_event.admin_message_md`, qui n'a plus de point d'affichage.
+  Le Module API a été écarté : aucun point d'extension sur la composition du menu contextuel
+  d'un message ni du panneau d'information du salon.
+
+- **SCAT-48 — partage de lien** : trois clés booléennes, une par objet partagé.
+  1. `hide_share_content` : masque le partage d'un lien vers un message sur ses **deux** points
+     d'entrée — l'option « Partager » du menu contextuel d'un message (`MessageContextMenu`,
+     bloc `permalinkButton`, qui ouvre `ShareDialog`) et l'option « Copier le lien vers le
+     fil » du menu contextuel d'un fil (`ThreadListContextMenu`), qui copie directement le
+     permalien sans passer par le dialogue. Attention : l'entrée du menu contextuel du message
+     est rendue comme une balise `<a href={permalink} target="_blank">` — neutraliser son
+     `onClick` ne suffit pas, le lien resterait cliquable ; c'est le bloc entier qui est masqué.
+  2. `hide_share_room` : masque le partage d'un lien vers un salon sur ses **trois** points
+     d'entrée — l'entrée « Copier le lien » du panneau latéral d'information
+     (`RoomSummaryCardView`, qui ouvre `ShareDialog`), l'entrée « Copier le lien du salon » du
+     menu « … » d'un salon de la liste (`RoomListItemViewModel`) et la même entrée dans le menu
+     contextuel d'un résultat du Spotlight (`RoomGeneralContextMenu`, via
+     `RoomResultContextMenus`). Les deux dernières passent par l'action de dispatcher
+     `copy_room`, traitée dans `MatrixChat`.
+  3. `hide_share_user` : masque l'entrée « Partager le profil » du panneau latéral d'information
+     d'un utilisateur (`UserInfoBasicOptionsView`, bloc `shareUserButton`, qui ouvre
+     `ShareDialog` avec la cible `member`). Point d'entrée **unique**. Le bouton est rendu hors
+     du bloc `!vm.isMe` : la garde le masque aussi bien sur son propre profil que sur celui d'un
+     autre membre.
+
+  Pour la liste des salons, la garde se pose sur le calcul de `canCopyRoomLink` dans
+  `RoomListItemViewModel` et **non** dans le rendu du menu : celui-ci vit dans le paquet
+  partagé `packages/shared-components`, qu'on évite ainsi de modifier.
+
+  Ces actions produisent un lien `matrix.to` destiné à être diffusé hors de l'application — le
+  dialogue de partage propose d'ailleurs un QR code et des boutons de réseaux sociaux. Ce n'est
+  pas un usage souhaité sur La Bulle, où l'invitation reste le chemin nominal pour donner accès
+  à un salon. `ShareDialog` est conservé (simplement plus atteignable pour un message ou un
+  salon), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté : aucun
+  point d'extension sur la composition de ces menus.
+
+  Deux paramètres amont existants réduisent le contenu du dialogue sans le supprimer :
+  `UIFeature.shareQrCode` et `UIFeature.shareSocial`, tous deux à `true` par défaut et
+  pilotables par `setting_defaults`. Ils ne suffisent pas au besoin, mais leur passage à
+  `false` est un filet de sécurité utile si un point d'entrée était oublié.
+
+  Restent hors périmètre, faute de besoin confirmé : le lien d'invitation invité d'un appel
+  (`CallGuestLinkButton`) et le lien d'invitation d'un espace (`SpacePublicShare`). À noter
+  aussi qu'un lien `matrix.to` reçu ou forgé reste résolu par le client : ces clés suppriment
+  la production de liens depuis l'interface, pas leur exploitation.
+
+- **SCAT-49 — export des conversations** : `hide_export_chat` (booléen) masque l'entrée
+  « Exporter la conversation » du panneau latéral d'information du salon
+  (`RoomSummaryCardView`, qui ouvre `ExportDialog`). Point d'entrée unique — la garde s'ajoute
+  à la condition amont existante `!vm.isVideoRoom`, qui reste en place.
+
+  L'export produit un fichier local (HTML, texte brut ou JSON) contenant l'historique du salon,
+  pièces jointes incluses : une extraction hors application de messages d'établissement, sans
+  traçabilité côté serveur, et dont le format JSON expose la structure technique des événements
+  Matrix. `ExportDialog` est conservé (simplement plus atteignable), ainsi que les libellés
+  i18n, fournis par l'amont. Le Module API a été écarté : aucun point d'extension sur la
+  composition du panneau d'information du salon.
+
+  Restent hors périmètre : l'export des journaux de débogage (`bug_reporting|download_logs`),
+  qui n'est pas un export de conversation, et le téléchargement d'une pièce jointe depuis un
+  message, qui reste un usage nominal.
+
+- **SCAT-50 — affichage de la source d'un message** : `hide_view_source` (booléen) masque
+  l'option « Afficher la source » du menu contextuel d'un message (`MessageContextMenu`, bloc
+  `viewSourceButton`), qui ouvre le dialogue `ViewSource` affichant le JSON brut de l'événement
+  Matrix. Outil de mise au point sans utilité pour les personnels d'établissement, et qui
+  expose la structure technique du protocole.
+
+  À noter que cette entrée n'est **pas** conditionnée au mode développeur en amont (le
+  commentaire amont le dit explicitement : « This is specifically not behind the developerMode
+  flag ») — elle est visible par tous, sur tous les messages. Les **deux autres** accès au même
+  dialogue le sont, eux : la barre d'action du dialogue « Historique des modifications »
+  (`EditHistoryMessage`) et le lien de repli d'une tuile en erreur de rendu
+  (`TileErrorViewModel`) testent `SettingsStore.getValue("developerMode")`. Ce réglage de
+  laboratoire est désactivé par défaut et l'onglet « Laboratoire » est masqué sur nos
+  environnements (`show_labs_settings` à `false`, `USER_LABS_TAB` dans
+  `disable_settings_tabs`) : ces deux accès sont inatteignables en l'état et n'ont pas été
+  modifiés. ⚠️ Ne pas activer `developerMode` dans `setting_defaults`, sans quoi ils
+  réapparaîtraient. Même remarque pour `showHiddenEventsInTimeline`, qui rend les événements
+  techniques dans la timeline.
+
+  `ViewSource` est conservé (simplement plus atteignable depuis le menu contextuel d'un
+  message), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté :
+  aucun point d'extension sur la composition du menu contextuel d'un message.
+
+- **SCAT-51 — action « Ignorer » un utilisateur** : `hide_ignore_user` (booléen) masque la
+  ligne « Ignorer » / « Ne plus ignorer » du panneau latéral d'information d'un utilisateur
+  (`UserInfoBasicView`, composant `IgnoreToggleButton`). La garde porte sur le `Container` qui
+  entoure le bouton, et **non** sur le bouton seul, pour ne pas laisser de conteneur vide dans
+  le panneau ; la condition amont `!vm.isMe` reste en place.
+
+  Ignorer un utilisateur masque, côté client uniquement, tous ses messages passés et futurs dans
+  tous les salons partagés — la liste vit dans les données de compte (`m.ignored_user_list`) et
+  suit l'utilisateur sur tous ses appareils. Sur La Bulle, les échanges sont professionnels,
+  entre personnels d'établissement, dans des salons pré-créés : le filtrage individuel n'y a pas
+  de place, et l'action est trompeuse (elle ne bloque rien côté serveur, l'auteur ignoré
+  continue d'écrire sans le savoir). `IgnoreToggleButton` et sa vue-modèle sont conservés
+  (simplement plus rendus), ainsi que les libellés i18n, fournis par l'amont. Le Module API a
+  été écarté : aucun point d'extension sur la composition du panneau d'information d'un
+  utilisateur.
+
+  Deux autres accès à la liste des utilisateurs ignorés subsistent : l'onglet « Sécurité et vie
+  privée » des paramètres (`MjolnirUserSettingsTab`), déjà masqué par `USER_SECURITY_TAB` dans
+  `disable_settings_tabs` (SCAT-42), et les commandes de composition `/ignore` et `/unignore`,
+  laissées actives. ⚠️ Conséquence pour l'exploitation : la ligne masquée portait aussi « Ne plus
+  ignorer ». Un utilisateur ignoré par erreur avant la mise en place de la customisation ne peut
+  plus être dé-ignoré depuis l'interface — `/unignore @utilisateur:serveur` est le chemin de
+  secours, et c'est une des raisons pour lesquelles ces commandes ne sont pas retirées.
+
+- **SCAT-61 — avertissement de conservation des messages** : `kosmos.message_retention_days`
+  (nombre de jours) affiche, juste au-dessus de la zone de saisie d'un salon, un bandeau
+  rappelant que La Bulle est destinée aux échanges immédiats, que les messages disparaissent
+  après la durée annoncée, et qu'il faut éviter d'y communiquer des données sensibles. Clé
+  absente, nulle, non entière ou ≤ 0 ⇒ **aucun bandeau** : c'est le moyen de désactiver
+  l'avertissement par configuration, et la garantie qu'une config malformée n'affiche jamais
+  « 0 jours ».
+
+  La durée vient de la configuration du client, et **non** de la politique de rétention de
+  Synapse. Lire la rétention côté serveur supposerait que Synapse expose sa configuration, ce
+  qui relève d'une option expérimentale distincte de l'activation de la rétention. ⚠️
+  Conséquence pour l'exploitation : la valeur doit être tenue cohérente à la main avec la
+  rétention réellement appliquée par le serveur.
+
+  Le libellé (`composer|kosmos_message_retention_notice`, renseigné dans les quatre langues de
+  `available_languages`) est une forme pluralisée `one`/`other` : l'accord singulier/pluriel
+  est porté par la variable `count` d'`i18next`, sans condition dans le code.
+
+  Le bandeau réutilise `Banner` de `packages/shared-components`
+  (`src/room/composer/Banner/`), composant amont explicitement destiné aux informations
+  affichées au-dessus du composer : `type="info"` fournit l'icône, le dégradé et la bordure en
+  tokens `--cpd-*` — donc aucun CSS Kosmos, et un rendu qui suit seul les thèmes La Bulle
+  clair et sombre. Ne pas lui passer d'`onClose` : c'est ce qui le rend non fermable, comme le
+  demande le ticket.
+
+  Le composant Kosmos `apps/web/src/components/views/rooms/MessageRetentionBanner.tsx` est
+  monté dans `RoomView` (bloc `if (showComposer)` de la timeline principale), et **non** dans
+  `MessageComposer`. `MessageComposer` est en effet partagé avec `ThreadView` (qui le monte
+  avec `relation={threadRelation}`) et avec `LocalRoomView` ; l'y placer aurait exigé une garde
+  explicite sur le contexte thread, à maintenir à chaque rebase. Ici, l'exclusion des fils de
+  discussion est structurelle. Le rattachement à `showComposer` évite en outre d'annoncer une
+  durée de conservation dans un salon où l'on ne peut pas écrire (aperçu, salon non rejoint).
+
 ⚠️ **Au prochain rebase upstream** : `disable_settings_tabs`, `available_languages`,
 `hide_room_alias`, `disable_room_settings_tabs`, `hide_room_addresses`,
 `hide_room_encryption_section`, `hide_report_content`, `hide_report_room`,
 `hide_share_content`, `hide_share_room`, `hide_share_user`, `hide_export_chat`,
-`hide_view_source` et `hide_ignore_user` sont déclarés dans
+`hide_view_source`, `hide_ignore_user` et l'objet `kosmos` sont déclarés dans
 `apps/web/src/IConfigOptions.ts`, dont l'amont a fait un type dérivé du schéma généré
 `WebConfigJson` — les champs Kosmos s'ajoutent dans `ConfigOptions`.
 

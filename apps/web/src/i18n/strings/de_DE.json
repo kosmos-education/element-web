@@ -597,6 +597,10 @@
         "format_underline": "Unterstrichen",
         "format_unordered_list": "Ungeordnete Liste",
         "formatting_toolbar_label": "Formatierung",
+        "kosmos_message_retention_notice": {
+            "one": "La Bulle ist für Austausch gedacht, der eine unmittelbare Kommunikation erfordert. Da die Nachrichten flüchtig sind, verschwinden sie nach %(count)s Tag. Vermeide die Übermittlung sensibler Daten.",
+            "other": "La Bulle ist für Austausch gedacht, der eine unmittelbare Kommunikation erfordert. Da die Nachrichten flüchtig sind, verschwinden sie nach %(count)s Tagen. Vermeide die Übermittlung sensibler Daten."
+        },
         "link_modal": {
             "link_field_label": "Link",
             "text_field_label": "Text",

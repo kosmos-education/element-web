@@ -105,6 +105,15 @@ export interface ConfigOptions extends WebConfigJson {
      * Absent/false ⇒ comportement amont inchangé.
      */
     hide_ignore_user?: boolean;
+    /**
+     * Kosmos: réglages propres au déploiement La Bulle.
+     * `message_retention_days` : durée de conservation des messages, en jours, annoncée dans
+     * l'avertissement affiché au-dessus de la zone de saisie d'un salon.
+     * Absent ⇒ aucun avertissement affiché.
+     */
+    kosmos?: {
+        message_retention_days?: number;
+    };
 }
 
 /**

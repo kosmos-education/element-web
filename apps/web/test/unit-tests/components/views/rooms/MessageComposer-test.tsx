@@ -28,6 +28,7 @@ import ResizeNotifier from "../../../../../src/utils/ResizeNotifier";
 import { RoomPermalinkCreator } from "../../../../../src/utils/permalinks/Permalinks";
 import { LocalRoom } from "../../../../../src/models/LocalRoom";
 import SettingsStore from "../../../../../src/settings/SettingsStore";
+import SdkConfig from "../../../../../src/SdkConfig";
 import { SettingLevel } from "../../../../../src/settings/SettingLevel";
 import dis from "../../../../../src/dispatcher/dispatcher";
 import { E2EStatus } from "../../../../../src/utils/ShieldUtils";
@@ -432,6 +433,39 @@ describe("MessageComposer", () => {
                 await userEvent.click(screen.getByLabelText("More options"));
             });
             expect(screen.queryByLabelText("Sticker")).not.toBeInTheDocument();
+        });
+    });
+
+    // Kosmos (SCAT-61) : avertissement de conservation des messages, piloté par
+    // `kosmos.message_retention_days` dans config.json.
+    describe("message retention banner", () => {
+        const retentionNotice = /disappear after 90 days/;
+
+        beforeEach(() => {
+            SdkConfig.add({ kosmos: { message_retention_days: 90 } });
+        });
+
+        afterEach(() => {
+            SdkConfig.reset();
+        });
+
+        it("sits inside the composer wrapper, at the width of the input", () => {
+            const room = mkStubRoom("!roomId:server", "Room 1", cli);
+            const { renderResult } = wrapAndRender({ room });
+
+            const notice = renderResult.container.querySelector(".mx_MessageRetentionBanner");
+            expect(notice).toHaveTextContent(retentionNotice);
+            expect(notice!.parentElement).toHaveClass("mx_MessageComposer_wrapper");
+        });
+
+        it("is absent in a thread", () => {
+            const room = mkStubRoom("!roomId:server", "Room 1", cli);
+            wrapAndRender({
+                room,
+                relation: { rel_type: THREAD_RELATION_TYPE.name, event_id: "$threadRoot" },
+            });
+
+            expect(screen.queryByText(retentionNotice)).not.toBeInTheDocument();
         });
     });
 });

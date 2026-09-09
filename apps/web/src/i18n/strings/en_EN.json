@@ -613,6 +613,10 @@
         "format_underline": "Underline",
         "format_unordered_list": "Bulleted list",
         "formatting_toolbar_label": "Formatting",
+        "kosmos_message_retention_notice": {
+            "one": "La Bulle is intended for exchanges requiring immediate communication. As messages are ephemeral, they will disappear after %(count)s day. Avoid communicating any sensitive data.",
+            "other": "La Bulle is intended for exchanges requiring immediate communication. As messages are ephemeral, they will disappear after %(count)s days. Avoid communicating any sensitive data."
+        },
         "link_modal": {
             "link_field_label": "Link",
             "text_field_label": "Text",

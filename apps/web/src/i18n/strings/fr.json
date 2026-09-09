@@ -611,6 +611,10 @@
         "format_underline": "Souligné",
         "format_unordered_list": "Liste à puces",
         "formatting_toolbar_label": "Formatage",
+        "kosmos_message_retention_notice": {
+            "one": "La Bulle est destinée aux échanges nécessitant une communication immédiate. Les messages étant éphémères, ils disparaîtront après une durée de %(count)s jour. Évitez toute communication de données sensibles.",
+            "other": "La Bulle est destinée aux échanges nécessitant une communication immédiate. Les messages étant éphémères, ils disparaîtront après une durée de %(count)s jours. Évitez toute communication de données sensibles."
+        },
         "link_modal": {
             "link_field_label": "Lien",
             "text_field_label": "Texte",
