@@ -669,10 +669,22 @@ les sélecteurs `.mx_RoomListItemView .mx_BaseAvatar`, `.mx_RoomHeader > *:first
 (avatar enfant direct — cas fréquent sans présence), `.mx_RoomHeader > *:first-child .mx_BaseAvatar`
 (avatar dans le wrapper `WithPresenceIndicator` — DM avec présence activée),
 `.mx_RoomSummaryCard_container .mx_BaseAvatar`,
-`.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar` et
+`.mx_RoomSettingsDialog .mx_AvatarSetting_avatar .mx_BaseAvatar`,
 `.mx_NewRoomIntro .mx_BaseAvatar` (`SCAT-…`, message d'accueil en haut de la timeline d'un salon
 neuf : `NewRoomIntro` rend un `<RoomAvatar>` nu, ou enveloppé dans `MiniAvatarUploader` quand le
-salon n'a pas encore d'avatar — le sélecteur descendant couvre les deux).
+salon n'a pas encore d'avatar — le sélecteur descendant couvre les deux) et
+`.mx_SpaceHierarchy_roomTile_avatar .mx_BaseAvatar` (SCAT-63, liste des salons de l'accueil d'un
+espace : la tuile rend un `<RoomAvatar>` si le salon est rejoint, un `<BaseAvatar>` nu sinon —
+là encore le sélecteur descendant couvre les deux).
+
+Le sélecteur `SpaceHierarchy` n'exclut volontairement pas les tuiles de **sous-espace**
+(modificateur `mx_SpaceHierarchy_subspace`) : un sous-espace non rejoint rend un `BaseAvatar` nu,
+donc rond, alors qu'un espace doit être carré. La règle le corrige au passage.
+
+**Emplacements non couverts, à vérifier si un retour de recette les signale :** résultats de
+recherche (`SpotlightDialog`), bandeaux et cartes d'invitation (`RoomPreviewBar`,
+`RoomPreviewCard`), mention d'un salon dans un message (`Pill`), centre d'activité des fils
+(`ThreadsActivityCentre`).
 
 **Reste rond, non corrigé :** la vignette de 14 px dans l'événement de timeline « X a changé
 l'avatar du salon en … » (`RoomAvatarEventView`, `packages/shared-components`). Ses classes viennent
