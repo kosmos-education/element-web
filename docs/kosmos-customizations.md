@@ -407,6 +407,26 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   message), ainsi que les libellés i18n, fournis par l'amont. Le Module API a été écarté :
   aucun point d'extension sur la composition du menu contextuel d'un message.
 
+- **SCAT-64 — bouton « … » quand le menu est vide** : conséquence des trois masquages
+  ci-dessus. `MessageContextMenu` pouvait ne plus rendre aucune entrée — typiquement sur un
+  événement d'état (« X a ajouté Y ») pour un utilisateur sans droit de rédaction, le menu étant
+  par ailleurs ouvert depuis le bouton et non par clic droit, ce qui exclut déjà copier, citer,
+  répondre, réagir, modifier et épingler. `EventTileActionBarViewModel` poussait pourtant
+  `ActionBarAction.Options` sans condition : le bouton restait affiché et ouvrait un panneau vide.
+
+  Le prédicat `hasVisibleMessageContextMenuOptions` (`messageContextMenuOptions.ts`) répond
+  désormais à la question « ce menu aurait-il au moins une entrée ? ». Il est calculé dans
+  `ActionBarAdapter`, seul endroit qui réunit les opérations de la tuile, la chaîne de réponses
+  et le générateur de permaliens, puis transmis au view model par la prop `hasOptions` — absente,
+  elle vaut `true`, donc le comportement amont est conservé pour tout autre appelant.
+
+  ⚠️ Ce prédicat **duplique** les gardes de `MessageContextMenu.render()` : le refactoring de
+  cette méthode de 350 lignes a été écarté en pleine recette. Toute entrée ajoutée ou retirée
+  dans le menu doit être reportée dans le prédicat. La suite de tests « overflow button
+  invariant » verrouille l'invariant en comparant le prédicat au menu réellement rendu, sur
+  plusieurs scénarios ; elle échouera si les deux divergent. Le prédicat est volontairement
+  conservateur : au moindre doute il renvoie `true`, pour ne jamais masquer un bouton utile.
+
 - **SCAT-51 — action « Ignorer » un utilisateur** : `hide_ignore_user` (booléen) masque la
   ligne « Ignorer » / « Ne plus ignorer » du panneau latéral d'information d'un utilisateur
   (`UserInfoBasicView`, composant `IgnoreToggleButton`). La garde porte sur le `Container` qui

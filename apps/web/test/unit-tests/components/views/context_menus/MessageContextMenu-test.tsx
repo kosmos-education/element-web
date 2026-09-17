@@ -40,6 +40,7 @@ import { Action } from "../../../../../src/dispatcher/actions";
 import { createMessageEventContent } from "../../../../test-utils/events";
 import { ScopedRoomContextProvider } from "../../../../../src/contexts/ScopedRoomContext.tsx";
 import { type RoomPermalinkCreator } from "../../../../../src/utils/permalinks/Permalinks";
+import { hasVisibleMessageContextMenuOptions } from "../../../../../src/components/views/context_menus/messageContextMenuOptions";
 
 jest.mock("../../../../../src/utils/strings", () => ({
     copyPlaintext: jest.fn(),
@@ -795,6 +796,54 @@ describe("MessageContextMenu", () => {
                 rootEvent: mxEvent,
                 push: false,
             });
+        });
+    });
+    // Kosmos (SCAT-64) : `hasVisibleMessageContextMenuOptions` décide de l'affichage du bouton
+    // « … » de la barre d'actions, en dupliquant les gardes de `render()`. Ce test verrouille
+    // l'invariant : le bouton doit apparaître exactement quand le menu a au moins une entrée.
+    // Il échouera si une entrée est ajoutée ou retirée ici sans être reportée dans le prédicat.
+    describe("overflow button invariant", () => {
+        const membershipEvent = (): MatrixEvent =>
+            new MatrixEvent({
+                type: EventType.RoomMember,
+                sender: "@someone:example.com",
+                room_id: roomId,
+                state_key: "@someone:example.com",
+                event_id: "$membership",
+                content: { membership: "join" },
+            });
+
+        const scenarios: Array<{ name: string; event: () => MatrixEvent; config: object }> = [
+            {
+                name: "a state event with every lot 2 option hidden",
+                event: membershipEvent,
+                config: { hide_view_source: true, hide_share_content: true, hide_report_content: true },
+            },
+            {
+                name: "a state event with no option hidden",
+                event: membershipEvent,
+                config: {},
+            },
+            {
+                name: "a text message with every lot 2 option hidden",
+                event: () => new MatrixEvent({ type: EventType.RoomMessage, content: createMessageEventContent("hi") }),
+                config: { hide_view_source: true, hide_share_content: true, hide_report_content: true },
+            },
+        ];
+
+        it.each(scenarios)("agrees with the rendered menu for $name", ({ event, config }) => {
+            SdkConfig.add(config);
+
+            try {
+                const mxEvent = event();
+                // `ContextMenu` rend dans un portail : passer par `screen`, pas par `container`.
+                createMenu(mxEvent);
+                const renderedEntries = screen.queryAllByRole("menuitem").length;
+
+                expect(hasVisibleMessageContextMenuOptions({ mxEvent })).toBe(renderedEntries > 0);
+            } finally {
+                SdkConfig.reset();
+            }
         });
     });
 });

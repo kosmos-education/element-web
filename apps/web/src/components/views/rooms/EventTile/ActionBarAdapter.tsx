@@ -12,6 +12,7 @@ import { ActionBarView } from "@element-hq/web-shared-components";
 import type ReplyChain from "../../elements/ReplyChain";
 import ReactionPicker from "../../emojipicker/ReactionPicker";
 import MessageContextMenu from "../../context_menus/MessageContextMenu";
+import { hasVisibleMessageContextMenuOptions } from "../../context_menus/messageContextMenuOptions";
 import ContextMenu, { aboveLeftOf } from "../../../structures/ContextMenu";
 import RoomContext from "../../../../contexts/RoomContext";
 import { CardContext } from "../../right_panel/context";
@@ -89,7 +90,25 @@ export function ActionBarAdapter({
     const handleReactionsClick = useCallback((anchor: HTMLElement | null): void => {
         setReactionsMenuAnchorRect(anchor?.getBoundingClientRect() ?? null);
     }, []);
+
+    const tile = getTile();
+    const replyChain = getReplyChain();
+    const eventTileOps = tile?.getEventTileOps ? tile.getEventTileOps() : undefined;
+    const collapseReplyChain = replyChain?.canCollapse() ? replyChain.collapse : undefined;
+
+    // Kosmos (SCAT-64) : ne pas proposer le bouton « … » quand le menu qu'il ouvre serait vide.
+    // Le calcul vit ici parce que c'est le seul endroit qui réunit les opérations de la tuile,
+    // la chaîne de réponses et le générateur de permaliens ; le view model ne les reçoit pas.
+    const hasOptions = hasVisibleMessageContextMenuOptions({
+        mxEvent,
+        permalink: permalinkCreator?.forEvent(mxEvent.getId()!),
+        isWidgetHidden: eventTileOps?.isWidgetHidden(),
+        canCollapseReplyChain: Boolean(collapseReplyChain),
+        timelineRenderingType: roomContext.timelineRenderingType,
+    });
+
     const vm = eventTileViewModel.getActionBarViewModel({
+        hasOptions,
         mxEvent,
         timelineRenderingType: roomContext.timelineRenderingType,
         canSendMessages: roomContext.canSendMessages,
@@ -110,6 +129,7 @@ export function ActionBarAdapter({
 
     useEffect(() => {
         vm.setProps({
+            hasOptions,
             mxEvent,
             timelineRenderingType: roomContext.timelineRenderingType,
             canSendMessages: roomContext.canSendMessages,
@@ -124,6 +144,7 @@ export function ActionBarAdapter({
         });
     }, [
         vm,
+        hasOptions,
         mxEvent,
         roomContext.timelineRenderingType,
         roomContext.canSendMessages,
@@ -153,11 +174,6 @@ export function ActionBarAdapter({
     const closeReactionsMenu = useCallback((): void => {
         setReactionsMenuAnchorRect(null);
     }, []);
-
-    const tile = getTile();
-    const replyChain = getReplyChain();
-    const eventTileOps = tile?.getEventTileOps ? tile.getEventTileOps() : undefined;
-    const collapseReplyChain = replyChain?.canCollapse() ? replyChain.collapse : undefined;
 
     return (
         <>

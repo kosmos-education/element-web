@@ -69,6 +69,11 @@ export interface EventTileActionBarViewModelProps {
     getRelationsForEvent?: GetRelationsForEvent;
     /** Called when the expand or collapse thread action is activated. */
     onToggleThreadExpanded?: (anchor: HTMLElement | null) => void;
+    /**
+     * Kosmos (SCAT-64) : whether the overflow menu would render at least one entry.
+     * Defaults to `true` so callers that do not compute it keep the previous behaviour.
+     */
+    hasOptions?: boolean;
 }
 
 interface LocalActionBarState {
@@ -79,6 +84,7 @@ interface LocalActionBarState {
 interface DerivedEventState {
     showCancel: boolean;
     showEdit: boolean;
+    showOptions: boolean;
     showPinOrUnpin: boolean;
     showReact: boolean;
     showReply: boolean;
@@ -179,7 +185,11 @@ export class EventTileActionBarViewModel
             actions.push(ActionBarAction.Expand);
         }
 
-        actions.push(ActionBarAction.Options);
+        // Kosmos (SCAT-64) : le bouton « … » n'a de sens que si le menu qu'il ouvre a une entrée.
+        // Les masquages du lot 2 peuvent le vider entièrement, notamment sur un événement d'état.
+        if (eventState.showOptions) {
+            actions.push(ActionBarAction.Options);
+        }
 
         return actions;
     }
@@ -197,6 +207,8 @@ export class EventTileActionBarViewModel
         return {
             showCancel: canCancel(mxEvent.status) || canCancel(editStatus) || canCancel(redactStatus),
             showEdit: canEditContent(client, mxEvent),
+            // Kosmos (SCAT-64) : `hasOptions` absent ⇒ comportement amont conservé.
+            showOptions: props.hasOptions !== false,
             showPinOrUnpin: PinningUtils.canPin(client, mxEvent) || PinningUtils.canUnpin(client, mxEvent),
             showReact: contentActionable && props.canReact && !props.isSearch,
             showReply: contentActionable && props.canSendMessages,

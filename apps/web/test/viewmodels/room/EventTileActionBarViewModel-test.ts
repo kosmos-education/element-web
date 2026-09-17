@@ -240,6 +240,24 @@ describe("EventTileActionBarViewModel", () => {
         );
     });
 
+    // Kosmos (SCAT-64) : le bouton « … » ouvrait un panneau vide sur les événements dont toutes
+    // les entrées de menu sont masquées par le lot 2.
+    it("omits the overflow action when the menu would have no entry", async () => {
+        mocked(isContentActionable).mockReturnValue(false);
+        mocked(canEditContent).mockReturnValue(false);
+        mocked(shouldDisplayReply).mockReturnValue(false);
+
+        const vm = createVm({ hasOptions: false });
+
+        await waitFor(() => expect(vm.getSnapshot().actions).not.toContain(ActionBarAction.Options));
+    });
+
+    it("keeps the overflow action when hasOptions is not provided", async () => {
+        const vm = createVm();
+
+        await waitFor(() => expect(vm.getSnapshot().actions).toContain(ActionBarAction.Options));
+    });
+
     it("reacts to media download permission hints and room state updates", async () => {
         jest.spyOn(MediaEventHelper, "isEligible").mockReturnValue(true);
         jest.spyOn(MediaEventHelper, "canHide").mockReturnValue(true);
