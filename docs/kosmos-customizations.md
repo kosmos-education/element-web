@@ -253,6 +253,13 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   Le menu utilisateur affiche un `userIdentifier` routé par cette surcharge, le `userId` réel
   restant utilisé pour la couleur d'avatar. Le module est buildé par `docker-package.sh` et
   copié dans `webapp/` par webpack.
+  **SCAT-62** : tout affichage de cet identifiant doit être gardé par `userIdentifier &&`,
+  sinon le bloc subsiste vide. `UserInfoHeaderView` y enveloppait un `CopyableText` dont le
+  bouton de copie restait rendu et échouait sur « Échec de la copie » à chaque clic, faute de
+  texte à copier. L'amont pose déjà cette garde sur l'autre emplacement
+  (`UserProfileSettings`). Point de vigilance restant : `DMRoomTile` fait
+  `userIdentifier || member.userId` et réafficherait donc l'identifiant brut — inatteignable
+  tant que la création de conversations privées est bloquée (SCAT-16).
 - **SCAT-41** : masquage des entrées « Associer un nouvel appareil » et « Sécurité et
   confidentialité » du menu utilisateur.
 - **SCAT-42** : masquage d'onglets de la modale de paramétrage (`disable_settings_tabs`),

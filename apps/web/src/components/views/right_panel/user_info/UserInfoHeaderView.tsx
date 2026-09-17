@@ -80,11 +80,18 @@ export const UserInfoHeaderView: React.FC<UserInfoHeaderViewProps> = ({ member, 
                             </Flex>
                         </Tooltip>
                     )}
-                    <Text size="sm" weight="semibold" className="mx_UserInfo_profile_mxid">
-                        <CopyableText getTextToCopy={() => vm.userIdentifier} border={false}>
-                            {vm.userIdentifier}
-                        </CopyableText>
-                    </Text>
+                    {/* Kosmos : la customisation `UserIdentifier` renvoie `null` pour masquer
+                        l'identifiant Matrix. Sans cette garde, le `CopyableText` rendait un
+                        bouton de copie orphelin sous un texte vide, et le clic échouait
+                        systématiquement sur « Échec de la copie ». Même garde que l'amont
+                        applique déjà à cet identifiant dans `UserProfileSettings`. */}
+                    {vm.userIdentifier && (
+                        <Text size="sm" weight="semibold" className="mx_UserInfo_profile_mxid">
+                            <CopyableText getTextToCopy={() => vm.userIdentifier} border={false}>
+                                {vm.userIdentifier}
+                            </CopyableText>
+                        </Text>
+                    )}
                 </Flex>
             </Container>
         </React.Fragment>

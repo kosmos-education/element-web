@@ -110,6 +110,28 @@ describe("<UserInfoHeaderView />", () => {
         expect(container).toMatchSnapshot();
     });
 
+    // Kosmos : la customisation `UserIdentifier` renvoie `null` pour masquer l'identifiant
+    // Matrix. Le bloc entier doit disparaître, bouton de copie compris : laissé seul, il
+    // n'a rien à copier et échoue sur « Échec de la copie » (SCAT-62).
+    it("should not render the identifier block when the identifier is hidden", () => {
+        mocked(useUserfoHeaderViewModel).mockReturnValue({
+            onMemberAvatarClick: jest.fn(),
+            precenseInfo: {
+                lastActiveAgo: undefined,
+                currentlyActive: undefined,
+                state: undefined,
+            },
+            showPresence: false,
+            timezoneInfo: null,
+            userIdentifier: null,
+        });
+
+        const { container } = renderComponent();
+
+        expect(container.getElementsByClassName("mx_UserInfo_profile_mxid")).toHaveLength(0);
+        expect(screen.queryByRole("button", { name: "Copy" })).not.toBeInTheDocument();
+    });
+
     it("should not render verification view if hideVerificationSection is true", () => {
         mocked(useUserfoHeaderViewModel).mockReturnValue({
             onMemberAvatarClick: jest.fn(),
