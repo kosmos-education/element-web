@@ -257,9 +257,16 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   sinon le bloc subsiste vide. `UserInfoHeaderView` y enveloppait un `CopyableText` dont le
   bouton de copie restait rendu et échouait sur « Échec de la copie » à chaque clic, faute de
   texte à copier. L'amont pose déjà cette garde sur l'autre emplacement
-  (`UserProfileSettings`). Point de vigilance restant : `DMRoomTile` fait
-  `userIdentifier || member.userId` et réafficherait donc l'identifiant brut — inatteignable
-  tant que la création de conversations privées est bloquée (SCAT-16).
+  (`UserProfileSettings`).
+
+  ⚠️ **Piège du repli** (SCAT-65) : `getDisplayUserIdentifier` renvoyant `null`, tout code amont
+  de la forme `userIdentifier || member.userId` **réaffiche** l'identifiant brut au lieu de le
+  masquer — le `null` y est lu comme « valeur manquante » et non comme « ne rien montrer ». C'est
+  ce qui se produisait dans `DMRoomTile`, la tuile de personne du dialogue d'invitation, atteinte
+  par l'invitation dans un salon (`InviteKind.Invite`) et pas seulement par la création de
+  conversation privée (bloquée par SCAT-16). Le repli a été retiré : la légende reste vide. À
+  vérifier lors de chaque montée de version amont, sur tous les consommateurs de cette
+  customisation — voir aussi la garde `userIdentifier &&` attendue au rendu (SCAT-62).
 - **SCAT-41** : masquage des entrées « Associer un nouvel appareil » et « Sécurité et
   confidentialité » du menu utilisateur.
 - **SCAT-42** : masquage d'onglets de la modale de paramétrage (`disable_settings_tabs`),

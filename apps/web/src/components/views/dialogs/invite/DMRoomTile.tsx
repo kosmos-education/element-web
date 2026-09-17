@@ -56,9 +56,12 @@ export class DMRoomTile extends React.PureComponent<IDMRoomTileProps> {
             withDisplayName: true,
         });
 
+        // Kosmos (SCAT-65) : `getDisplayUserIdentifier` renvoie `null` pour masquer l'identifiant
+        // Matrix (SCAT-40). Le repli amont sur `member.userId` réaffichait précisément ce que la
+        // customisation demande de cacher : on le retire, la légende reste vide dans ce cas.
         const caption = (this.props.member as ThreepidMember).isEmail
             ? _t("invite|email_caption")
-            : userIdentifier || this.props.member.userId;
+            : (userIdentifier ?? "");
 
         return (
             <RichItem
