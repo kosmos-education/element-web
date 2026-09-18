@@ -62,6 +62,8 @@ import { DMRoomTile } from "./invite/DMRoomTile.tsx";
 import { logErrorAndShowErrorDialog } from "../../../utils/ErrorUtils.tsx";
 import UnknownIdentityUsersWarningDialog from "./invite/UnknownIdentityUsersWarningDialog.tsx";
 import { AddressType, getAddressType } from "../../../UserAddress.ts";
+import UserIdentifierCustomisations from "../../../customisations/UserIdentifier";
+import SdkConfig from "../../../SdkConfig";
 
 interface Result {
     userId: string;
@@ -1233,42 +1235,56 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
             const room = MatrixClientPeg.get()?.getRoom(roomId);
             const isSpace = room?.isSpaceRoom();
 
-            let helpTextUntranslated;
-            if (isSpace) {
-                if (identityServersEnabled) {
-                    helpTextUntranslated = _td("invite|name_email_mxid_share_space");
-                } else {
-                    helpTextUntranslated = _td("invite|name_mxid_share_space");
-                }
-            } else {
-                if (identityServersEnabled) {
-                    helpTextUntranslated = _td("invite|name_email_mxid_share_room");
-                } else {
-                    helpTextUntranslated = _td("invite|name_mxid_share_room");
-                }
-            }
+            // Kosmos (SCAT-65) : le texte d'aide amont expose deux choses que les customisations
+            // masquent par ailleurs — un exemple d'identifiant Matrix, injecté en dur sans passer
+            // par `UserIdentifierCustomisations` (SCAT-40), et un permalien vers le salon, qui est
+            // le quatrième point d'entrée du partage de lien (SCAT-48, `hide_share_room`). Dès que
+            // l'une des deux customisations est active, on bascule sur un texte qui n'en porte
+            // aucune, identique pour un salon et pour un espace.
+            const identifierHidden =
+                UserIdentifierCustomisations.getDisplayUserIdentifier(userId, { withDisplayName: true }) === null;
+            const shareHidden = !!SdkConfig.get("hide_share_room");
 
-            helpText = _t(
-                helpTextUntranslated,
-                {},
-                {
-                    userId: () => (
-                        <a
-                            className="mx_InviteDialog_helpText_userId"
-                            href={makeUserPermalink(userId)}
-                            rel="noreferrer noopener"
-                            target="_blank"
-                        >
-                            {userId}
-                        </a>
-                    ),
-                    a: (sub) => (
-                        <a href={makeRoomPermalink(cli, roomId)} rel="noreferrer noopener" target="_blank">
-                            {sub}
-                        </a>
-                    ),
-                },
-            );
+            if (identifierHidden || shareHidden) {
+                helpText = _t("invite|name_mxid_prompt");
+            } else {
+                let helpTextUntranslated;
+                if (isSpace) {
+                    if (identityServersEnabled) {
+                        helpTextUntranslated = _td("invite|name_email_mxid_share_space");
+                    } else {
+                        helpTextUntranslated = _td("invite|name_mxid_share_space");
+                    }
+                } else {
+                    if (identityServersEnabled) {
+                        helpTextUntranslated = _td("invite|name_email_mxid_share_room");
+                    } else {
+                        helpTextUntranslated = _td("invite|name_mxid_share_room");
+                    }
+                }
+
+                helpText = _t(
+                    helpTextUntranslated,
+                    {},
+                    {
+                        userId: () => (
+                            <a
+                                className="mx_InviteDialog_helpText_userId"
+                                href={makeUserPermalink(userId)}
+                                rel="noreferrer noopener"
+                                target="_blank"
+                            >
+                                {userId}
+                            </a>
+                        ),
+                        a: (sub) => (
+                            <a href={makeRoomPermalink(cli, roomId)} rel="noreferrer noopener" target="_blank">
+                                {sub}
+                            </a>
+                        ),
+                    },
+                );
+            }
 
             buttonText = _t("action|invite");
         } else {

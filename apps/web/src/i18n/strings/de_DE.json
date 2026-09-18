@@ -1328,6 +1328,7 @@
         "invalid_address": "Nicht erkannte Adresse",
         "name_email_mxid_share_room": "Lade jemanden mittels Name, E-Mail-Adresse oder Nutzername (wie <userId/>) ein, oder <a>teile diesen Chat</a>.",
         "name_email_mxid_share_space": "Lade Leute mittels Anzeigename, E-Mail-Adresse oder Benutzername (z. B. <userId/>) ein oder <a>teile diesen Space</a>.",
+        "name_mxid_prompt": "Lade jemanden mittels Name oder Nutzername ein.",
         "name_mxid_share_room": "Lade jemanden mittels Name oder Nutzername (z. B. <userId/>) ein oder <a>teile diesen Chat</a>.",
         "name_mxid_share_space": "Lade Leute mittels Anzeigename oder Benutzername (z. B. <userId/>) ein oder <a>teile diesen Space</a>.",
         "progress": {

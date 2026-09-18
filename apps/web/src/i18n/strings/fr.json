@@ -1370,6 +1370,7 @@
         "invalid_address": "Adresse non reconnue",
         "name_email_mxid_share_room": "Invitez quelqu’un via son nom, adresse e-mail ou pseudo (p. ex. <userId/>) ou <a>partagez ce salon</a>.",
         "name_email_mxid_share_space": "Invitez quelqu’un grâce à son nom, adresse e-mail, nom d’utilisateur (tel que <userId/>) ou <a>partagez cet espace</a>.",
+        "name_mxid_prompt": "Invitez quelqu’un à partir de son nom ou pseudo.",
         "name_mxid_share_room": "Invitez quelqu’un à partir de son nom, pseudo (comme <userId/>) ou <a>partagez ce salon</a>.",
         "name_mxid_share_space": "Invitez quelqu’un grâce à son nom, nom d’utilisateur (tel que <userId/>) ou <a>partagez cet espace</a>.",
         "progress": {

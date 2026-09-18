@@ -19,6 +19,7 @@ import { mediaFromMxc } from "./customisations/Media";
 import ErrorDialog from "./components/views/dialogs/ErrorDialog";
 import { InviteKind } from "./components/views/dialogs/InviteDialogTypes";
 import { type Member } from "./utils/direct-messages";
+import UserIdentifierCustomisations from "./customisations/UserIdentifier";
 
 export function showStartChatInviteDialog(initialText = ""): void {
     // This dialog handles the room creation internally - we don't need to worry about it.
@@ -109,6 +110,16 @@ export function showAnyInviteErrors(
                             const user = userMap?.get(addr) || cli.getUser(addr);
                             const name = (user as Member).name || (user as User).rawDisplayName;
                             const avatarUrl = (user as Member).getMxcAvatarUrl?.() || (user as User).avatarUrl;
+                            // Kosmos (SCAT-65) : cette tuile réimplémente en ligne le markup de
+                            // `DMRoomTile` et affichait l'identifiant Matrix en dur, sans passer par
+                            // la customisation qui le masque (SCAT-40). On route l'affichage par
+                            // celle-ci, et on ne rend la légende que si elle fournit une valeur —
+                            // sinon le bloc subsisterait vide (SCAT-62).
+                            const userIdentifier =
+                                user?.userId &&
+                                UserIdentifierCustomisations.getDisplayUserIdentifier(user.userId, {
+                                    withDisplayName: true,
+                                });
                             return (
                                 <div key={addr} className="mx_InviteDialog_tile mx_InviteDialog_tile--inviterError">
                                     <div className="mx_InviteDialog_tile_avatarStack">
@@ -124,7 +135,11 @@ export function showAnyInviteErrors(
                                     </div>
                                     <div className="mx_InviteDialog_tile_nameStack">
                                         <span className="mx_InviteDialog_tile_nameStack_name">{name}</span>
-                                        <span className="mx_InviteDialog_tile_nameStack_userId">{user?.userId}</span>
+                                        {userIdentifier && (
+                                            <span className="mx_InviteDialog_tile_nameStack_userId">
+                                                {userIdentifier}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="mx_InviteDialog_tile--inviterError_errorText">
                                         {inviter.getErrorText(addr)}

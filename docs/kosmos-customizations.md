@@ -259,14 +259,34 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
   texte à copier. L'amont pose déjà cette garde sur l'autre emplacement
   (`UserProfileSettings`).
 
-  ⚠️ **Piège du repli** (SCAT-65) : `getDisplayUserIdentifier` renvoyant `null`, tout code amont
-  de la forme `userIdentifier || member.userId` **réaffiche** l'identifiant brut au lieu de le
-  masquer — le `null` y est lu comme « valeur manquante » et non comme « ne rien montrer ». C'est
-  ce qui se produisait dans `DMRoomTile`, la tuile de personne du dialogue d'invitation, atteinte
-  par l'invitation dans un salon (`InviteKind.Invite`) et pas seulement par la création de
-  conversation privée (bloquée par SCAT-16). Le repli a été retiré : la légende reste vide. À
-  vérifier lors de chaque montée de version amont, sur tous les consommateurs de cette
-  customisation — voir aussi la garde `userIdentifier &&` attendue au rendu (SCAT-62).
+  ⚠️ **Trois façons pour l'identifiant de réapparaître** (SCAT-65). Le dialogue d'invitation les
+  a présentées toutes les trois, et la recette a rejeté une première correction qui n'en traitait
+  qu'une. À reprendre à chaque montée de version amont :
+
+  1. **Le repli.** `getDisplayUserIdentifier` renvoyant `null`, tout code amont de la forme
+     `userIdentifier || member.userId` **réaffiche** l'identifiant brut au lieu de le masquer — le
+     `null` y est lu comme « valeur manquante » et non comme « ne rien montrer ». C'était le cas
+     de `DMRoomTile`, la tuile de personne du dialogue d'invitation, atteinte par l'invitation
+     dans un salon (`InviteKind.Invite`) et pas seulement par la création de conversation privée
+     (bloquée par SCAT-16). Le repli a été retiré : la légende reste vide.
+  2. **L'identifiant en dur dans une chaîne i18n.** Le texte d'aide du dialogue d'invitation
+     (`InviteDialog.renderMainTab`, branche `InviteKind.Invite`) donne l'identifiant de
+     l'utilisateur courant en exemple, injecté comme substituant `<userId/>` sans passer par la
+     customisation, qui ne peut donc rien intercepter. La branche bascule sur une chaîne Kosmos
+     `invite|name_mxid_prompt` — « Invitez quelqu'un à partir de son nom ou pseudo. », sans
+     exemple ni lien, la même pour un salon et pour un espace — dès que l'identifiant est masqué
+     **ou** que `hide_share_room` est posé (voir SCAT-48, quatrième point d'entrée). Cette chaîne
+     est ajoutée à la main dans `fr`, `en_EN`, `de_DE` et `es` ; ne pas lancer `pnpm i18n` pour
+     l'enregistrer, la régénération supprime au passage les clés amont devenues inutilisées par
+     les autres customisations.
+  3. **Le `userId` rendu directement.** La fenêtre « Certaines invitations n'ont pas pu être
+     envoyées » (`showAnyInviteErrors`, dans `RoomInvite.tsx`) réimplémente en ligne le markup de
+     `DMRoomTile` au lieu de réutiliser le composant, et affichait `user.userId` sans passer par
+     la customisation du tout. Un consommateur de ce genre reste invisible à une recherche sur
+     `getDisplayUserIdentifier` : chercher aussi les rendus directs de `userId`.
+
+  Dans tous les cas, l'affichage doit être gardé par `userIdentifier &&` (SCAT-62), sinon le bloc
+  subsiste vide.
 - **SCAT-41** : masquage des entrées « Associer un nouvel appareil » et « Sécurité et
   confidentialité » du menu utilisateur.
 - **SCAT-42** : masquage d'onglets de la modale de paramétrage (`disable_settings_tabs`),
@@ -341,13 +361,19 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
      permalien sans passer par le dialogue. Attention : l'entrée du menu contextuel du message
      est rendue comme une balise `<a href={permalink} target="_blank">` — neutraliser son
      `onClick` ne suffit pas, le lien resterait cliquable ; c'est le bloc entier qui est masqué.
-  2. `hide_share_room` : masque le partage d'un lien vers un salon sur ses **trois** points
+  2. `hide_share_room` : masque le partage d'un lien vers un salon sur ses **quatre** points
      d'entrée — l'entrée « Copier le lien » du panneau latéral d'information
      (`RoomSummaryCardView`, qui ouvre `ShareDialog`), l'entrée « Copier le lien du salon » du
      menu « … » d'un salon de la liste (`RoomListItemViewModel`) et la même entrée dans le menu
      contextuel d'un résultat du Spotlight (`RoomGeneralContextMenu`, via
      `RoomResultContextMenus`). Les deux dernières passent par l'action de dispatcher
      `copy_room`, traitée dans `MatrixChat`.
+     Le quatrième, trouvé en recette (SCAT-65), ne ressemble pas aux autres : le lien « partagez
+     ce salon » du texte d'aide du dialogue d'invitation (`InviteDialog.renderMainTab`) n'est pas
+     une entrée de menu et n'ouvre pas `ShareDialog` — c'est un permalien `matrix.to` posé
+     directement dans une phrase, ouvert dans un nouvel onglet. Il disparaît avec le reste du
+     texte amont, remplacé par `invite|name_mxid_prompt` (voir SCAT-40). La variante espace
+     (`…share_space`) suit le même chemin.
   3. `hide_share_user` : masque l'entrée « Partager le profil » du panneau latéral d'information
      d'un utilisateur (`UserInfoBasicOptionsView`, bloc `shareUserButton`, qui ouvre
      `ShareDialog` avec la cible `member`). Point d'entrée **unique**. Le bouton est rendu hors

@@ -1116,6 +1116,7 @@
         "invalid_address": "Dirección desconocida",
         "name_email_mxid_share_room": "Invitar a alguien usando su nombre, dirección de correo, nombre de usuario (ej.: <userId/>) o <a>compartiendo la sala</a>.",
         "name_email_mxid_share_space": "Invita a más gente usando su nombre, correo electrónico, nombre de usuario (ej.: <userId/>) o <a>compartiendo el enlace a este espacio</a>.",
+        "name_mxid_prompt": "Invita a alguien usando su nombre o nombre de usuario.",
         "name_mxid_share_room": "Invita a alguien usando su nombre, nombre de usuario (ej.: <userId/>) o <a>compartiendo esta sala</a>.",
         "name_mxid_share_space": "Invita a más gente usando su nombre, nombre de usuario (ej.: <userId/>) o <a>compartiendo el enlace a este espacio</a>.",
         "recents_section": "Conversaciones recientes",

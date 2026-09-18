@@ -1372,6 +1372,7 @@
         "invalid_address": "Unrecognised address",
         "name_email_mxid_share_room": "Invite someone using their name, email address, username (like <userId/>) or <a>share this room</a>.",
         "name_email_mxid_share_space": "Invite someone using their name, email address, username (like <userId/>) or <a>share this space</a>.",
+        "name_mxid_prompt": "Invite someone using their name or username.",
         "name_mxid_share_room": "Invite someone using their name, username (like <userId/>) or <a>share this room</a>.",
         "name_mxid_share_space": "Invite someone using their name, username (like <userId/>) or <a>share this space</a>.",
         "progress": {
