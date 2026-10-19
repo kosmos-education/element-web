@@ -35,6 +35,7 @@ import RoomAvatar from "../components/views/avatars/RoomAvatar";
 import { ModuleNotificationDecoration } from "../modules/components/ModuleNotificationDecoration";
 import Login from "../Login.ts";
 import { startOAuthLogin } from "../utils/oauth/authorize.ts";
+import { canAutoRedirectToSsoAfterSoftLogout, markSoftLogoutSsoAttempt } from "../utils/softLogoutSsoGuard.ts";
 
 // oxlint-disable-next-line node/no-process-env
 logger.log(`Application is running in ${process.env.NODE_ENV} mode`);
@@ -114,8 +115,10 @@ export async function loadApp(urlParams: URLParams, matrixChatRef: React.Ref<Mat
     const [userId] = await Lifecycle.getStoredSessionOwner();
     // A soft-logged-out session keeps its (now-unusable) token in storage. Treat it as "no token"
     // so that the `immediate` SSO auto-redirect fires again instead of getting stuck on the
-    // soft-logout screen when landing on e.g. #/start_sso (see SCAT-37).
-    const hasPossibleToken = !!userId && !Lifecycle.isSoftLogout();
+    // soft-logout screen when landing on e.g. #/start_sso (see SCAT-37). It shares the SoftLogout loop guard
+    // (SCAT-76): when SSO has just been attempted for this soft-logged-out session, load the app instead.
+    const isSoftLogoutSsoAllowed = Lifecycle.isSoftLogout() && canAutoRedirectToSsoAfterSoftLogout();
+    const hasPossibleToken = !!userId && !isSoftLogoutSsoAllowed;
     const isReturningFromSso = !!urlParams.legacy_sso || !!urlParams.oauth2;
     const ssoRedirects = config.sso_redirect_options || {};
     let autoRedirect = ssoRedirects.immediate === true;
@@ -135,6 +138,7 @@ export async function loadApp(urlParams: URLParams, matrixChatRef: React.Ref<Mat
     const initialScreenAfterLogin = getInitialScreenAfterLogin(window.location);
 
     if (!hasPossibleToken && !isReturningFromSso && autoRedirect && config.validated_server_config) {
+        if (isSoftLogoutSsoAllowed) markSoftLogoutSsoAttempt();
         const redirecting = await redirectToSso(config.validated_server_config);
 
         // We return here because startSingleSignOn() will asynchronously redirect us. We don't

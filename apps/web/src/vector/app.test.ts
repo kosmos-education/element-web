@@ -20,6 +20,7 @@ import SdkConfig from "../SdkConfig.ts";
 import PlatformPeg from "../PlatformPeg.ts";
 import * as Lifecycle from "../Lifecycle.ts";
 import type MatrixChat from "../components/structures/MatrixChat.tsx";
+import { canAutoRedirectToSsoAfterSoftLogout, markSoftLogoutSsoAttempt } from "../utils/softLogoutSsoGuard.ts";
 
 const defaultConfig = {
     default_hs_url: "https://synapse",
@@ -62,6 +63,8 @@ describe("sso_redirect_options", () => {
         afterEach(() => {
             // SCAT-37 : les espions posés sur Lifecycle ne doivent pas fuir sur les tests suivants.
             vi.restoreAllMocks();
+            // SCAT-76 : ni la dernière tentative de SSO mémorisée par le garde-fou anti-boucle.
+            sessionStorage.clear();
         });
 
         it("should redirect for legacy SSO", async () => {
@@ -90,6 +93,30 @@ describe("sso_redirect_options", () => {
 
             await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
             expect(startSingleSignOnSpy).toHaveBeenCalledWith(expect.any(MatrixClient), "sso", "/room/#room:server");
+        });
+
+        // SCAT-76: the redirect above shares the SoftLogout loop guard. If SSO has just been attempted for
+        // this soft-logged-out session and did not log the user back in, load the app instead of looping.
+        it("should not redirect again when SSO has just been attempted for the soft-logged-out session", async () => {
+            vi.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            vi.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(true);
+            markSoftLogoutSsoAttempt();
+
+            const startSingleSignOnSpy = vi.spyOn(PlatformPeg.get()!, "startSingleSignOn");
+
+            await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
+            expect(startSingleSignOnSpy).not.toHaveBeenCalled();
+        });
+
+        it("should remember the SSO attempt when redirecting a soft-logged-out session", async () => {
+            fetchMock.getOnce("https://synapse/_matrix/client/v3/login", {
+                flows: [{ stages: ["m.login.sso"] }],
+            });
+            vi.spyOn(Lifecycle, "getStoredSessionOwner").mockResolvedValue(["@user:server", false]);
+            vi.spyOn(Lifecycle, "isSoftLogout").mockReturnValue(true);
+
+            await loadApp({}, vi.fn() as RefCallback<MatrixChat>);
+            expect(canAutoRedirectToSsoAfterSoftLogout()).toBe(false);
         });
 
         it("should not redirect when a valid (non soft-logged-out) session is stored", async () => {

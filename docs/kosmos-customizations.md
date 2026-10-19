@@ -214,6 +214,26 @@ restait bloqué sur l'écran de soft-logout. `apps/web/src/vector/app.tsx` trait
 session soft-logout comme « pas de jeton ». Tests dans `apps/web/src/vector/app.test.ts`
 (Vitest depuis la v1.12.26).
 
+### Relancer le SSO automatiquement à l'expiration de la session (SCAT-76)
+
+Avec `session_lifetime` côté Synapse, le jeton expire à heure fixe et Synapse répond `401` avec
+`soft_logout: true`. SCAT-37 ne couvre que le chargement d'une session déjà marquée soft-logout ;
+quand l'onglet a été fermé avant l'expiration, ou qu'il est resté ouvert, Element découvre
+l'expiration en cours de route et affichait l'écran « Vous êtes déconnecté ».
+
+`SoftLogout.tsx` (`startAutomaticSsoRedirect`) relance désormais lui-même le SSO quand
+`sso_redirect_options.immediate` est actif et que le serveur ne propose que SSO (ou CAS). La
+redirection se fait sans IdP, comme celle du chargement : dans les logs Synapse,
+`/login/sso/redirect?…` reste la redirection automatique et `/login/sso/redirect/<idp>?…` le clic
+sur le bouton. Le retour passe par `trySsoLogin`, qui conserve le `device_id`.
+
+Garde-fou anti-boucle (`apps/web/src/utils/softLogoutSsoGuard.ts`) : la dernière tentative est
+mémorisée en `sessionStorage` ; pas de nouvelle redirection automatique pendant
+`SOFT_LOGOUT_SSO_RETRY_DELAY_MS` (2 min) dans le même onglet, ni juste après un `m.login.token`
+refusé (par exemple 429). L'écran s'affiche alors pour une reconnexion manuelle. Le garde-fou est
+partagé avec la redirection SCAT-37 d'`app.tsx`, et effacé après une reconnexion réussie. Tests
+dans `apps/web/src/components/structures/auth/SoftLogout.test.tsx` et `apps/web/src/vector/app.test.ts`.
+
 ### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
 
 `EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG

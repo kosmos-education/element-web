@@ -8,7 +8,7 @@ Please see LICENSE files in the repository root for full details.
 
 import React, { type JSX, type ChangeEvent, type SyntheticEvent } from "react";
 import { logger } from "matrix-js-sdk/src/logger";
-import { type LoginFlow, MatrixError, SSOAction, type SSOFlow } from "matrix-js-sdk/src/matrix";
+import { type LoginFlow, type MatrixClient, MatrixError, SSOAction, type SSOFlow } from "matrix-js-sdk/src/matrix";
 
 import { _t } from "../../../languageHandler";
 import dis from "../../../dispatcher/dispatcher";
@@ -27,6 +27,13 @@ import Spinner from "../../views/elements/Spinner";
 import AuthHeader from "../../views/auth/AuthHeader";
 import AuthBody from "../../views/auth/AuthBody";
 import { type URLParams } from "../../../vector/url_utils.ts";
+import SdkConfig from "../../../SdkConfig";
+import PlatformPeg from "../../../PlatformPeg";
+import {
+    canAutoRedirectToSsoAfterSoftLogout,
+    clearSoftLogoutSsoAttempt,
+    markSoftLogoutSsoAttempt,
+} from "../../../utils/softLogoutSsoGuard.ts";
 
 enum LoginView {
     Loading,
@@ -110,7 +117,39 @@ export default class SoftLogout extends React.Component<IProps, IState> {
         const isSocialSignOn = loginViews.includes(LoginView.Password) && loginViews.includes(LoginView.SSO);
         const firstView = loginViews.find((f) => !!f) || LoginView.Unsupported;
         const chosenView = isSocialSignOn ? LoginView.PasswordWithSocialSignOn : firstView;
+
+        // SCAT-76: the session has expired (session_lifetime) while the SSO session of the user is most likely
+        // still valid. Rather than asking them to click "Continue with…", restart SSO straight away: the round
+        // trip is transparent and comes back to trySsoLogin, which keeps the device ID. Never do it right after
+        // a failed token login, nor twice within the retry delay, to avoid looping (cf. SCAT-60).
+        if (!hasAllParams && this.startAutomaticSsoRedirect(client, chosenView)) return;
+
         this.setState({ flows, loginView: chosenView });
+    }
+
+    /**
+     * Start an SSO redirect without user interaction, when the homeserver only offers SSO (or CAS) and
+     * `sso_redirect_options.immediate` is enabled.
+     * @returns true if the browser is being redirected to the SSO provider.
+     */
+    private startAutomaticSsoRedirect(client: MatrixClient, loginView: LoginView): boolean {
+        if (loginView !== LoginView.SSO && loginView !== LoginView.CAS) return false;
+        if (SdkConfig.get("sso_redirect_options")?.immediate !== true) return false;
+
+        const platform = PlatformPeg.get();
+        if (!platform || !canAutoRedirectToSsoAfterSoftLogout()) return false;
+
+        logger.log("Soft logout: restarting SSO automatically");
+        markSoftLogoutSsoAttempt();
+        // No IdP ID, like the immediate redirect done at app load: the homeserver picks its only provider.
+        platform.startSingleSignOn(
+            client,
+            loginView === LoginView.CAS ? "cas" : "sso",
+            this.props.fragmentAfterLogin,
+            undefined,
+            SSOAction.LOGIN,
+        );
+        return true;
     }
 
     private onPasswordChange = (ev: ChangeEvent<HTMLInputElement>): void => {
@@ -198,6 +237,7 @@ export default class SoftLogout extends React.Component<IProps, IState> {
 
         return Lifecycle.hydrateSession(credentials)
             .then(() => {
+                clearSoftLogoutSsoAttempt();
                 this.props.onTokenLoginCompleted(this.props.urlParams, this.props.fragmentAfterLogin);
                 return true;
             })
