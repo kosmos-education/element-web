@@ -743,6 +743,10 @@ export async function hydrateSession(credentials: IMatrixClientCreds): Promise<M
     const oldUserId = MatrixClientPeg.safeGet().getUserId();
     const oldDeviceId = MatrixClientPeg.safeGet().getDeviceId();
 
+    // SCAT-79: let the sync store purge of the soft logout finish before the store is destroyed and reopened.
+    await _softLogoutStorePurge;
+    _softLogoutStorePurge = undefined;
+
     stopMatrixClient(); // unsets MatrixClientPeg.get()
     localStorage.removeItem("mx_soft_logout");
     _isLoggingOut = false;
@@ -916,6 +920,9 @@ async function persistCredentials(credentials: IMatrixClientCreds): Promise<void
 
 let _isLoggingOut = false;
 
+// SCAT-79: the sync store purge started by the last soft logout, awaited before the client is restarted.
+let _softLogoutStorePurge: Promise<void> | undefined;
+
 /**
  * Logs out the current session.
  * When user has authenticated using OAuth2 native flow revoke tokens with OAuth2 provider.
@@ -1001,9 +1008,23 @@ export function softLogout(): void {
     // so that React components unmount first. This avoids React soft crashes
     // that can occur when components try to use a null client.
     dis.dispatch({ action: Action.ClientNotViable }); // generic version of on_logged_out
+    const cli = MatrixClientPeg.get();
     stopMatrixClient(/*unsetClient=*/ false);
 
     // DO NOT CALL LOGOUT. A soft logout preserves data, logout does not.
+
+    // SCAT-79: La Bulle does not use encryption, so what a soft logout preserves is mostly the sync cache: the
+    // latest messages of every room, readable in the browser storage of a shared computer once the session has
+    // expired. Clear it (memory and IndexedDB), but keep the credentials and the crypto store so that signing in
+    // again via SSO reuses the same device. This also runs when a soft-logged-out session is loaded at startup.
+    // A failed purge must never break the soft logout itself, hence the promise wrapping even synchronous errors.
+    if (cli) {
+        _softLogoutStorePurge = Promise.resolve()
+            .then(() => cli.store.deleteAllData())
+            .catch((e) => {
+                logger.warn("Soft logout: failed to clear the sync store", e);
+            });
+    }
 }
 
 export function isSoftLogout(): boolean {

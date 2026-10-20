@@ -251,6 +251,22 @@ Les deux chaînes sont ajoutées à la main dans `fr`, `en_EN`, `de_DE` et `es` 
 `e2e/login/soft_logout.spec.ts` et `soft_logout_oauth.spec.ts` attendent le nouveau titre. Tests dans
 `apps/web/src/components/structures/auth/SoftLogout.test.tsx`.
 
+### Purger le cache des messages à l'expiration de la session (SCAT-79)
+
+Un soft-logout amont ne purge rien, pour préserver les clés de chiffrement. Sans E2EE, ce qu'il
+préserve surtout, c'est le cache de synchronisation (IndexedDB `riot-web-sync` : derniers messages
+de chaque salon), lisible dans le navigateur d'un poste partagé une fois la session expirée.
+`Lifecycle.softLogout` vide désormais ce cache (`cli.store.deleteAllData()`, mémoire et IndexedDB)
+en gardant les identifiants et le magasin de chiffrement : la reconnexion SSO réutilise le même
+`device_id` et refait une synchronisation complète. `softLogout` étant aussi rappelé par
+`startMatrixClient` quand une session déjà marquée soft-logout est chargée, la purge couvre les
+deux cas. `hydrateSession` attend la fin de la purge (`_softLogoutStorePurge`) avant de détruire et
+rouvrir le store, faute de quoi le retour SSO, qui suit immédiatement le chargement, pouvait
+l'interrompre. Un échec de purge est journalisé sans bloquer la reconnexion.
+
+Limite : la purge n'a lieu que lorsqu'Element constate l'expiration (onglet ouvert ou rouvert).
+Tests dans `apps/web/src/Lifecycle.test.ts`.
+
 ### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
 
 `EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG

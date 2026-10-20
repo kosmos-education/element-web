@@ -609,6 +609,50 @@ describe("Lifecycle", () => {
             });
         });
 
+        // SCAT-79: once the session has expired, the latest messages must not stay in the browser storage.
+        describe("soft logout purge", () => {
+            beforeEach(async () => {
+                await setLoggedIn(credentials);
+                // setLoggedIn has already cleared and destroyed the stores once: only count what follows.
+                mockClient.clearStores.mockClear();
+                vi.mocked(mockClient.store.destroy).mockClear();
+                mockClient.store.deleteAllData = vi.fn().mockResolvedValue(undefined);
+            });
+
+            it("should clear the sync store but keep the credentials", async () => {
+                Lifecycle.softLogout();
+
+                await vi.waitFor(() => expect(mockClient.store.deleteAllData).toHaveBeenCalled());
+                expect(mockClient.clearStores).not.toHaveBeenCalled();
+                expect(localStorage.getItem("mx_soft_logout")).toBe("true");
+                expect(localStorage.getItem("mx_user_id")).toBe(userId);
+                expect(localStorage.getItem("mx_device_id")).toBe(deviceId);
+            });
+
+            it("should wait for the purge before signing in again", async () => {
+                const { promise: purge, resolve: endPurge } = Promise.withResolvers<void>();
+                mockClient.store.deleteAllData = vi.fn().mockReturnValue(purge);
+                Lifecycle.softLogout();
+
+                const hydrated = Lifecycle.hydrateSession(credentials);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+                expect(mockClient.store.destroy).not.toHaveBeenCalled();
+
+                endPurge();
+                await hydrated;
+                expect(mockClient.store.destroy).toHaveBeenCalled();
+                expect(localStorage.getItem("mx_soft_logout")).toBeFalsy();
+            });
+
+            it("should sign in again even if the purge failed", async () => {
+                mockClient.store.deleteAllData = vi.fn().mockRejectedValue(new Error("IndexedDB unavailable"));
+                Lifecycle.softLogout();
+
+                await Lifecycle.hydrateSession(credentials);
+                expect(localStorage.getItem("mx_soft_logout")).toBeFalsy();
+            });
+        });
+
         describe("without a pickle key", () => {
             beforeEach(() => {
                 vi.spyOn(mockPlatform, "createPickleKey").mockResolvedValue(null);
