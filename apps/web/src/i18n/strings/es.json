@@ -333,6 +333,8 @@
             "clear_data_description": "La eliminación de todos los datos de esta sesión es definitiva. Los mensajes cifrados se perderán, a menos que se haya hecho una copia de seguridad de sus claves.",
             "clear_data_title": "¿Borrar todos los datos en esta sesión?"
         },
+        "soft_logout_expired_heading": "Su sesión ha caducado",
+        "soft_logout_expired_intro_sso": "Para proteger sus conversaciones, su sesión de %(brand)s tiene una duración limitada. Vuelva a iniciar sesión para recuperar sus conversaciones.",
         "soft_logout_heading": "Estás desconectado",
         "soft_logout_intro_password": "Ingrese su contraseña para iniciar sesión y recuperar el acceso a su cuenta.",
         "soft_logout_intro_sso": "Inicie sesión y recupere el acceso a su cuenta.",

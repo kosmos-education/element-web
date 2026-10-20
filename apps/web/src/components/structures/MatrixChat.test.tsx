@@ -1421,7 +1421,7 @@ describe("<MatrixChat />", () => {
 
             const result = getComponent();
 
-            await result.findByText("You're signed out");
+            await result.findByText("Your session has expired");
             await result.findByLabelText("Language Dropdown");
             expect(result.container).toMatchSnapshot();
         });

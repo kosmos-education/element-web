@@ -25,7 +25,7 @@ test.use({
 test.describe("Soft logout with password user", () => {
     test("shows the soft-logout page when a request fails, and allows a re-login", async ({ page, user }) => {
         await interceptRequestsWithSoftLogout(page, user);
-        await expect(page.getByText("You're signed out")).toBeVisible();
+        await expect(page.getByText("Your session has expired")).toBeVisible();
         await page.getByPlaceholder("Password").fill(user.password!);
         await page.getByPlaceholder("Password").press("Enter");
 
@@ -36,8 +36,8 @@ test.describe("Soft logout with password user", () => {
 
     test("still shows the soft-logout page when the page is reloaded after a soft-logout", async ({ page, user }) => {
         await interceptRequestsWithSoftLogout(page, user);
-        await expect(page.getByText("You're signed out")).toBeVisible();
+        await expect(page.getByText("Your session has expired")).toBeVisible();
         await page.reload();
-        await expect(page.getByText("You're signed out")).toBeVisible();
+        await expect(page.getByText("Your session has expired")).toBeVisible();
     });
 });

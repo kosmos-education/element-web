@@ -157,4 +157,31 @@ describe("<SoftLogout />", () => {
         expect(sessionStorage.getItem("mx_kosmos_soft_logout_sso_attempt")).toBeNull();
         expect(platform.startSingleSignOn).not.toHaveBeenCalled();
     });
+
+    // SCAT-77: when the screen does show up (loop guard, failed token login), it tells the user that their
+    // session has expired, without the "Clear personal data" section about encryption keys.
+    describe("expired session screen", () => {
+        beforeEach(() => {
+            SdkConfig.reset();
+            SdkConfig.put({ brand: "La Bulle" });
+        });
+
+        it("explains that the session has expired", async () => {
+            getComponent();
+
+            await screen.findByRole("button", { name: /single sign-on/i });
+            expect(screen.getByRole("heading", { level: 1, name: "Your session has expired" })).toBeInTheDocument();
+            expect(screen.getByText(/your La Bulle session has a limited duration/)).toBeInTheDocument();
+            expect(screen.queryByText("You're signed out")).not.toBeInTheDocument();
+        });
+
+        it("does not offer to clear personal data", async () => {
+            getComponent();
+
+            await screen.findByRole("button", { name: /single sign-on/i });
+            expect(screen.queryByText("Clear personal data")).not.toBeInTheDocument();
+            expect(screen.queryByText(/encryption keys/)).not.toBeInTheDocument();
+            expect(screen.queryByRole("button", { name: "Clear all data" })).not.toBeInTheDocument();
+        });
+    });
 });

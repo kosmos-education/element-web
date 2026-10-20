@@ -234,6 +234,23 @@ refusé (par exemple 429). L'écran s'affiche alors pour une reconnexion manuell
 partagé avec la redirection SCAT-37 d'`app.tsx`, et effacé après une reconnexion réussie. Tests
 dans `apps/web/src/components/structures/auth/SoftLogout.test.tsx` et `apps/web/src/vector/app.test.ts`.
 
+### Épurer l'écran de session expirée (SCAT-77)
+
+L'écran soft-logout ne s'affiche plus que si la relance automatique (SCAT-76) est bloquée par son
+garde-fou. Il s'intitule désormais « Votre session a expiré » (`auth|soft_logout_expired_heading`)
+et, pour SSO et CAS, explique que la session La Bulle a une durée limitée
+(`auth|soft_logout_expired_intro_sso`, avec `%(brand)s`, sans nom d'ENT : l'IdP diffère selon les
+projets). Le sous-titre « Se connecter » et la section « Supprimer les données personnelles » sont
+retirés : son avertissement porte sur les clés de chiffrement, inutilisées sur La Bulle, et le cache
+des messages est purgé à l'expiration (SCAT-79). `ConfirmWipeDeviceDialog.tsx`, qui n'était appelé que
+par ce bouton, est supprimé. Les variantes mot de passe et « non pris en charge » gardent leurs textes
+amont.
+
+Les deux chaînes sont ajoutées à la main dans `fr`, `en_EN`, `de_DE` et `es` (ne pas lancer
+`pnpm i18n`, cf. SCAT-65) ; les clés amont devenues inutilisées sont conservées. Les specs Playwright
+`e2e/login/soft_logout.spec.ts` et `soft_logout_oauth.spec.ts` attendent le nouveau titre. Tests dans
+`apps/web/src/components/structures/auth/SoftLogout.test.tsx`.
+
 ### Restaurer le rendu de la page d'accueil embarquée (SCAT-38)
 
 `EmbeddedPage.tsx` étend l'allowlist du sanitizer aux balises et attributs SVG

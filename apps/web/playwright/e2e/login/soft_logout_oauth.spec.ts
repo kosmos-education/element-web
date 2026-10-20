@@ -42,7 +42,7 @@ test.describe("Soft logout with SSO user", () => {
 
         await interceptRequestsWithSoftLogout(page, user);
 
-        await expect(page.getByText("You're signed out")).toBeVisible();
+        await expect(page.getByText("Your session has expired")).toBeVisible();
         await page.getByRole("button", { name: "Continue with OAuth test" }).click();
 
         // click the submit button

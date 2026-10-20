@@ -345,6 +345,8 @@
             "clear_data_description": "La suppression de toutes les données de cette session est permanente. Les messages chiffrés seront perdus sauf si les clés ont été sauvegardées.",
             "clear_data_title": "Supprimer toutes les données de cette session ?"
         },
+        "soft_logout_expired_heading": "Votre session a expiré",
+        "soft_logout_expired_intro_sso": "Pour protéger vos échanges, votre session %(brand)s a une durée limitée. Reconnectez-vous pour retrouver vos conversations.",
         "soft_logout_heading": "Vous êtes déconnecté",
         "soft_logout_intro_password": "Saisissez votre mot de passe pour vous connecter et ré-accéder à votre compte.",
         "soft_logout_intro_sso": "Connectez-vous et ré-accédez à votre compte.",

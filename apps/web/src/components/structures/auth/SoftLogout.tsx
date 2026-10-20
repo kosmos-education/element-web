@@ -13,14 +13,12 @@ import { type LoginFlow, type MatrixClient, MatrixError, SSOAction, type SSOFlow
 import { _t } from "../../../languageHandler";
 import dis from "../../../dispatcher/dispatcher";
 import * as Lifecycle from "../../../Lifecycle";
-import Modal from "../../../Modal";
 import { type IMatrixClientCreds } from "../../../utils/createMatrixClient";
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import { sendLoginRequest } from "../../../Login";
 import AuthPage from "../../views/auth/AuthPage";
 import { SSO_HOMESERVER_URL_KEY, SSO_ID_SERVER_URL_KEY } from "../../../BasePlatform";
 import SSOButtons from "../../views/elements/SSOButtons";
-import ConfirmWipeDeviceDialog from "../../views/dialogs/ConfirmWipeDeviceDialog";
 import Field from "../../views/elements/Field";
 import AccessibleButton from "../../views/elements/AccessibleButton";
 import Spinner from "../../views/elements/Spinner";
@@ -88,16 +86,6 @@ export default class SoftLogout extends React.Component<IProps, IState> {
 
         this.initLogin();
     }
-
-    private onClearAll = (): void => {
-        const { finished } = Modal.createDialog(ConfirmWipeDeviceDialog);
-        finished.then(([wipeData]) => {
-            if (!wipeData) return;
-
-            logger.log("Clearing data from soft-logged-out session");
-            Lifecycle.logout();
-        });
-    };
 
     private async initLogin(): Promise<void> {
         const hasAllParams = !!this.props.urlParams?.legacy_sso;
@@ -304,7 +292,8 @@ export default class SoftLogout extends React.Component<IProps, IState> {
         }
 
         if (this.state.loginView === LoginView.SSO || this.state.loginView === LoginView.CAS) {
-            return this.renderSsoForm(_t("auth|soft_logout_intro_sso"));
+            // SCAT-77: explain that the session has expired rather than asking to "regain access to your account".
+            return this.renderSsoForm(_t("auth|soft_logout_expired_intro_sso", { brand: SdkConfig.get().brand }));
         }
 
         if (this.state.loginView === LoginView.PasswordWithSocialSignOn) {
@@ -336,18 +325,11 @@ export default class SoftLogout extends React.Component<IProps, IState> {
             <AuthPage>
                 <AuthHeader />
                 <AuthBody>
-                    <h1>{_t("auth|soft_logout_heading")}</h1>
-
-                    <h2>{_t("action|sign_in")}</h2>
+                    {/* SCAT-77: the session has expired, the user has not signed out. The "Clear personal data"
+                        section is removed: its warning is about encryption keys, which La Bulle does not use, and
+                        the message cache is purged on expiry anyway (SCAT-79). */}
+                    <h1>{_t("auth|soft_logout_expired_heading")}</h1>
                     <div>{this.renderSignInSection()}</div>
-
-                    <h2>{_t("auth|soft_logout_subheading")}</h2>
-                    <p>{_t("auth|soft_logout_warning")}</p>
-                    <div>
-                        <AccessibleButton onClick={this.onClearAll} kind="danger">
-                            {_t("auth|soft_logout|clear_data_button")}
-                        </AccessibleButton>
-                    </div>
                 </AuthBody>
             </AuthPage>
         );

@@ -480,11 +480,8 @@ exports[`<MatrixChat /> > with a soft-logged-out session > should show the soft-
           class="mx_AuthBody"
         >
           <h1>
-            You're signed out
+            Your session has expired
           </h1>
-          <h2>
-            Sign in
-          </h2>
           <div>
             <form>
               <p>
@@ -521,21 +518,6 @@ exports[`<MatrixChat /> > with a soft-logged-out session > should show the soft-
                 Forgotten your password?
               </div>
             </form>
-          </div>
-          <h2>
-            Clear personal data
-          </h2>
-          <p>
-            Warning: your personal data (including encryption keys) is still stored in this session. Clear it if you're finished using this session, or want to sign in to another account.
-          </p>
-          <div>
-            <div
-              class="mx_AccessibleButton mx_AccessibleButton_hasKind mx_AccessibleButton_kind_danger"
-              role="button"
-              tabindex="0"
-            >
-              Clear all data
-            </div>
           </div>
         </div>
       </main>

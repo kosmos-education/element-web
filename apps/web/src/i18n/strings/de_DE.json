@@ -333,6 +333,8 @@
             "clear_data_description": "Das Löschen aller Daten aus dieser Sitzung ist dauerhaft. Verschlüsselte Nachrichten gehen verloren, sofern deine Schlüssel nicht gesichert wurden.",
             "clear_data_title": "Alle Daten dieser Sitzung löschen?"
         },
+        "soft_logout_expired_heading": "Deine Sitzung ist abgelaufen",
+        "soft_logout_expired_intro_sso": "Zum Schutz deiner Unterhaltungen ist deine %(brand)s-Sitzung zeitlich begrenzt. Melde dich erneut an, um zu deinen Unterhaltungen zurückzukehren.",
         "soft_logout_heading": "Du wurdest abgemeldet",
         "soft_logout_intro_password": "Gib dein Passwort ein, um dich anzumelden und wieder Zugang zu deinem Konto zu erhalten.",
         "soft_logout_intro_sso": "Melde dich an und erhalte wieder Zugriff auf dein Konto.",

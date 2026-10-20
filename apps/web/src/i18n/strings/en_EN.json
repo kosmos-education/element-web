@@ -347,6 +347,8 @@
             "clear_data_description": "Clearing all data from this session is permanent. Encrypted messages will be lost unless their keys have been backed up.",
             "clear_data_title": "Clear all data in this session?"
         },
+        "soft_logout_expired_heading": "Your session has expired",
+        "soft_logout_expired_intro_sso": "To protect your conversations, your %(brand)s session has a limited duration. Sign in again to get back to your conversations.",
         "soft_logout_heading": "You're signed out",
         "soft_logout_intro_password": "Enter your password to sign in and regain access to your account.",
         "soft_logout_intro_sso": "Sign in and regain access to your account.",
