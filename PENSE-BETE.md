@@ -12,6 +12,12 @@ pnpm install
 #    (cf. docs/kosmos-customizations.md)
 pnpm -r --filter "./packages/**" build
 
+# 2 bis. Builder le module de customisations Kosmos
+#    Produit modules/kosmos-customisations/lib/ (gitignoré), que webpack copie dans
+#    webapp/ AU DÉMARRAGE. Sans ça, Element échoue au chargement du module déclaré
+#    dans la clé « modules » de config.json. Redémarrer le dev-server après ce build.
+pnpm --filter @kosmos/element-web-module-customisations build
+
 # 3. Créer la config de dev si elle n'existe pas encore
 cp apps/web/config.sample.json apps/web/config.json   # puis adapter si besoin
 
@@ -26,13 +32,15 @@ pnpm --dir apps/web start
 ```bash
 ./scripts/dev-element.sh        # rejoue les 4 étapes ci-dessus puis lance le dev-server
 ./scripts/dev-element.sh -s     # cas courant : saute « pnpm install »
-./scripts/dev-element.sh --no-build   # modif uniquement dans apps/web/src
+./scripts/dev-element.sh --no-build   # modif uniquement dans apps/web/src (ne rebuild ni packages/** ni le module Kosmos)
 ```
 
 ## Raccourci manuel (après le premier setup)
 
 ```bash
-pnpm -r --filter "./packages/**" build && pnpm --dir apps/web start
+pnpm -r --filter "./packages/**" build \
+  && pnpm --filter @kosmos/element-web-module-customisations build \
+  && pnpm --dir apps/web start
 ```
 
 ⚠️ Ce raccourci manuel est sujet à la course décrite ci-dessous. Préférer le script.
@@ -70,7 +78,7 @@ Le hot-reload de `apps/web/src` reste intact.
 
 ## Notes
 
-- L'étape 2 reste indispensable avec le script, puisqu'il ne passe plus par le `^build`
+- Les étapes 2 et 2 bis restent indispensables avec le script, puisqu'il ne passe plus par le `^build`
   de nx. Pour une modif dans `apps/web/src/...`, le dev-server recompile directement.
 - Tests unitaires ciblés : `cd apps/web && pnpm exec jest <pattern>`
   (voir le contournement `--transformIgnorePatterns` si ça casse sur `matrix-js-sdk`)

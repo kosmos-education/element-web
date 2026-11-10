@@ -26,7 +26,8 @@ Usage: ./scripts/dev-element.sh [options]
 
 Rejoue la séquence complète de lancement d'Element en local :
   1. pnpm install
-  2. build des packages/** (indispensable pour les customisations Kosmos)
+  2. build des packages/** et du module kosmos-customisations
+     (indispensable pour les customisations Kosmos)
   3. création de apps/web/config.json s'il est absent
   4. prébuilds nx (module_system, rethemendex)
   5. démarrage du dev-server sur http://localhost:8080
@@ -36,7 +37,8 @@ n'est PAS reprise à chaud : relancer le script.
 
 Options :
   -s, --skip-install   Saute « pnpm install » (deps inchangées : plus rapide)
-      --no-build       Ne rebuild pas les packages/**, se fie au dist/ existant
+      --no-build       Ne rebuild ni les packages/** ni le module Kosmos,
+                       se fie aux dist/ et lib/ existants
   -h, --help           Affiche cette aide
 USAGE
 }
@@ -84,9 +86,13 @@ else
 fi
 
 SHARED_DIST_PROBE="packages/shared-components/dist/numbers.js"
+# Bundle du module Kosmos chargé au runtime via la clé « modules » de config.json.
+# lib/ est gitignoré et webpack le copie dans webapp/ avec noErrorOnMissing : s'il
+# manque, rien ne casse au build mais Element échoue au chargement du module.
+KOSMOS_MODULE_PROBE="modules/kosmos-customisations/lib/index.js"
 
 if [ "$DO_BUILD" -eq 0 ]; then
-    log "Étape 2/5 — build des packages/** ignoré (--no-build)"
+    log "Étape 2/5 — build des packages/** et du module Kosmos ignoré (--no-build)"
     if [ ! -f "$SHARED_DIST_PROBE" ]; then
         echo "Erreur : $SHARED_DIST_PROBE est absent." >&2
         echo "Comme nx ne rebuild plus les packages ici, webpack échouerait sur" >&2
@@ -94,9 +100,17 @@ if [ "$DO_BUILD" -eq 0 ]; then
         echo "Relance sans --no-build." >&2
         exit 1
     fi
+    if [ ! -f "$KOSMOS_MODULE_PROBE" ]; then
+        echo "Erreur : $KOSMOS_MODULE_PROBE est absent." >&2
+        echo "Element échouerait au chargement du module « kosmos-customisations »" >&2
+        echo "déclaré dans config.json. Relance sans --no-build." >&2
+        exit 1
+    fi
 else
     log "Étape 2/5 — Build des packages partagés (shared-components, module-api)"
     pnpm -r --filter "./packages/**" build
+    log "Étape 2/5 — Build du module kosmos-customisations"
+    pnpm --filter @kosmos/element-web-module-customisations build
 fi
 
 if [ -f apps/web/config.json ]; then
