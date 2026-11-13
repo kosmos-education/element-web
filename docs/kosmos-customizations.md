@@ -486,8 +486,8 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
 
 - **SCAT-61 — avertissement de conservation des messages** : `kosmos.message_retention_days`
   (nombre de jours) affiche, au-dessus du champ de saisie d'un salon, un avertissement
-  rappelant que La Bulle est destinée aux échanges immédiats, que les messages disparaissent
-  après la durée annoncée, et qu'il faut éviter d'y communiquer des données sensibles. Clé
+  rappelant que La Bulle est adaptée aux communications instantanées, que les messages disparaissent
+  après la durée annoncée, et que l'outil n'est pas adapté au partage de données sensibles. Clé
   absente, nulle, non entière ou ≤ 0 ⇒ **aucun avertissement** : c'est le moyen de le
   désactiver par configuration, et la garantie qu'une config malformée n'affiche jamais
   « 0 jours ».
@@ -759,8 +759,8 @@ Ces customisations sont pilotées par `config.json` (gitignoré) sauf mention co
 
 - **SCAT-61 — avertissement de conservation des messages** : `kosmos.message_retention_days`
   (nombre de jours) affiche, juste au-dessus de la zone de saisie d'un salon, un bandeau
-  rappelant que La Bulle est destinée aux échanges immédiats, que les messages disparaissent
-  après la durée annoncée, et qu'il faut éviter d'y communiquer des données sensibles. Clé
+  rappelant que La Bulle est adaptée aux communications instantanées, que les messages disparaissent
+  après la durée annoncée, et que l'outil n'est pas adapté au partage de données sensibles. Clé
   absente, nulle, non entière ou ≤ 0 ⇒ **aucun bandeau** : c'est le moyen de désactiver
   l'avertissement par configuration, et la garantie qu'une config malformée n'affiche jamais
   « 0 jours ».

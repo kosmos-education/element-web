@@ -597,8 +597,8 @@
         "format_unordered_list": "Lista",
         "formatting_toolbar_label": "Formato",
         "kosmos_message_retention_notice": {
-            "one": "La Bulle está destinada a los intercambios que requieren una comunicación inmediata. Como los mensajes son efímeros, desaparecerán después de %(count)s día. Evita comunicar datos sensibles.",
-            "other": "La Bulle está destinada a los intercambios que requieren una comunicación inmediata. Como los mensajes son efímeros, desaparecerán después de %(count)s días. Evita comunicar datos sensibles."
+            "one": "La Bulle está adaptada a las comunicaciones instantáneas. Los mensajes desaparecerán después de %(count)s día. Esta herramienta no está adaptada para compartir datos sensibles.",
+            "other": "La Bulle está adaptada a las comunicaciones instantáneas. Los mensajes desaparecerán después de %(count)s días. Esta herramienta no está adaptada para compartir datos sensibles."
         },
         "link_modal": {
             "link_field_label": "Enlace",
