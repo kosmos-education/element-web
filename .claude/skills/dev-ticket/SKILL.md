@@ -1,6 +1,6 @@
 ---
 name: dev-ticket
-description: Tracer toute tâche de développement de ce dépôt dans un ticket Jira SCAT et faire suivre son statut au travail réel. À utiliser dès qu'une demande implique de modifier le code (« corrige… », « ajoute… », « implémente… », « on attaque SCAT-… »), dès qu'une implémentation est terminée et prête pour la revue, et dès que l'utilisateur valide le travail (« c'est bon », « validé », « tu peux merger ») — c'est à ce moment-là que le merge Git est joué. Ne pas utiliser pour une simple consultation ou recherche Jira (voir jira-cst), ni pour une montée de version d'Element (voir element-upgrade).
+description: Tracer toute tâche de développement de ce dépôt dans un ticket Jira SCAT et faire suivre son statut au travail réel. À utiliser dès qu'une demande implique de modifier le code (« corrige… », « ajoute… », « implémente… », « on attaque SCAT-… »), dès qu'une implémentation est terminée et prête pour la revue, et dès que l'utilisateur valide le travail (« c'est bon », « validé », « ça peut passer en recette ») — il faut alors demander sur quelle branche se fait la recette, et ne merger que si c'est une autre branche que celle du ticket. Ne pas utiliser pour une simple consultation ou recherche Jira (voir jira-cst), ni pour une montée de version d'Element (voir element-upgrade).
 ---
 
 # Suivi du ticket pendant une tâche de dev
@@ -67,13 +67,29 @@ Quand l'implémentation est finie **et vérifiée** (tests ciblés, `tsc --noEmi
 3. **S'arrêter.** Annoncer que la main revient à l'utilisateur pour la revue. Ne jamais enchaîner
    sur `En recette` de sa propre initiative, même si tout est vert.
 
-## 4. Validation de l'utilisateur → merge, puis `En recette`
+## 4. Validation de l'utilisateur → branche de recette, puis `En recette`
 
-Déclenché par un accord explicite (« c'est bon », « validé », « tu peux merger »). Deux actions,
-dans cet ordre : d'abord le merge s'il y a lieu (§5), ensuite la transition vers `En recette`. Un
-merge en échec ou en conflit interrompt la séquence : rendre la main **sans** transitionner.
+Déclenché par un accord explicite (« c'est bon », « validé », « ça peut passer en recette »).
+
+**Commencer par demander sur quelle branche se fait la recette.** Ne jamais la déduire, et ne
+jamais merger par défaut : une validation n'est pas une demande de merge. Proposer les choix à
+l'utilisateur, la branche courante du ticket en premier :
+
+- **Sur la branche du ticket** (`kosmos/SCAT-<n>-<slug>`, ou celle de son épic). C'est le cas
+  habituel, chaque branche étant recettée seule, l'une après l'autre. Aucun merge : rester sur
+  la branche et faire seulement avancer le ticket vers `En recette`.
+- **Sur une autre branche** (branche d'épic, `kosmos/release/vX.Y.Z`…). Merger la branche du
+  ticket dans cette branche cible selon la règle du §5, puis faire la transition vers
+  `En recette`. Un merge en échec ou en conflit interrompt la séquence : rendre la main **sans**
+  faire la transition.
+
+Si plusieurs tickets passent en recette en même temps, poser la question pour chacun : leurs
+branches de recette peuvent différer.
 
 ## 5. Règle de merge
+
+Ne s'applique que lorsque l'utilisateur a désigné, au §4, une branche de recette différente de la
+branche du ticket, ou qu'il demande explicitement un merge.
 
 Ce dépôt est un fork dont la branche de livraison est **un tag upstream + une série de commits
 Kosmos strictement linéaires** — aucun commit de fusion Kosmos dans l'historique.
@@ -86,17 +102,19 @@ git switch <branche-cible>  && git merge --ff-only <branche-source>
 
 Jamais de `git merge` qui créerait un commit de fusion.
 
-Quel merge jouer, d'après le champ épic du ticket (`jira_get_issue`) et les branches existantes :
+La cible est celle que l'utilisateur a choisie. Le tableau ci-dessous ne sert qu'à **proposer**
+des cibles plausibles au §4, d'après le champ épic du ticket (`jira_get_issue`) et les branches
+existantes. Il ne déclenche jamais de merge à lui seul :
 
-| Situation | Merge |
+| Situation | Cible à proposer |
 | --- | --- |
 | Le ticket a sa propre branche `kosmos/SCAT-<n>-<slug>` **et** son épic a une branche `kosmos/SCAT-<epic>-<slug>` | branche du ticket → branche de l'épic |
 | C'est **l'épic** qui passe en recette, son travail étant commité sur sa branche (cas `kosmos/SCAT-53-refonte-page-accueil`, qui porte les commits SCAT-54…SCAT-59) | branche de l'épic → `kosmos/release/vX.Y.Z` courante |
 | Ticket hors épic, avec branche dédiée | branche du ticket → branche de release courante |
 | Travail déjà commité sur la branche de release | rien à merger |
 
-Une story d'épic dont le travail vit directement sur la branche d'épic ne déclenche **aucun**
-merge : elle partira avec l'épic.
+Une story d'épic dont le travail vit directement sur la branche d'épic n'a **aucune** cible de
+merge propre : elle partira avec l'épic.
 
 **Ne pas pousser.** Après le merge, montrer l'état (`git log --oneline -5`, position de la branche
 cible par rapport à son `origin/`) et demander s'il faut pousser. Ne pousser qu'après un oui.
